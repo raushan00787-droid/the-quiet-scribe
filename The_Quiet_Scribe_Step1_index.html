@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>The Quiet Scribe</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background: #0d0d12;
+    color: #e8e3d8;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 720px;
+}
+
+.screen {
+    display: none;
+    animation: fade 0.5s ease;
+}
+
+.screen.active {
+    display: block;
+}
+
+h1 {
+    font-size: 40px;
+    font-weight: normal;
+    letter-spacing: 2px;
+}
+
+h2 {
+    font-weight: normal;
+}
+
+.subtitle {
+    color: #9d98a0;
+    line-height: 1.6;
+}
+
+
+/* BUTTONS */
+
+button {
+    width: 100%;
+    max-width: 460px;
+
+    padding: 15px 18px;
+    margin: 8px auto;
+
+    display: block;
+
+    background: #17171f;
+    color: #e8e3d8;
+
+    border: 1px solid #34343e;
+    border-radius: 10px;
+
+    font-family: Georgia, serif;
+    font-size: 16px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #22222c;
+    transform: translateY(-2px);
+}
+
+.back {
+    background: transparent;
+    border: none;
+    color: #77717c;
+}
+
+
+/* CHAT */
+
+.chat-box {
+    height: 420px;
+
+    overflow-y: auto;
+
+    background: #111118;
+
+    border: 1px solid #292932;
+    border-radius: 14px;
+
+    padding: 18px;
+
+    margin-bottom: 12px;
+}
+
+
+/* MESSAGES */
+
+.message {
+    max-width: 85%;
+
+    padding: 13px 16px;
+
+    margin: 10px 0;
+
+    border-radius: 12px;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+}
+
+.user {
+    margin-left: auto;
+
+    background: #24242e;
+
+    text-align: left;
+}
+
+.scribe {
+    margin-right: auto;
+
+    background: #17171f;
+
+    border: 1px solid #292932;
+}
+
+
+/* INPUT */
+
+.chat-input-area {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input {
+    flex: 1;
+
+    padding: 14px;
+
+    background: #14141b;
+    color: #e8e3d8;
+
+    border: 1px solid #34343e;
+    border-radius: 10px;
+
+    font-family: Georgia, serif;
+    font-size: 16px;
+
+    outline: none;
+}
+
+.send-button {
+    width: auto;
+    margin: 0;
+
+    padding: 14px 20px;
+}
+
+
+/* WRITER */
+
+textarea {
+    width: 100%;
+    min-height: 300px;
+
+    background: #14141b;
+    color: #e8e3d8;
+
+    border: 1px solid #34343e;
+    border-radius: 12px;
+
+    padding: 20px;
+
+    font-family: Georgia, serif;
+    font-size: 17px;
+
+    line-height: 1.7;
+
+    resize: vertical;
+
+    outline: none;
+}
+
+input {
+    width: 100%;
+
+    padding: 14px;
+
+    background: #14141b;
+    color: #e8e3d8;
+
+    border: 1px solid #34343e;
+    border-radius: 10px;
+
+    font-family: Georgia, serif;
+    font-size: 16px;
+
+    outline: none;
+}
+
+
+/* ENTRIES */
+
+.entry {
+    background: #14141b;
+
+    border: 1px solid #292932;
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    margin: 12px 0;
+
+    text-align: left;
+}
+
+.entry-title {
+    font-size: 19px;
+    margin-bottom: 8px;
+}
+
+.entry-date {
+    color: #77717c;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.entry-text {
+    color: #c4bec5;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+}
+
+.delete {
+    width: auto;
+
+    margin: 12px 0 0 auto;
+
+    padding: 8px 12px;
+
+    font-size: 13px;
+}
+
+
+/* THINK */
+
+.quote {
+    max-width: 580px;
+
+    margin: 25px auto;
+
+    color: #aaa4ad;
+
+    font-style: italic;
+
+    line-height: 1.8;
+}
+
+
+/* ANIMATION */
+
+@keyframes fade {
+
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- ============================= -->
+<!-- WELCOME -->
+<!-- ============================= -->
+
+<section id="welcome" class="screen active">
+
+    <h1>The Quiet Scribe</h1>
+
+    <p class="subtitle">
+        A quiet place for thoughts that have nowhere else to go.
+    </p>
+
+    <button onclick="showScreen('purpose')">
+        Continue
+    </button>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- PURPOSE -->
+<!-- ============================= -->
+
+<section id="purpose" class="screen">
+
+    <h1>What brings you here?</h1>
+
+    <p class="subtitle">
+        You don't have to know exactly why.
+    </p>
+
+    <button onclick="showScreen('writer')">
+        🖋️ I want to write
+    </button>
+
+    <button onclick="showScreen('think')">
+        🌙 I want to think
+    </button>
+
+    <button onclick="showScreen('read')">
+        📖 I want to read
+    </button>
+
+    <button onclick="openChat()">
+        🕯️ I want to talk
+    </button>
+
+    <button onclick="openChat()">
+        I don't know. I just came here.
+    </button>
+
+    <button class="back" onclick="showScreen('welcome')">
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- CHAT -->
+<!-- ============================= -->
+
+<section id="chat" class="screen">
+
+    <h1>Quiet Conversation</h1>
+
+    <p class="subtitle">
+        You may speak freely here.
+    </p>
+
+
+    <div id="chatBox" class="chat-box">
+
+        <div class="message scribe">
+
+            Welcome.
+
+            You don't need to explain why you're here.
+
+            Just say what is on your mind.
+
+        </div>
+
+    </div>
+
+
+    <div class="chat-input-area">
+
+        <input
+            id="chatInput"
+            class="chat-input"
+            type="text"
+            placeholder="Write something..."
+            onkeydown="handleEnter(event)"
+        >
+
+        <button
+            class="send-button"
+            onclick="sendMessage()"
+        >
+            Send
+        </button>
+
+    </div>
+
+
+    <button onclick="clearChat()">
+        Clear conversation
+    </button>
+
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- WRITER -->
+<!-- ============================= -->
+
+<section id="writer" class="screen">
+
+    <h1>Writer's Room</h1>
+
+    <p class="subtitle">
+        No audience. No judgment. Just words.
+    </p>
+
+
+    <input
+        id="entryTitle"
+        type="text"
+        placeholder="Give this thought a name..."
+    >
+
+    <br><br>
+
+
+    <textarea
+        id="journal"
+        placeholder="Begin wherever you want..."
+    ></textarea>
+
+
+    <button onclick="saveEntry()">
+        🕯️ Save this writing
+    </button>
+
+
+    <button onclick="showEntries()">
+        📚 My writings
+    </button>
+
+
+    <p
+        id="saveMessage"
+        class="subtitle"
+    ></p>
+
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- ENTRIES -->
+<!-- ============================= -->
+
+<section id="entries" class="screen">
+
+    <h1>My Writings</h1>
+
+    <p class="subtitle">
+        Things you chose not to let disappear.
+    </p>
+
+
+    <div id="entriesList"></div>
+
+
+    <button onclick="showScreen('writer')">
+        🖋️ Write something
+    </button>
+
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- THINK -->
+<!-- ============================= -->
+
+<section id="think" class="screen">
+
+    <h1>Thinker's Room</h1>
+
+
+    <p class="quote">
+        “Some thoughts need answers.
+        Others simply need somewhere to exist.”
+    </p>
+
+
+    <button onclick="newThought()">
+        🌙 Give me something to think about
+    </button>
+
+
+    <p
+        id="thought"
+        class="subtitle"
+    ></p>
+
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+
+<!-- ============================= -->
+<!-- READ -->
+<!-- ============================= -->
+
+<section id="read" class="screen">
+
+    <h1>Reader's Room</h1>
+
+
+    <p class="subtitle">
+        A small room for words.
+    </p>
+
+
+    <p class="quote">
+        “There are books that entertain us,
+        and books that quietly change the way
+        we look at ourselves.”
+    </p>
+
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')"
+    >
+        ← Back
+    </button>
+
+</section>
+
+
+</div>
+
+
+
+<script>
+
+
+/* ============================= */
+/* SCREEN SYSTEM */
+/* ============================= */
+
+function showScreen(id) {
+
+    const screens =
+        document.querySelectorAll(".screen");
+
+    screens.forEach(function(screen) {
+
+        screen.classList.remove("active");
+
+    });
+
+    document
+        .getElementById(id)
+        .classList.add("active");
+}
+
+
+
+/* ============================= */
+/* CHAT OPEN */
+/* ============================= */
+
+function openChat() {
+
+    showScreen("chat");
+
+}
+
+
+
+/* ============================= */
+/* CHAT SYSTEM */
+/* ============================= */
+
+
+/* ============================= */
+/* STEP 1 — NAME MEMORY */
+/* ============================= */
+
+let scribeName = localStorage.getItem("scribeName") || "";
+
+function rememberName(text) {
+    const patterns = [
+        /(?:my name is|call me)\s+([a-zA-Z][a-zA-Z'-]*)/i,
+        /^(?:i am|i'm)\s+([a-zA-Z][a-zA-Z'-]*)\s*$/i
+    ];
+
+    for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match) {
+            scribeName = match[1];
+            localStorage.setItem("scribeName", scribeName);
+            return;
+        }
+    }
+}
+
+function sendMessage() {
+
+    const input =
+        document.getElementById("chatInput");
+
+    const text =
+        input.value.trim();
+
+
+    if (text === "") {
+        return;
+    }
+
+
+    addMessage(text, "user");
+
+
+    input.value = "";
+
+
+    rememberName(text);
+
+
+    setTimeout(function() {
+
+        const response =
+            generateResponse(text);
+
+        addMessage(response, "scribe");
+
+    }, 500);
+
+}
+
+
+
+/* ============================= */
+/* ADD MESSAGE */
+/* ============================= */
+
+function addMessage(text, type) {
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "message " + type;
+
+
+    message.textContent = text;
+
+
+    chatBox.appendChild(message);
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+
+/* ============================= */
+/* ENTER KEY */
+/* ============================= */
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+
+        sendMessage();
+
+    }
+
+}
+
+
+
+/* ============================= */
+/* LOCAL SCRIBE BRAIN */
+/* ============================= */
+
+function generateResponse(text) {
+
+    const lower =
+        text.toLowerCase();
+
+
+    if (
+        lower.includes("hello") ||
+        lower.includes("hi") ||
+        lower.includes("hey")
+    ) {
+
+        return "Hello. Take your time. What would you like to talk about?";
+
+    }
+
+
+    if (
+        lower.includes("sad") ||
+        lower.includes("upset") ||
+        lower.includes("bad day")
+    ) {
+
+        return "Perhaps you don't need to solve the feeling immediately. Tell me what happened.";
+
+    }
+
+
+    if (
+        lower.includes("alone") ||
+        lower.includes("lonely")
+    ) {
+
+        return "There is a difference between being alone and feeling unseen. Which one feels closer to what you mean?";
+
+    }
+
+
+    if (
+        lower.includes("future") ||
+        lower.includes("life")
+    ) {
+
+        return "The future has a strange habit of demanding answers before we have lived the questions. What worries you about it?";
+
+    }
+
+
+    if (
+        lower.includes("write") ||
+        lower.includes("writing")
+    ) {
+
+        return "Then write. Don't worry about making it beautiful yet. First make it honest.";
+
+    }
+
+
+    if (
+        lower.includes("book") ||
+        lower.includes("read")
+    ) {
+
+        return "Books can be strange companions. They speak without asking anything in return. What are you reading?";
+
+    }
+
+
+    const responses = [
+
+        "Tell me more.",
+
+        "What makes you say that?",
+
+        "I wonder what lies underneath that thought.",
+
+        "You don't have to make it sound beautiful. Say it as it is.",
+
+        "And what do you think about that yourself?",
+
+        "Perhaps there is another side to this. What does it look like from there?",
+
+        "Interesting. Keep going.",
+
+        "If you had to put that feeling into words, what would you call it?"
+
+    ];
+
+
+    return responses[
+        Math.floor(
+            Math.random() * responses.length
+        )
+    ];
+
+}
+
+
+
+/* ============================= */
+/* CLEAR CHAT */
+/* ============================= */
+
+function clearChat() {
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+
+    chatBox.innerHTML = `
+
+        <div class="message scribe">
+
+            Conversation cleared.
+
+            We can begin again.
+
+        </div>
+
+    `;
+
+}
+
+
+
+/* ============================= */
+/* WRITER */
+/* ============================= */
+
+function saveEntry() {
+
+    const title =
+        document
+            .getElementById("entryTitle")
+            .value
+            .trim();
+
+
+    const text =
+        document
+            .getElementById("journal")
+            .value
+            .trim();
+
+
+    if (text === "") {
+
+        document
+            .getElementById("saveMessage")
+            .textContent =
+            "Write something first.";
+
+        return;
+
+    }
+
+
+    const entries =
+        JSON.parse(
+            localStorage.getItem(
+                "quietScribeEntries"
+            )
+        ) || [];
+
+
+    const entry = {
+
+        id: Date.now(),
+
+        title:
+            title === ""
+            ? "Untitled thought"
+            : title,
+
+        text: text,
+
+        date:
+            new Date().toLocaleString()
+
+    };
+
+
+    entries.unshift(entry);
+
+
+    localStorage.setItem(
+
+        "quietScribeEntries",
+
+        JSON.stringify(entries)
+
+    );
+
+
+    document
+        .getElementById("saveMessage")
+        .textContent =
+        "Saved quietly. 🕯️";
+
+
+    document
+        .getElementById("entryTitle")
+        .value = "";
+
+
+    document
+        .getElementById("journal")
+        .value = "";
+
+}
+
+
+
+/* ============================= */
+/* SHOW ENTRIES */
+/* ============================= */
+
+function showEntries() {
+
+    showScreen("entries");
+
+
+    const container =
+        document.getElementById("entriesList");
+
+
+    const entries =
+        JSON.parse(
+            localStorage.getItem(
+                "quietScribeEntries"
+            )
+        ) || [];
+
+
+    container.innerHTML = "";
+
+
+    if (entries.length === 0) {
+
+        container.innerHTML =
+            "<p class='subtitle'>Nothing has been written yet.</p>";
+
+        return;
+
+    }
+
+
+    entries.forEach(function(entry) {
+
+        const div =
+            document.createElement("div");
+
+
+        div.className =
+            "entry";
+
+
+        div.innerHTML = `
+
+            <div class="entry-title">
+
+                ${escapeHTML(entry.title)}
+
+            </div>
+
+
+            <div class="entry-date">
+
+                ${escapeHTML(entry.date)}
+
+            </div>
+
+
+            <div class="entry-text">
+
+                ${escapeHTML(entry.text)}
+
+            </div>
+
+
+            <button
+                class="delete"
+                onclick="deleteEntry(${entry.id})">
+
+                Delete
+
+            </button>
+
+        `;
+
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+
+/* ============================= */
+/* DELETE */
+/* ============================= */
+
+function deleteEntry(id) {
+
+    let entries =
+        JSON.parse(
+            localStorage.getItem(
+                "quietScribeEntries"
+            )
+        ) || [];
+
+
+    entries =
+        entries.filter(function(entry) {
+
+            return entry.id !== id;
+
+        });
+
+
+    localStorage.setItem(
+
+        "quietScribeEntries",
+
+        JSON.stringify(entries)
+
+    );
+
+
+    showEntries();
+
+}
+
+
+
+/* ============================= */
+/* SECURITY HELPER */
+/* ============================= */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement("div");
+
+
+    div.textContent = text;
+
+
+    return div.innerHTML;
+
+}
+
+
+
+/* ============================= */
+/* THINKER */
+/* ============================= */
+
+const thoughts = [
+
+    "What is something you understand now that you didn't understand a year ago?",
+
+    "If nobody could judge you, what would you write about?",
+
+    "What kind of person are you becoming?",
+
+    "Which memory would you keep if you could keep only one?",
+
+    "What does solitude mean to you?",
+
+    "What are you afraid of losing?",
+
+    "If your life were a story, what chapter are you in?",
+
+    "What is something you wish people understood about you?",
+
+    "When do you feel most like yourself?"
+
+];
+
+
+function newThought() {
+
+    const random =
+        thoughts[
+            Math.floor(
+                Math.random() * thoughts.length
+            )
+        ];
+
+
+    document
+        .getElementById("thought")
+        .textContent = random;
+
+}
+
+</script>
+
+</body>
+</html></pre>
+        </body>
+    </html>

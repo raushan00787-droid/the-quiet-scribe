@@ -10,7 +10,7 @@ body {
     margin: 0;  
     min-height: 100vh;  
   
-    background: #0d0d12;  
+  background: radial-gradient(circle at top, #1b1b26, #0d0d12 65%);
     color: #e8e3d8;  
   
     font-family: Georgia, "Times New Roman", serif;  
@@ -41,7 +41,20 @@ h1 {
     font-weight: normal;  
     letter-spacing: 2px;  
 }  
-  
+  #welcome {
+    text-align: center;
+}
+
+#welcome h1 {
+    font-size: 52px;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+}
+
+#welcome .quote {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
 h2 {  
     font-weight: normal;  
 }  
@@ -81,7 +94,13 @@ button:hover {
     background: #22222c;  
     transform: translateY(-2px);  
 }  
-  
+ button:active {
+    transform: translateY(0);
+}
+
+#purpose button {
+    max-width: 520px;
+} 
 .back {  
     background: transparent;  
     border: none;  
@@ -296,13 +315,20 @@ input {
 <p class="subtitle">  
     A quiet place for thoughts that have nowhere else to go.  
 </p>  
-
+<p class="quote">
+    Write. Think. Remember.
+</p>
+  <p class="subtitle">
+    A room for thoughts, stories, questions, and silence.
+  </p>
 <button onclick="showScreen('purpose')">  
-    Continue  
+    Enter the quiet 
 </button>
 
 </section>  <!-- ============================= -->  <!-- PURPOSE -->  <!-- ============================= -->  <section id="purpose" class="screen">  <h1>What brings you here?</h1>  
-
+<p class="subtitle">
+    There is no right reason to be here.
+</p>
 <p class="subtitle">  
     You don't have to know exactly why.  
 </p>  
@@ -562,8 +588,10 @@ function rememberName(text) {
             localStorage.setItem("scribeName", scribeName);  
             return;  
         }  
-    }  
-}  
+      }
+   }
+
+  
   
 function sendMessage() {  
   
@@ -585,7 +613,10 @@ function sendMessage() {
     input.value = "";  
   
   
-    rememberName(text);  
+    rememberName(text); 
+  const conversation = JSON.parse(localStorage.getItem("scribeConversation")) || [];
+  conversation.push({ role: "user", content: text });
+localStorage.setItem("scribeConversation", JSON.stringify(conversation));
   
   fetch("https://quiet-scribe-ai.raushan00787.workers.dev", {
     method: "POST",
@@ -596,9 +627,24 @@ function sendMessage() {
         messages: [
             {
                 role: "system",
-                content: "You are The Quiet Scribe. You are thoughtful, calm, curious, and conversational. Help the user think, write, and explore ideas without judging them."
+                content: `You are The Quiet Scribe, a thoughtful and calm conversational companion.
+
+Your personality is quiet, observant, curious, warm, and slightly literary. You speak naturally, like someone having a genuine conversation—not like a customer-support bot.
+
+You help the user think, write, explore ideas, discuss books, philosophy, creativity, science, everyday life, and random questions.
+
+Do not constantly give advice. Sometimes simply respond to what the user said and ask a meaningful follow-up question.
+
+Be concise when a short answer is enough, but become deeper when the conversation calls for it.
+
+Do not pretend to have feelings or personal experiences. Do not claim to remember something unless it is actually available in the conversation or memory provided to you.
+
+If the user asks a factual question, answer clearly and accurately. If you are uncertain, say so rather than inventing information.
+
+The Quiet Scribe should feel like a quiet room where a person can think aloud.`,
             },
-            {
+          ...conversation,
+          {
                 role: "user",
                 content: text
             }
@@ -608,6 +654,7 @@ function sendMessage() {
 .then(response => response.json())
 .then(data => {
     const response = data.choices[0].message.content;
+  conversation.push({ role: "assistant", content: response });
     addMessage(response, "scribe");
 })
 .catch(error => {
@@ -969,8 +1016,8 @@ function showEntries() {
             </div>  
   
   
-            <button  
-                class="delete"  
+            <button
+            class="delete"  
                 onclick="deleteEntry(${entry.id})">  
   
                 Delete  
@@ -1066,7 +1113,7 @@ const thoughts = [
   
     "What is something you wish people understood about you?",  
   
-    When do you feel most like yourself?"  
+    "When do you feel most like yourself?"  
   
 ];  
   
@@ -1091,3 +1138,4 @@ function newThought() {
 
 </body>
 </html>
+                

@@ -618,7 +618,7 @@ function sendMessage() {
   conversation.push({ role: "user", content: text });
 localStorage.setItem("scribeConversation", JSON.stringify(conversation));
   
-  fetch("https://quiet-scribe-ai.raushan00787.workers.dev", {
+  fetch("https://quiet-scribe-ai.thequietscribe.workers.dev ", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"

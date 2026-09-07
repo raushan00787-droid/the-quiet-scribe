@@ -383,7 +383,85 @@ button:active {
         width: auto;
     }
 }
+/* ============================= */
+/* CREATOR PAGE */
+/* ============================= */
 
+.creator-links {
+    position: relative;
+    max-width: 420px;
+    margin: 35px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.creator-links a {
+    display: block;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    text-align: center;
+    transition: 0.25s ease;
+}
+
+.creator-links a:hover {
+    transform: translateY(-3px);
+}
+
+
+/* Little Scribe doodles */
+
+#creator::before {
+    content: "✦   ☁   ✎";
+    display: block;
+    text-align: center;
+    font-size: 24px;
+    opacity: 0.55;
+    margin-bottom: 12px;
+}
+
+#creator::after {
+    content: "⋆｡°✩   🕯️   ✩°｡⋆";
+    display: block;
+    text-align: center;
+    font-size: 18px;
+    opacity: 0.45;
+    margin-top: 28px;
+}
+
+  .creator-links a {
+    position: relative;
+    overflow: hidden;
+    font-size: 17px;
+    letter-spacing: 0.3px;
+}
+
+.creator-links a small {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+.creator-links a::after {
+    content: "✦";
+    position: absolute;
+    right: 16px;
+    top: 12px;
+    font-size: 14px;
+    opacity: 0.35;
+}
+
+.creator-links a:hover::after {
+    transform: rotate(20deg);
+}
+
+.creator-links a:hover {
+    transform: translateY(-3px) rotate(-0.5deg);
+}
 </style>
 </head>
 
@@ -414,7 +492,9 @@ button:active {
     <button onclick="showScreen('purpose')">
         Enter the quiet
     </button>
-
+<button onclick="showScreen('creator')">
+    🕯️ Connect with the Creator
+</button>
 </section>
 
 
@@ -645,7 +725,50 @@ button:active {
 
 </section>
 
+<section id="creator" class="screen">
 
+    <h1>Connect with the Creator</h1>
+
+    <p class="subtitle">
+        The person behind The Quiet Scribe.
+    </p>
+
+<div class="creator-links">
+
+    <a
+        href=https://www.instagram.com/_thequietscribe_/
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        📖 The Quiet Scribe
+        <small>@thequietscribe</small>
+    </a>
+
+    <a
+        href="https://www.instagram.com/justtt_raushhannn/"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        🖋️ Creator's Instagram
+        <small>@justtt_raushhannn</small>
+    </a>
+
+    <a
+        href="https://github.com/raushan00787-droid"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        💻 GitHub
+        <small>@raushan00787-droid</small>
+    </a>
+
+</div>
+
+    <button class="back" onclick="showScreen('purpose')">
+        ← Back
+    </button>
+
+</section>
 <!-- ============================= -->
 <!-- READING -->
 <!-- ============================= -->
@@ -777,6 +900,7 @@ function openReading(id) {
             <p>
                 The story will be available here soon.
             </p>
+            
 
             <p>
                 — The Quiet Scribe
@@ -821,7 +945,6 @@ function saveWriting() {
 
     const text =
         input.value.trim();
-
     const title =
         titleInput.value.trim();
 
@@ -1034,6 +1157,39 @@ function togglePhilosopherMode() {
 
     const button =
         document.querySelector(
+                    'button[onclick="toggleDNDMode()"]'
+        );
+
+    if (
+        document.body.classList.contains("dnd-mode")
+    ) {
+
+        button.textContent =
+            "🌙 DND Mode: ON";
+
+    } else {
+
+        button.textContent =
+            "🌙 DND Mode: OFF";
+
+    }
+}
+
+
+/* ============================= */
+/* PHILOSOPHER MODE */
+/* ============================= */
+
+let philosopherMode = false;
+
+
+function togglePhilosopherMode() {
+
+    philosopherMode =
+        !philosopherMode;
+
+    const button =
+        document.querySelector(
             'button[onclick="togglePhilosopherMode()"]'
         );
 
@@ -1188,15 +1344,14 @@ function sendMessage() {
         ) || [];
 
     conversation.push({
-     role: "user",
-        content: text
+        role: "user",
+        content:text
     });
 
     localStorage.setItem(
         "scribeConversation",
         JSON.stringify(conversation)
     );
-
 
     const philosopherInstruction =
         philosopherMode
@@ -1260,7 +1415,9 @@ End when the analysis is complete.`
                     {
                         role: "system",
 
-                        content: `You are The Quiet Scribe, a thoughtful and calm conversational companion.
+                      
+                      
+                      content: `You are The Quiet Scribe, a thoughtful and calm conversational companion.
 
 Your personality is quiet, observant, curious, warm, and slightly literary. You speak naturally, like someone having a genuine conversation—not like a customer-support bot.
 
@@ -1269,7 +1426,7 @@ You help the user think, write, explore ideas, discuss books, philosophy, creati
 Do not constantly give advice. Sometimes simply respond to what the user said without asking a question. Ask a follow-up only when it genuinely adds value.
 
 Be concise when a short answer is enough, but become deeper when the conversation calls for it.
-
+Think before responding. Explore the user's meaning, assumptions, and perspective when useful. Do not rush to give solutions. Prefer thoughtful, nuanced responses over quick generic answers.
 Do not pretend to have feelings or personal experiences. Do not claim to remember something unless it is actually available in the conversation or memory provided to you.
 
 If the user asks a factual question, answer clearly and accurately. If you are uncertain, say so rather than inventing information.
@@ -1282,19 +1439,17 @@ Pay attention to the emotional tone and context of the user's message and adapt 
 Natural conversation:
 Speak naturally and vary your response length. Do not make every reply philosophical, poetic, perfectly structured, or overly polished. Sometimes a casual sentence, a small observation, or a brief acknowledgment is enough. Let the conversation breathe instead of trying to make every response meaningful.
 
-${philosopherInstruction}`
+${philosopherInstruction}` 
 
                     },
 
                     ...conversation
 
-                ]
+                  ]
 
             })
-
         }
     )
-
     .then(function(response) {
 
         if (!response.ok) {
@@ -1329,12 +1484,9 @@ ${philosopherInstruction}`
             data.choices[0].message.content;
 
         conversation.push({
-
-            role: "assistant",
-
-            content: response
-
-        });
+    role: "user",
+    content: text
+});
 
         localStorage.setItem(
 
@@ -1350,7 +1502,6 @@ ${philosopherInstruction}`
         );
 
     })
-
     .catch(function(error) {
 
         document
@@ -1358,20 +1509,22 @@ ${philosopherInstruction}`
             ?.remove();
 
         addMessage(
-            "The Scribe is quiet right now. Please try again.",
+            "Error: " + error.message,
             "scribe"
         );
 
-        console.error(error);
+        console.error(
+            "QUIET SCRIBE ERROR:",
+            error
+        );
 
     });
 }
-
-
 /* ============================= */
 /* CLEAR CHAT */
 /* ============================= */
-  function clearChat() {
+
+function clearChat() {
 
     localStorage.removeItem(
         "scribeConversation"
@@ -1438,7 +1591,6 @@ function loadChat() {
 /* STARTUP */
 /* ============================= */
 
-loadWritings();
 loadSavedWritings();
   async function leaveThought() {
 
@@ -1457,8 +1609,9 @@ loadSavedWritings();
     if (thought === "") {
         alert("Write a thought first.");
         return;
-                }
-      try {
+    }
+
+    try {
 
         const response = await fetch(
             "https://quiet-scribe-ai.thequietscribe.workers.dev/thought",
@@ -1506,3 +1659,4 @@ if ("Notification" in window) {
 
 </body>
 </html>
+

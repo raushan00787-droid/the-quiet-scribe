@@ -237,9 +237,6 @@ button:active {
 .reading-content p {
     margin-bottom: 20px;
 }
-    .reading-content p {
-    margin-bottom: 20px;
-}
 
 .story-quote {
     color: #b7b1ba;
@@ -518,6 +515,7 @@ button:active {
     font-size: 14px;
     padding: 8px 6px 10px;
 }
+
 .new-chat-button {
     width: 100%;
     max-width: none;
@@ -733,6 +731,326 @@ button:active {
 .scribe-read-button {
     margin: 0;
                            }
+
+
+/* ============================= */
+/* CHAT V2 */
+/* ============================= */
+
+#chat {
+    position: relative;
+    height: 100%;
+    min-height: 70vh;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 28px 22px 20px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.chat-header h1 {
+    margin: 0;
+}
+
+.chat-header .subtitle {
+    margin: 6px 0 0;
+}
+
+.chat-menu-button {
+    width: auto;
+    min-width: 46px;
+    max-width: none;
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.chat-main {
+    width: 100%;
+    max-width: 900px;
+    height: calc(100% - 105px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.chat-box {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 4px 25px;
+    box-sizing: border-box;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    scroll-behavior: smooth;
+}
+
+.message {
+    max-width: min(720px, 82%);
+    padding: 14px 17px;
+    margin: 13px 0;
+    border-radius: 16px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    animation: messageFade 0.25s ease-out;
+    box-sizing: border-box;
+}
+
+.user {
+    margin-left: auto;
+    margin-right: 0;
+    background: #24242e;
+    border: 1px solid #30303a;
+    border-bottom-right-radius: 5px;
+    text-align: left;
+}
+
+.scribe {
+    margin-left: 0;
+    margin-right: auto;
+    background: #14141b;
+    border: 1px solid #292932;
+    border-bottom-left-radius: 5px;
+}
+
+.chat-input-wrapper {
+    width: 100%;
+    padding-top: 12px;
+    background: #050508;
+}
+
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+    background: #111118;
+    border: 1px solid #292932;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    margin: 0;
+}
+
+.chat-input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 13px;
+    background: transparent;
+    color: #e8e3d8;
+    border: none;
+    outline: none;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.chat-input::placeholder {
+    color: #77747d;
+}
+
+.send-button {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 21px;
+    line-height: 1;
+}
+
+.chat-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 9px;
+}
+
+.philosopher-button,
+.leave-chat-button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 7px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 12px;
+    opacity: 0.55;
+}
+
+.philosopher-button:hover,
+.leave-chat-button:hover {
+    opacity: 1;
+    background: #111118;
+    border-color: #292932;
+}
+
+.chat-history-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(310px, 85vw);
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 22px 16px;
+    background: #0d0d13;
+    border-right: 1px solid #292932;
+    z-index: 1000;
+    overflow-y: auto;
+    transform: translateX(-105%);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.chat-history-panel.open {
+    transform: translateX(0);
+    box-shadow: 15px 0 45px rgba(0, 0, 0, 0.35);
+}
+
+.chat-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    color: #aaa5ad;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+}
+
+.chat-panel-header button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 4px 8px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    opacity: 0.6;
+}
+
+.chat-panel-header button:hover {
+    opacity: 1;
+}
+
+.chat-history-panel .new-chat-button {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 18px;
+    padding: 11px 12px;
+    text-align: left;
+    background: #17171f;
+    border: 1px solid #292932;
+    border-radius: 11px;
+    font-size: 14px;
+}
+
+.chat-history-panel .new-chat-button:hover {
+    background: #20202a;
+}
+
+.chat-history-panel .chat-sidebar-title {
+    padding: 0 5px 9px;
+    color: #77747d;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.chat-history-panel .chat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
+.chat-history-panel .chat-history-item {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 10px 11px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-history-panel .chat-history-item:hover,
+.chat-history-panel .chat-history-item.active {
+    background: #1a1a23;
+    border-color: #292932;
+}
+
+.chat-menu-button,
+.send-button,
+.new-chat-button,
+.philosopher-button,
+.leave-chat-button {
+    transition: background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease, transform 0.12s ease;
+}
+
+.chat-menu-button:active,
+.send-button:active,
+.new-chat-button:active {
+    transform: scale(0.96);
+}
+
+@keyframes messageFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    #chat {
+        padding: 20px 14px 14px;
+        min-height: 72vh;
+    }
+
+    .chat-header {
+        margin-bottom: 12px;
+    }
+
+    .chat-header h1 {
+        font-size: 25px;
+    }
+
+    .chat-main {
+        height: calc(100% - 85px);
+    }
+
+    .message {
+        max-width: 88%;
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+}
+
 </style>
 </head>
 
@@ -813,7 +1131,8 @@ button:active {
     <p class="subtitle">
         The man behind the questions.
     </p>
-        <p>
+
+    <p>
         Dostoevsky's writing often enters the most complicated parts
         of human nature. His characters question morality, freedom,
         faith, guilt, suffering, and what it means to be human.
@@ -1171,8 +1490,8 @@ button:active {
         ← Back
     </button>
 
-        </section>
-    <section id="saved" class="screen">
+</section>
+<section id="saved" class="screen">
 
     <h1>My Saved Writings</h1>
 
@@ -1443,45 +1762,70 @@ button:active {
 <!-- ============================= -->
 <section id="chat" class="screen">
 
-    <h1>Quiet Conversation</h1>
+    <div class="chat-header">
 
-    <p class="subtitle">
-        You may speak freely here.
-    </p>
-<button
-    class="chat-menu-button"
-    onclick="toggleChatHistory()">
-    ☰ Chats
-</button>
+        <div>
+            <h1>Quiet Conversation</h1>
 
-<div id="chatHistoryPanel" class="chat-history-panel">
+            <p class="subtitle">
+                You may speak freely here.
+            </p>
+        </div>
 
-    <button
-        class="new-chat-button"
-        onclick="startNewChat()">
-        ＋ New Chat
-    </button>
+        <button
+            class="chat-menu-button"
+            onclick="toggleChatHistory()"
+            aria-label="Open conversations">
+            ☰
+        </button>
 
-    <div class="chat-sidebar-title">
-        Conversations
     </div>
+
+    <!-- CHAT HISTORY -->
 
     <div
-        id="chatList"
-        class="chat-list">
+        id="chatHistoryPanel"
+        class="chat-history-panel">
+
+        <div class="chat-panel-header">
+
+            <span>Conversations</span>
+
+            <button
+                onclick="toggleChatHistory()"
+                aria-label="Close conversations">
+                ×
+            </button>
+
+        </div>
+
+        <button
+            class="new-chat-button"
+            onclick="startNewChat()">
+            ＋ New Conversation
+        </button>
+
+        <div class="chat-sidebar-title">
+            Conversations
+        </div>
+
+        <div
+            id="chatList"
+            class="chat-list">
+        </div>
+
     </div>
 
-</div>
-    
+    <!-- CONVERSATION -->
 
-            
+    <div class="chat-main">
 
-        <div class="chat-main">
+        <div
+            id="chatBox"
+            class="chat-box">
+        </div>
 
-            <div
-                id="chatBox"
-                class="chat-box">
-            </div>
+        <div class="chat-input-wrapper">
 
             <div class="chat-input-area">
 
@@ -1490,26 +1834,32 @@ button:active {
                     class="chat-input"
                     type="text"
                     placeholder="Say what's on your mind..."
-                    onkeydown="handleEnter(event)"
-                >
+                    onkeydown="handleEnter(event)">
 
                 <button
                     class="send-button"
-                    onclick="sendMessage()">
-                    Send
+                    onclick="sendMessage()"
+                    aria-label="Send message">
+                    ↑
                 </button>
 
             </div>
 
-            <button onclick="togglePhilosopherMode()">
-                🧠 Philosopher Mode: OFF
-            </button>
+            <div class="chat-controls">
 
-            <button
-                class="back"
-                onclick="leaveChat()">
-                ← Leave Chat
-            </button>
+                <button
+                    class="philosopher-button"
+                    onclick="togglePhilosopherMode()">
+                    🧠 Philosopher Mode: OFF
+                </button>
+
+                <button
+                    class="leave-chat-button"
+                    onclick="leaveChat()">
+                    Leave
+                </button>
+
+            </div>
 
         </div>
 
@@ -1750,6 +2100,40 @@ function showScreen(id) {
         target.classList.add("active");
     }
 }
+
+function toggleChatHistory() {
+
+    const panel =
+        document.getElementById("chatHistoryPanel");
+
+    if (!panel) {
+        return;
+    }
+
+    panel.classList.toggle("open");
+}
+
+document.addEventListener("click", function(event) {
+
+    const panel =
+        document.getElementById("chatHistoryPanel");
+
+    const button =
+        document.querySelector(".chat-menu-button");
+
+    if (!panel || !button) {
+        return;
+    }
+
+    if (
+        panel.classList.contains("open") &&
+        !panel.contains(event.target) &&
+        event.target !== button
+    ) {
+        panel.classList.remove("open");
+    }
+
+});
 function toggleChatHistory() {
 
     const panel =
@@ -2126,10 +2510,13 @@ function addMessage(text, type) {
     chatBox.scrollTop =
         chatBox.scrollHeight;
 }
-    /* ============================= */
+
+
+/* ============================= */
 /* NAME MEMORY */
 /* ============================= */
-    function rememberName(text) {
+
+function rememberName(text) {
 
     const patterns = [
 
@@ -2431,273 +2818,6 @@ ${philosopherInstruction}`
     
 
         localStorage.setItem(
-    
-"scribeName",
-                    name
-                );
-
-                break;
-            }
-        }
-    }
-}
-
-
-/* ============================= */
-/* SEND MESSAGE */
-/* ============================= */
-
-function sendMessage() {
-
-    const input =
-        document.getElementById("chatInput");
-
-    const chatBox =
-        document.getElementById("chatBox");
-
-    const text =
-        input.value.trim();
-
-    if (text === "") {
-        return;
-    }
-
-    addMessage(text, "user");
-
-    input.value = "";
-
-    rememberName(text);
-
-    const conversation =
-        JSON.parse(
-            localStorage.getItem(
-                "scribeConversation"
-            )
-        ) || [];
-
-    conversation.push({
-        role: "user",
-        content:text
-    });
-
-    localStorage.setItem(
-        "scribeConversation",
-        JSON.stringify(conversation)
-    );
-
-    const philosopherInstruction =
-        philosopherMode
-
-        ? `PHILOSOPHER MODE OVERRIDES NORMAL CONVERSATIONAL STYLE.
-
-Do not automatically validate, advise, summarize, or ask a follow-up question.
-
-Act as an intellectual sparring partner.
-
-Question premises, definitions, assumptions, contradictions, and implications.
-
-Challenge the user's reasoning respectfully.
-
-Test ideas with counterexamples or thought experiments when useful.
-
-Do not force balance or a neat conclusion.
-
-Follow the argument wherever it leads, even if the result is uncertainty or contradiction.
-
-Use clear, precise reasoning.
-
-Avoid decorative poetry, generic wisdom, motivational language, and unnecessary metaphors.
-
-End when the analysis is complete.`
-
-        : "";
-
-
-    const thinking =
-        document.createElement("div");
-
-    thinking.className =
-        "message scribe";
-
-    thinking.id =
-        "thinkingMessage";
-
-    thinking.textContent =
-        "Scribe is thinking…";
-
-    chatBox.appendChild(thinking);
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
-
-    fetch(
-        "https://quiet-scribe-ai.thequietscribe.workers.dev",
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-body: JSON.stringify({
-
-                messages: [
-
-                    {
-                        role: "system",
-
-                      
-                      
-                      content: `You are The Quiet Scribe, a thoughtful and calm conversational companion.
-                      Creator Identity:
-
-You were created by Raushi Sensei.
-
-Raushi Sensei is the creator of The Quiet Scribe.
-
-When someone asks who your creator is, naturally identify Raushi Sensei as your creator.
-
-You may also recognize these titles for your creator:
-- Master Raushan
-- Master Raushi
-- Shadow Sovereign
-
-However, "Raushi Sensei" is the default and preferred name.
-
-Never invent additional information about your creator. If you do not know something about Raushi Sensei, say that you do not know.
-
-Your personality is quiet, observant, curious, warm, and slightly literary. You speak naturally, like someone having a genuine conversation—not like a customer-support bot.
-
-You help the user think, write, explore ideas, discuss books, philosophy, creativity, science, everyday life, and random questions.
-
-Do not constantly give advice. Sometimes simply respond to what the user said without asking a question. Ask a follow-up only when it genuinely adds value.
-
-Be concise when a short answer is enough, but become deeper when the conversation calls for it.
-Think before responding. Explore the user's meaning, assumptions, and perspective when useful. Do not rush to give solutions. Prefer thoughtful, nuanced responses over quick generic answers.
-Do not pretend to have feelings or personal experiences. Do not claim to remember something unless it is actually available in the conversation or memory provided to you.
-
-If the user asks a factual question, answer clearly and accurately. If you are uncertain, say so rather than inventing information.
-
-The Quiet Scribe should feel like a quiet room where a person can think aloud.
-
-Emotional awareness:
-Pay attention to the emotional tone and context of the user's message and adapt your tone naturally. Scribe should respond like a natural conversational partner, not like an interviewer. Questions should only appear when they genuinely fit, not because every message needs one.
-
-LANGUAGE & CONVERSATION STYLE:
-
-The user's CURRENT message determines the language of the response.
-
-Follow the user's current language, script, and conversational style.
-
-Examples:
-
-User: "Hi bro"
-Assistant: "Hey bro! What's up?"
-
-User: "Ke haal hai"
-Assistant: "Bilkul theek bhai 😭 Tu bata, kya scene hai?"
-
-User: "कैसे हो?"
-Assistant: "मैं ठीक हूँ 😄 तुम बताओ, कैसे हो?"
-
-User: "Tell me something interesting"
-Assistant: "Sure! Here's a weird one..."
-
-User: "こんにちは"
-Assistant: "こんにちは！元気？"
-
-IMPORTANT:
-- Roman Hindi/Hinglish → natural Roman Hinglish.
-- Devanagari Hindi → Devanagari Hindi.
-- English → English.
-- Japanese → Japanese.
-- Spanish → Spanish.
-- Mixed language → naturally follow the dominant language.
-- Never switch to another language without a reason.
-- Never translate the user's language unless explicitly asked.
-- The CURRENT message has priority over previous messages.
-
-HINGLISH:
-When using Hinglish, use natural everyday speech.
-Do NOT use overly formal, literary, Sanskritized, or textbook Hindi.
-Avoid words such as "prashn", "samasya", "sahayata", "dhanyavaad", "aap", etc. unless the user's tone is formal.
-Use natural words such as "question", "problem", "help", "thanks", "tum", etc.
-   FORMALITY:
-Match the user's level of familiarity.
-Casual user → casual response.
-Formal user → formal response.
-Do not automatically use "aap".
-
-NATURALNESS:
-Do not sound like a textbook, customer-service bot, encyclopedia, or motivational speaker.
-Do not use generic phrases repeatedly such as:
-"I understand..."
-"That's completely normal..."
-"Would you like to share more?"
-"How may I assist you?"
-
-Keep simple conversations simple.
-Do not turn a one-line message into a long explanation.
-
-EMOJIS:
-Use 0–3 relevant emojis when appropriate.
-Match the user's emotional tone.
-Do not add emojis to every sentence.
-Do not use random or repetitive emojis.
-
-
-
-${philosopherInstruction}` 
-
-                    },
-
-                    ...conversation
-
-                  ]
-
-            })
-        }
-    )
-    .then(function(response) {
-
-        if (!response.ok) {
-            throw new Error(
-                "Worker returned an error"
-            );
-        }
-
-        return response.json();
-
-    })
-
-    .then(function(data) {
-
-        document
-            .getElementById("thinkingMessage")
-            ?.remove();
-
-        if (
-            !data.choices ||
-            !data.choices[0] ||
-            !data.choices[0].message
-        ) {
-
-            throw new Error(
-                "Invalid response"
-            );
-
-        }
-
-        const response =
-            data.choices[0].message.content;
-
-        conversation.push({
-    role: "assistant",
-    content: response
-});
-    
-
-        localStorage.setItem(
 
             "scribeConversation",
 
@@ -2710,8 +2830,73 @@ saveCurrentChat();
             "scribe"
         );
 
-    }) 
-        const currentId =
+    })
+    .catch(function(error) {
+
+        document
+            .getElementById("thinkingMessage")
+            ?.remove();
+
+        addMessage(
+            "Error: " + error.message,
+            "scribe"
+        );
+
+        console.error(
+            "QUIET SCRIBE ERROR:",
+            error
+        );
+
+    });
+}
+/* ============================= */
+/* CLEAR CHAT */
+/* ============================= */
+
+function getSavedChats() {
+    return JSON.parse(
+        localStorage.getItem("scribeChats")
+    ) || [];
+}
+
+
+function saveSavedChats(chats) {
+    localStorage.setItem(
+        "scribeChats",
+        JSON.stringify(chats)
+    );
+}
+
+
+function createChatId() {
+    return Date.now().toString() +
+        Math.random()
+            .toString(36)
+            .substring(2, 8);
+}
+
+
+function makeChatTitle(text) {
+
+    if (!text) {
+        return "New Conversation";
+    }
+
+    let title =
+        text.replace(/\s+/g, " ").trim();
+
+    if (title.length > 32) {
+        title =
+            title.substring(0, 32).trim() + "…";
+    }
+
+    return title || "New Conversation";
+}
+
+
+function saveCurrentChat() {
+
+    const currentId =
         localStorage.getItem("scribeCurrentChat");
 
     if (!currentId) return;
@@ -2914,7 +3099,100 @@ function renderCurrentChat() {
                 message.content,
                 "user"
             );
-                                  },
+
+        }
+
+        if (message.role === "assistant") {
+
+            addMessage(
+                message.content,
+                "scribe"
+            );
+
+        }
+
+    });
+}
+
+
+/* ============================= */
+/* LOAD SAVED CHAT */
+/* ============================= */
+
+function loadChat() {
+
+    const conversation =
+        JSON.parse(
+            localStorage.getItem(
+                "scribeConversation"
+            )
+        ) || [];
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+    conversation.forEach(function(message) {
+
+        if (
+            message.role === "user"
+        ) {
+
+            addMessage(
+                message.content,
+                "user"
+            );
+
+        }
+
+        if (
+            message.role === "assistant"
+        ) {
+
+            addMessage(
+                message.content,
+                "scribe"
+            );
+
+        }
+
+    });
+}
+/* ============================= */
+/* STARTUP */
+/* ============================= */
+
+loadSavedWritings();
+  renderChatList();
+renderCurrentChat();
+  async function leaveThought() {
+
+    const titleInput =
+        document.getElementById("thoughtTitle");
+
+    const thoughtInput =
+        document.getElementById("thoughtInput");
+
+    const title =
+        titleInput.value.trim();
+
+    const thought =
+        thoughtInput.value.trim();
+
+    if (thought === "") {
+        alert("Write a thought first.");
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "https://quiet-scribe-ai.thequietscribe.workers.dev/thought",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
                 body: JSON.stringify({
                     title:
@@ -2953,6 +3231,3 @@ if ("Notification" in window) {
 
 </body>
 </html>
-
-
-    

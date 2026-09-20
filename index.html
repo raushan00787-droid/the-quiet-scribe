@@ -731,8 +731,327 @@ button:active {
 .scribe-read-button {
     margin: 0;
                            }
+
+
+/* ============================= */
+/* CHAT V2 */
+/* ============================= */
+
+#chat {
+    position: relative;
+    height: 100%;
+    min-height: 70vh;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 28px 22px 20px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.chat-header h1 {
+    margin: 0;
+}
+
+.chat-header .subtitle {
+    margin: 6px 0 0;
+}
+
+.chat-menu-button {
+    width: auto;
+    min-width: 46px;
+    max-width: none;
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.chat-main {
+    width: 100%;
+    max-width: 900px;
+    height: calc(100% - 105px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.chat-box {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 4px 25px;
+    box-sizing: border-box;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    scroll-behavior: smooth;
+}
+
+.message {
+    max-width: min(720px, 82%);
+    padding: 14px 17px;
+    margin: 13px 0;
+    border-radius: 16px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    animation: messageFade 0.25s ease-out;
+    box-sizing: border-box;
+}
+
+.user {
+    margin-left: auto;
+    margin-right: 0;
+    background: #24242e;
+    border: 1px solid #30303a;
+    border-bottom-right-radius: 5px;
+    text-align: left;
+}
+
+.scribe {
+    margin-left: 0;
+    margin-right: auto;
+    background: #14141b;
+    border: 1px solid #292932;
+    border-bottom-left-radius: 5px;
+}
+
+.chat-input-wrapper {
+    width: 100%;
+    padding-top: 12px;
+    background: #050508;
+}
+
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+    background: #111118;
+    border: 1px solid #292932;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    margin: 0;
+}
+
+.chat-input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 13px;
+    background: transparent;
+    color: #e8e3d8;
+    border: none;
+    outline: none;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.chat-input::placeholder {
+    color: #77747d;
+}
+
+.send-button {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 21px;
+    line-height: 1;
+}
+
+.chat-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 9px;
+}
+
+.philosopher-button,
+.leave-chat-button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 7px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 12px;
+    opacity: 0.55;
+}
+
+.philosopher-button:hover,
+.leave-chat-button:hover {
+    opacity: 1;
+    background: #111118;
+    border-color: #292932;
+}
+
+.chat-history-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(310px, 85vw);
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 22px 16px;
+    background: #0d0d13;
+    border-right: 1px solid #292932;
+    z-index: 1000;
+    overflow-y: auto;
+    transform: translateX(-105%);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.chat-history-panel.open {
+    transform: translateX(0);
+    box-shadow: 15px 0 45px rgba(0, 0, 0, 0.35);
+}
+
+.chat-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    color: #aaa5ad;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+}
+
+.chat-panel-header button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 4px 8px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    opacity: 0.6;
+}
+
+.chat-panel-header button:hover {
+    opacity: 1;
+}
+
+.chat-history-panel .new-chat-button {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 18px;
+    padding: 11px 12px;
+    text-align: left;
+    background: #17171f;
+    border: 1px solid #292932;
+    border-radius: 11px;
+    font-size: 14px;
+}
+
+.chat-history-panel .new-chat-button:hover {
+    background: #20202a;
+}
+
+.chat-history-panel .chat-sidebar-title {
+    padding: 0 5px 9px;
+    color: #77747d;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.chat-history-panel .chat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
+.chat-history-panel .chat-history-item {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 10px 11px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-history-panel .chat-history-item:hover,
+.chat-history-panel .chat-history-item.active {
+    background: #1a1a23;
+    border-color: #292932;
+}
+
+.chat-menu-button,
+.send-button,
+.new-chat-button,
+.philosopher-button,
+.leave-chat-button {
+    transition: background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease, transform 0.12s ease;
+}
+
+.chat-menu-button:active,
+.send-button:active,
+.new-chat-button:active {
+    transform: scale(0.96);
+}
+
+@keyframes messageFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    #chat {
+        padding: 20px 14px 14px;
+        min-height: 72vh;
+    }
+
+    .chat-header {
+        margin-bottom: 12px;
+    }
+
+    .chat-header h1 {
+        font-size: 25px;
+    }
+
+    .chat-main {
+        height: calc(100% - 85px);
+    }
+
+    .message {
+        max-width: 88%;
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+}
+
 </style>
-  <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5b40e5af642a4e6a822762dceb699622"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 
 <body>
@@ -788,10 +1107,10 @@ button:active {
         <h2>Why he left a mark</h2>
 
         <p>
-            Dostoevsky explored guilt, freedom, faith, suffering,
-            morality, and the contradictions within human beings.
-            His characters often feel painfully real because they
-            struggle with questions that have no easy answers.
+          Dostoevsky explored guilt, freedom, faith, and suffering, looking deep into the contradictions that live within human beings. His characters rarely stand on one side of a question. They doubt, desire, regret, and search for something they cannot easily name.
+          </p>
+      <p>
+          What makes his work enduring is the rawness of those inner conflicts. His questions remain unsettling because they do not belong to his characters alone. They belong to anyone who has ever looked within and found more than one self staring back.
         </p>
 
         <button onclick="showScreen('dostoevsky-read')">
@@ -805,7 +1124,7 @@ button:active {
     </button>
 
 </section>
-  <section id="dostoevsky-read" class="screen">
+<section id="dostoevsky-read" class="screen">
 
     <h1>FYODOR DOSTOEVSKY</h1>
 
@@ -813,30 +1132,38 @@ button:active {
         The man behind the questions.
     </p>
 
-    <p>
-        Dostoevsky's writing often enters the most complicated parts
-        of human nature. His characters question morality, freedom,
-        faith, guilt, suffering, and what it means to be human.
-    </p>
+    <div class="reading-content">
 
-    <p>
-        What makes his work remarkable is that he rarely gives simple
-        answers. Instead, he places people inside difficult choices
-        and lets their contradictions speak for themselves.
-    </p>
+        <p>
+            Dostoevsky's writing often enters the most complicated parts
+            of human nature. His characters question morality, freedom,
+            faith, guilt, suffering, and what it means to be human.
+        </p>
 
-    <p>
-        His novels continue to feel relevant because the questions
-        he explored are not limited to one era. They belong to anyone
-        who has ever struggled to understand themselves or the people
-        around them.
-    </p>
+        <p>
+            What makes his work remarkable is that he rarely gives simple
+            answers. Instead, he places people inside difficult choices
+            and lets their contradictions speak for themselves.
+        </p>
+
+        <p>
+            His novels continue to feel relevant because the questions
+            he explored are not limited to one era. They belong to anyone
+            who has ever struggled to understand themselves or the people
+            around them.
+        </p>
+
+        <p class="story-quote">
+            The deepest questions are often the ones we cannot answer for ourselves.
+        </p>
+
+    </div>
 
     <button class="back" onclick="showScreen('dostoevsky')">
         ← Back
     </button>
 
-  </section>
+</section>
   <section id="kafka" class="screen">
 
     <h1>FRANZ KAFKA</h1>
@@ -860,9 +1187,10 @@ button:active {
 
         <h2>Why he left a mark</h2>
         <p>
-            Franz Kafka explored alienation, anxiety, bureaucracy,
-            and the strange feeling of being trapped inside a world
-            that does not quite make sense.
+  Kafka explored the quiet unease of being human in a world that rarely explains itself. His writing turned alienation, anxiety, and ordinary uncertainty into something strangely familiar.
+</p>
+      <p>
+His characters often found themselves inside systems they could neither understand nor escape. Beneath the surrealism was a simple fear: that the world might continue moving, even when you no longer understand your place within it.
         </p>
     </div>
       <button onclick="showScreen('kafka-read')">
@@ -875,7 +1203,7 @@ button:active {
     </button>
 
   </section>
-  <section id="kafka-read" class="screen">
+<section id="kafka-read" class="screen">
 
     <h1>FRANZ KAFKA</h1>
 
@@ -883,30 +1211,38 @@ button:active {
         The man who made the ordinary feel strange.
     </p>
 
-    <p>
-        Kafka's writing often explores isolation, anxiety,
-        identity, and the feeling of being trapped inside
-        a world that does not quite make sense.
-    </p>
+    <div class="reading-content">
 
-    <p>
-        What makes his work remarkable is the way he turns
-        ordinary situations into something unsettling. His
-        characters often face strange systems and circumstances
-        that they cannot fully understand or escape.
-    </p>
+        <p>
+            Kafka's writing often explores isolation, anxiety,
+            identity, and the feeling of being trapped inside
+            a world that does not quite make sense.
+        </p>
 
-    <p>
-        His stories continue to feel relevant because they
-        capture feelings of confusion, loneliness, and
-        helplessness that can exist even in everyday life.
-    </p>
+        <p>
+            What makes his work remarkable is the way he turns
+            ordinary situations into something unsettling. His
+            characters often face strange systems and circumstances
+            that they cannot fully understand or escape.
+        </p>
+
+        <p>
+            His stories continue to feel relevant because they
+            capture feelings of confusion, loneliness, and
+            helplessness that can exist even in everyday life.
+        </p>
+
+        <p class="story-quote">
+            Sometimes the strangest prison is the world we have learned to call ordinary.
+        </p>
+
+    </div>
 
     <button class="back" onclick="showScreen('kafka')">
         ← Back
     </button>
 
-  </section>
+</section>
   <section id="camus" class="screen">
 
     <h1>ALBERT CAMUS</h1>
@@ -928,10 +1264,9 @@ button:active {
         <h2>Why he left a mark</h2>
 
         <p>
-            Albert Camus explored absurdity, freedom, rebellion,
-            and the search for meaning in a world that offers
-            no easy answers.
-        </p>
+        Camus explored the silence between humanity's need for meaning and a universe that offered none. He faced that silence without comfort, asking what remains when certainty falls away.
+    </p>
+For him, the absurd was not an ending. It was the moment we begin to live without guarantees, choosing our own meaning in a world that refuses to provide one.
 
         <button onclick="showScreen('camus-read')">
             📖 Read
@@ -944,7 +1279,7 @@ button:active {
     </button>
 
   </section>
-  <section id="camus-read" class="screen">
+<section id="camus-read" class="screen">
 
     <h1>ALBERT CAMUS</h1>
 
@@ -952,396 +1287,35 @@ button:active {
         The man who faced the absurd.
     </p>
 
-    <p>
-        Camus's writing often explores the tension between
-        humanity's search for meaning and a world that does
-        not provide clear answers.
-    </p>
+    <div class="reading-content">
 
-    <p>
-        What makes his work remarkable is that he did not
-        simply accept the absurd. He explored how people
-        could respond to it through freedom, awareness,
-        and rebellion.
-    </p>
+        <p>
+            Camus's writing often explores the tension between
+            humanity's search for meaning and a world that does
+            not provide clear answers.
+        </p>
 
-    <p>
-        His ideas continue to matter because they ask a
-        difficult question: how do we live meaningfully
-        when the universe does not give us a ready-made
-        meaning?
-    </p>
+        <p>
+            What makes his work remarkable is that he did not
+            simply accept the absurd. He explored how people
+            could respond to it through freedom, awareness,
+            and rebellion.
+        </p>
+
+        <p>
+            His ideas continue to matter because they ask a
+            difficult question: how do we live meaningfully
+            when the universe does not give us a ready-made
+            meaning?
+        </p>
+
+        <p class="story-quote">
+            We must imagine ourselves creating meaning in a world that gives us none.
+        </p>
+
+    </div>
 
     <button class="back" onclick="showScreen('camus')">
-        ← Back
-    </button>
-
-  </section>
-<section id="miyazaki" class="screen">
-    <h1>HAYAO MIYAZAKI</h1>
-
-    <p class="subtitle">
-        1941 —
-    </p>
-
-    <p class="subtitle">
-        A filmmaker who found wonder in ordinary life.
-    </p>
-
-    <div class="person-card">
-        <img
-            src="Hayao.jpg"
-            alt="Hayao Miyazaki">
-
-        <h2>Why he left a mark</h2>
-
-        <p>
-            Hayao Miyazaki created worlds where nature, childhood,
-            war, imagination, and human connection could exist
-            side by side.
-        </p>
-
-        <p>
-            His stories often find something extraordinary in
-            ordinary moments — reminding us that wonder does not
-            always need an explanation.
-        </p>
-
-        <button onclick="showScreen('miyazaki-read')">
-            📖 Read
-        </button>
-    </div>
-
-    <button class="back" onclick="showScreen('marks')">
-        ← Back
-    </button>
-</section>
-
-<section id="miyazaki-read" class="screen">
-    <h1>HAYAO MIYAZAKI</h1>
-
-    <p class="subtitle">
-        The man who made wonder feel ordinary.
-    </p>
-
-    <p>
-        Miyazaki's films often explore nature, childhood,
-        conflict, compassion, and the complicated relationship
-        between humans and the world around them.
-    </p>
-
-    <p>
-        What makes his work remarkable is that his worlds
-        rarely divide everything into simple heroes and villains.
-        Even when his stories become fantastical, the emotions
-        remain deeply human.
-    </p>
-
-    <p>
-        His work leaves behind a quieter question:
-        what happens when we stop looking at the world only
-        for what it can give us, and start noticing what is
-        already there?
-    </p>
-
-    <button class="back" onclick="showScreen('miyazaki')">
-        ← Back
-    </button>
-  
-</section>
-  
-<section id="stanlee" class="screen">
-  <h1>STAN LEE</h1>
-
-<p class="subtitle">
-    1922 — 2018
-</p>
-
-<div class="person-card">
-
-    <img
-        src="Stan.jpg"
-        alt="Stan Lee">
-
-    <h2>Why he left a mark</h2>
-
-    <p>
-        Stan Lee helped shape the voice of Marvel Comics
-        and helped create and develop some of the most
-        recognizable characters in comics.
-    </p>
-
-    <p>
-        His stories brought extraordinary powers together
-        with ordinary human problems, making superheroes
-        feel more relatable.
-    </p>
-
-    <button onclick="showScreen('stan-lee-read')">
-        📖 Read
-    </button>
-
-</div>
-  <button class="back" onclick="showScreen('marks')">
-    ← Back
-</button>
-
-</section>
-  <section id="oda" class="screen">
-
-    <h1>EIICHIRO ODA</h1>
-
-    <p class="subtitle">
-        The creator who turned a pirate adventure into a world.
-    </p>
-
-    <div class="person-card">
-
-        <img
-            src="Oda.jpg"
-            alt="Eiichiro Oda">
-
-        <h2>Why he left a mark</h2>
-
-        <p>
-            Eiichiro Oda created One Piece, building a vast world
-            filled with adventure, friendship, dreams and freedom.
-        </p>
-
-        <p>
-            His storytelling connects seemingly small moments
-            with a much larger world, giving his characters and
-            their journeys a lasting sense of wonder.
-        </p>
-
-        <button onclick="showScreen('oda-read')">
-            📖 Read
-        </button>
-
-    </div>
-
-    <button class="back" onclick="showScreen('marks')">
-        ← Back
-    </button>
-
-  </section>
-  <section id="oda-read" class="screen">
-
-    <h1>EIICHIRO ODA</h1>
-
-    <p class="subtitle">
-        A storyteller who built an entire world around the idea of freedom.
-    </p>
-
-    <div class="reading-content">
-
-        <p>
-            Eiichiro Oda is the creator of One Piece,
-            one of the most influential manga series of its generation.
-        </p>
-
-        <p>
-            His world is enormous, but its heart remains simple:
-            people chasing their dreams, protecting the people
-            they care about, and refusing to give up their freedom.
-        </p>
-
-        <p>
-            What makes Oda's work remarkable is the way seemingly
-            separate stories and characters can become part of
-            something much larger.
-        </p>
-
-        <p>
-            Decades of storytelling have turned his fictional
-            world into something that feels almost alive.
-        </p>
-
-        <p class="story-quote">
-            A story becomes memorable when its world makes you
-            want to keep exploring it.
-        </p>
-
-    </div>
-
-    <button class="back" onclick="showScreen('oda')">
-        ← Back
-    </button>
-
-  </section>
-  <section id="beethoven" class="screen">
-
-    <h1>LUDWIG VAN BEETHOVEN</h1>
-
-    <p class="subtitle">
-        1770 — 1827
-    </p>
-
-    <p class="subtitle">
-        A composer who transformed the language of music.
-    </p>
-
-    <div class="person-card">
-
-        <img
-            src="Beethoven.jpg"
-            alt="Ludwig van Beethoven">
-
-        <h2>Why he left a mark</h2>
-
-        <p>
-            Ludwig van Beethoven became one of the most influential
-            composers in Western classical music.
-        </p>
-
-        <p>
-            His music pushed beyond the traditions of his time,
-            combining powerful emotion, dramatic contrast and
-            remarkable musical imagination.
-        </p>
-
-        <button onclick="showScreen('beethoven-read')">
-            📖 Read
-        </button>
-
-    </div>
-
-    <button class="back" onclick="showScreen('marks')">
-        ← Back
-    </button>
-
-</section>
-
-
-<section id="beethoven-read" class="screen">
-
-    <h1>LUDWIG VAN BEETHOVEN</h1>
-
-    <p class="subtitle">
-        Music that refused to remain ordinary.
-    </p>
-
-    <div class="reading-content">
-
-        <p>
-            Beethoven stands at a turning point in the history
-            of classical music.
-        </p>
-
-        <p>
-            His compositions carried enormous emotional force,
-            often moving between quiet reflection and overwhelming
-            intensity.
-        </p>
-
-        <p>
-            He expanded what audiences expected from a composer,
-            giving later generations a new idea of what music
-            could express.
-        </p>
-
-        <p>
-            His legacy is not simply about individual compositions.
-            It is about how boldly he expanded the possibilities
-            of musical expression.
-        </p>
-
-        <p class="story-quote">
-            He made music feel like an argument between silence,
-            struggle and triumph.
-        </p>
-
-    </div>
-
-    <button class="back" onclick="showScreen('beethoven')">
-        ← Back
-    </button>
-
-</section>
-  <section id="chopin" class="screen">
-
-    <h1>FRÉDÉRIC CHOPIN</h1>
-
-    <p class="subtitle">
-        1810 — 1849
-    </p>
-
-    <p class="subtitle">
-        A pianist-composer who made the piano deeply personal.
-    </p>
-
-    <div class="person-card">
-
-        <img
-            src="Chopin.jpg"
-            alt="Frédéric Chopin">
-
-        <h2>Why he left a mark</h2>
-
-        <p>
-            Frédéric Chopin became one of the defining composers
-            of the Romantic era, with much of his work centered
-            around the piano.
-        </p>
-
-        <p>
-            His music is known for its intimacy, expressive melodies
-            and delicate control of the instrument.
-        </p>
-
-        <button onclick="showScreen('chopin-read')">
-            📖 Read
-        </button>
-
-    </div>
-
-    <button class="back" onclick="showScreen('marks')">
-        ← Back
-    </button>
-
-</section>
-
-
-<section id="chopin-read" class="screen">
-
-    <h1>FRÉDÉRIC CHOPIN</h1>
-
-    <p class="subtitle">
-        The piano became his language.
-    </p>
-
-    <div class="reading-content">
-
-        <p>
-            Chopin devoted much of his creative life to the piano,
-            exploring how much emotion could be expressed through
-            a single instrument.
-        </p>
-
-        <p>
-            His compositions could be intimate and delicate,
-            yet they often carried extraordinary emotional depth.
-        </p>
-
-        <p>
-            He transformed familiar piano forms into something
-            intensely personal, influencing generations of pianists
-            and composers after him.
-        </p>
-
-        <p>
-            Even today, his music remains closely associated with
-            the expressive possibilities of the piano.
-        </p>
-
-        <p class="story-quote">
-            For Chopin, the piano was not merely an instrument;
-            it became a voice.
-        </p>
-
-    </div>
-
-    <button class="back" onclick="showScreen('chopin')">
         ← Back
     </button>
 
@@ -1411,8 +1385,8 @@ button:active {
 
     <button onclick="showScreen('miyazaki')">
         HAYAO MIYAZAKI
+    </button>
 
-    
     <button onclick="showScreen('stanlee')">
         STAN LEE
     </button>
@@ -1482,6 +1456,7 @@ button:active {
     <button onclick="showScreen('miyazaki')">
         HAYAO MIYAZAKI
     </button>
+  
 
     <button onclick="showScreen('stanlee')">
         STAN LEE
@@ -1499,9 +1474,459 @@ button:active {
         FRÉDÉRIC CHOPIN
     </button>
 
-    <button class="back" onclick="showScreen('purpose')">
-        ← Back
-    </button>
+</section>
+
+
+<!-- ============================= -->
+<!-- COMPLETED MARKS: STAN LEE / ODA / BEETHOVEN / CHOPIN -->
+<!-- ============================= -->
+
+<section id="miyazaki" class="screen">
+
+  <h1>HAYAO MIYAZAKI</h1>
+
+  <p class="subtitle">
+      1941 —
+  </p>
+
+  <p class="subtitle">
+      A storyteller who turned imagination, nature, and quiet human moments into worlds of wonder.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Miyazaki.jpg"
+          alt="Hayao Miyazaki">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Hayao Miyazaki helped redefine Japanese animation through
+          stories that brought imagination, nature, and deeply human
+          experiences together.
+      </p>
+
+      <p>
+          His films created unforgettable worlds while exploring
+          childhood, loneliness, courage, friendship, and our
+          relationship with the natural world.
+      </p>
+
+      <button onclick="showScreen('miyazaki-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+  <section id="miyazaki-read" class="screen">
+
+  <h1>HAYAO MIYAZAKI</h1>
+
+  <p class="subtitle">
+      The storyteller who found wonder in the ordinary.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Hayao Miyazaki is one of the most influential figures in
+          Japanese animation and a co-founder of Studio Ghibli.
+          Through his films, he created worlds where imagination,
+          nature, and everyday human life could exist together.
+      </p>
+
+      <p>
+          His stories include unforgettable worlds and characters
+          from films such as My Neighbor Totoro, Princess Mononoke,
+          Spirited Away, Howl's Moving Castle, and many others.
+      </p>
+
+      <p>
+          What makes his work distinctive is the way fantasy is
+          connected with ordinary human experiences. Childhood,
+          loneliness, courage, friendship, responsibility, and
+          the wonder of simply being alive often sit at the heart
+          of his stories.
+      </p>
+
+      <p>
+          Nature also plays an important role in his storytelling.
+          Forests, oceans, spirits, animals, and landscapes are
+          often more than backgrounds. They become living parts
+          of the worlds his characters inhabit.
+      </p>
+
+      <p>
+          Miyazaki's legacy is therefore not only about animation.
+          It is about showing how quiet moments, imagination, and
+          human emotion can carry as much weight as spectacle.
+      </p>
+
+      <p class="story-quote">
+          Sometimes the most extraordinary worlds begin with an ordinary moment.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('miyazaki')">
+      ← Back
+  </button>
+
+  </section>
+   <section id="stanlee" class="screen">
+  <h1>STAN LEE</h1>
+
+  <p class="subtitle">
+      1922 — 2018
+  </p>
+
+  <p class="subtitle">
+      A creator who helped make superheroes feel human.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Stan.jpg"
+          alt="Stan Lee">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Stan Lee helped shape the voice of Marvel Comics and
+          helped create and develop some of the most recognizable
+          characters in comics.
+      </p>
+
+      <p>
+          His stories brought extraordinary powers together with
+          ordinary human problems, making superheroes feel more
+          relatable.
+      </p>
+
+      <button onclick="showScreen('stan-lee-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="stan-lee-read" class="screen">
+
+  <h1>STAN LEE</h1>
+
+  <p class="subtitle">
+      The man who helped make heroes feel human.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Stan Lee became one of the most recognizable figures in
+          American comics, helping shape Marvel's Silver Age alongside
+          artists and writers including Jack Kirby and Steve Ditko.
+      </p>
+
+      <p>
+          His work helped bring characters such as Spider-Man, the
+          Fantastic Four, the Hulk, Thor and the X-Men to a broad
+          audience. His stories often placed extraordinary characters
+          inside recognizable human problems.
+      </p>
+
+      <p>
+          That combination became an important part of Marvel's voice:
+          superheroes could be powerful while still being imperfect,
+          worried, funny, conflicted, and deeply human.
+      </p>
+
+      <p>
+          Lee's legacy is therefore not only about individual heroes.
+          It is also about helping establish a style of comic-book
+          storytelling in which the people behind the powers mattered.
+      </p>
+
+      <p class="story-quote">
+          The mask may be extraordinary. The person underneath still has to live.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('stanlee')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="oda" class="screen">
+
+  <h1>EIICHIRO ODA</h1>
+
+  <p class="subtitle">
+      The creator who turned a pirate adventure into a world.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Oda.jpg"
+          alt="Eiichiro Oda">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Eiichiro Oda created One Piece, building a vast world
+          filled with adventure, friendship, dreams and freedom.
+      </p>
+
+      <p>
+          His storytelling connects seemingly small moments
+          with a much larger world, giving his characters and
+          their journeys a lasting sense of wonder.
+      </p>
+
+      <button onclick="showScreen('oda-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="oda-read" class="screen">
+
+  <h1>EIICHIRO ODA</h1>
+
+  <p class="subtitle">
+      A storyteller who built an entire world around the idea of freedom.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Eiichiro Oda is the creator of One Piece,
+          one of the most influential manga series of its generation.
+      </p>
+
+      <p>
+          His world is enormous, but its heart remains simple:
+          people chasing their dreams, protecting the people
+          they care about, and refusing to give up their freedom.
+      </p>
+
+      <p>
+          What makes Oda's work remarkable is the way seemingly
+          separate stories and characters can become part of
+          something much larger.
+      </p>
+
+      <p>
+          Decades of storytelling have turned ictional
+          world into something that feels almost alive.
+      </p>
+
+      <p class="story-quote">
+          A story becomes memorable when its world makes you
+          want to keep exploring it.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('oda')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="beethoven" class="screen">
+
+  <h1>LUDWIG VAN BEETHOVEN</h1>
+
+  <p class="subtitle">
+      1770 — 1827
+  </p>
+
+  <p class="subtitle">
+      A composer who transformed the language of music.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Beethoven.jpg"
+          alt="Ludwig van Beethoven">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Ludwig van Beethoven became one of the most influential
+          composers in Western classical music.
+      </p>
+
+      <p>
+          His music pushed beyond the traditions of his time,
+          combining powerful emotion, dramatic contrast and
+          remarkable musical imagination.
+      </p>
+
+      <button onclick="showScreen('beethoven-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="beethoven-read" class="screen">
+
+  <h1>LUDWIG VAN BEETHOVEN</h1>
+
+  <p class="subtitle">
+      Music that refused to remain ordinary.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Beethoven stands at a turning point in the history
+          of classical music.
+      </p>
+
+      <p>
+          His compositions carried enormous emotional force,
+          often moving between quiet reflection and overwhelming
+          intensity.
+      </p>
+
+      <p>
+          He expanded what audiences expected from a composer,
+          giving later generations a new idea of what music
+          could express.
+      </p>
+
+      <p>
+          His legacy is not simply about individual compositions.
+          It is about how boldly he expanded the possibilities
+          of musical expression.
+      </p>
+
+      <p class="story-quote">
+          He made music feel like an argument between silence,
+          struggle and triumph.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('beethoven')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="chopin" class="screen">
+
+  <h1>FRÉDÉRIC CHOPIN</h1>
+
+  <p class="subtitle">
+      1810 — 1849
+  </p>
+
+  <p class="subtitle">
+      A pianist-composer who made the piano deeply personal.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Chopin.jpg"
+          alt="Frédéric Chopin">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Frédéric Chopin became one of the defining composers
+          of the Romantic era, with much of his work centered
+          around the piano.
+      </p>
+
+      <p>
+          His music is known for its intimacy, expressive melodies
+          and delicate control of the instrument.
+      </p>
+
+      <button onclick="showScreen('chopin-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="chopin-read" class="screen">
+
+  <h1>FRÉDÉRIC CHOPIN</h1>
+
+  <p class="subtitle">
+      The piano became his language.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Chopin devoted much of his creative life to the piano,
+          exploring how much emotion could be expressed through
+          a single instrument.
+      </p>
+
+      <p>
+          His compositions could be intimate and delicate,
+          yet they often carried extraordinary emotional depth.
+      </p>
+
+      <p>
+          He transformed familiar piano forms into something
+          intensely personal, influencing generations of pianists
+          and composers after him.
+      </p>
+
+      <p>
+          Even today, his music remains closely associated with
+          the expressive possibilities of the piano.
+      </p>
+
+      <p class="story-quote">
+          For Chopin, the piano was not merely an instrument;
+          it became a voice.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('chopin')">
+      ← Back
+  </button>
 
 </section>
 
@@ -1812,45 +2237,70 @@ button:active {
 <!-- ============================= -->
 <section id="chat" class="screen">
 
-    <h1>Quiet Conversation</h1>
+    <div class="chat-header">
 
-    <p class="subtitle">
-        You may speak freely here.
-    </p>
-<button
-    class="chat-menu-button"
-    onclick="toggleChatHistory()">
-    ☰ Chats
-</button>
+        <div>
+            <h1>Quiet Conversation</h1>
 
-<div id="chatHistoryPanel" class="chat-history-panel">
+            <p class="subtitle">
+                You may speak freely here.
+            </p>
+        </div>
 
-    <button
-        class="new-chat-button"
-        onclick="startNewChat()">
-        ＋ New Chat
-    </button>
+        <button
+            class="chat-menu-button"
+            onclick="toggleChatHistory()"
+            aria-label="Open conversations">
+            ☰
+        </button>
 
-    <div class="chat-sidebar-title">
-        Conversations
     </div>
+
+    <!-- CHAT HISTORY -->
 
     <div
-        id="chatList"
-        class="chat-list">
+        id="chatHistoryPanel"
+        class="chat-history-panel">
+
+        <div class="chat-panel-header">
+
+            <span>Conversations</span>
+
+            <button
+                onclick="toggleChatHistory()"
+                aria-label="Close conversations">
+                ×
+            </button>
+
+        </div>
+
+        <button
+            class="new-chat-button"
+            onclick="startNewChat()">
+            ＋ New Conversation
+        </button>
+
+        <div class="chat-sidebar-title">
+            Conversations
+        </div>
+
+        <div
+            id="chatList"
+            class="chat-list">
+        </div>
+
     </div>
 
-</div>
-    
+    <!-- CONVERSATION -->
 
-            
+    <div class="chat-main">
 
-        <div class="chat-main">
+        <div
+            id="chatBox"
+            class="chat-box">
+        </div>
 
-            <div
-                id="chatBox"
-                class="chat-box">
-            </div>
+        <div class="chat-input-wrapper">
 
             <div class="chat-input-area">
 
@@ -1859,26 +2309,32 @@ button:active {
                     class="chat-input"
                     type="text"
                     placeholder="Say what's on your mind..."
-                    onkeydown="handleEnter(event)"
-                >
+                    onkeydown="handleEnter(event)">
 
                 <button
                     class="send-button"
-                    onclick="sendMessage()">
-                    Send
+                    onclick="sendMessage()"
+                    aria-label="Send message">
+                    ↑
                 </button>
 
             </div>
 
-            <button onclick="togglePhilosopherMode()">
-                🧠 Philosopher Mode: OFF
-            </button>
+            <div class="chat-controls">
 
-            <button
-                class="back"
-                onclick="leaveChat()">
-                ← Leave Chat
-            </button>
+                <button
+                    class="philosopher-button"
+                    onclick="togglePhilosopherMode()">
+                    🧠 Philosopher Mode: OFF
+                </button>
+
+                <button
+                    class="leave-chat-button"
+                    onclick="leaveChat()">
+                    Leave
+                </button>
+
+            </div>
 
         </div>
 
@@ -2119,6 +2575,40 @@ function showScreen(id) {
         target.classList.add("active");
     }
 }
+
+function toggleChatHistory() {
+
+    const panel =
+        document.getElementById("chatHistoryPanel");
+
+    if (!panel) {
+        return;
+    }
+
+    panel.classList.toggle("open");
+}
+
+document.addEventListener("click", function(event) {
+
+    const panel =
+        document.getElementById("chatHistoryPanel");
+
+    const button =
+        document.querySelector(".chat-menu-button");
+
+    if (!panel || !button) {
+        return;
+    }
+
+    if (
+        panel.classList.contains("open") &&
+        !panel.contains(event.target) &&
+        event.target !== button
+    ) {
+        panel.classList.remove("open");
+    }
+
+});
 function toggleChatHistory() {
 
     const panel =

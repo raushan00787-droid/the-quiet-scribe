@@ -4121,48 +4121,7 @@ if ("Notification" in window) {
     Notification.requestPermission();
 }
 
-<script>
-(function () {
-    const scene = document.getElementById("qs-opening-scene");
-    const dayAction = document.getElementById("qs-day-action");
-    const nightGo = document.getElementById("qs-night-go");
 
-    if (!scene || !dayAction || !nightGo) return;
-
-    dayAction.addEventListener("click", function () {
-        if (scene.classList.contains("qs-night")) return;
-
-        scene.classList.add("qs-night");
-
-        setTimeout(function () {
-            nightGo.focus();
-        }, 5300);
-    });
-
-    nightGo.addEventListener("click", function () {
-        scene.classList.add("qs-exiting");
-
-        setTimeout(function () {
-            scene.remove();
-
-            document.body.classList.remove("qs-opening");
-            document.body.classList.add("qs-ready");
-
-            const welcome = document.getElementById("welcome");
-
-            if (welcome) {
-                document.querySelectorAll(".screen").forEach(function (screen) {
-                    screen.classList.remove("active");
-                });
-
-                welcome.classList.add("active");
-            }
-
-            window.scrollTo(0, 0);
-        }, 1750);
-    });
-})();
-</script>
 
 <script>
 function qsStartNight(){

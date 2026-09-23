@@ -1051,10 +1051,428 @@ button:active {
     }
 }
 
+
+/* =========================================================
+   QUIET SCRIBE CINEMATIC OPENING
+   Day -> Night -> Let's Go -> Original Quiet Scribe
+   ========================================================= */
+
+body.qs-opening {
+    overflow: hidden;
+}
+
+body.qs-opening > .container {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.qs-opening.qs-ready > .container {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#qs-opening-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    overflow: hidden;
+    background: #cfd9d8;
+    opacity: 1;
+    transition: opacity 1.7s ease;
+    isolation: isolate;
+}
+
+#qs-opening-scene.qs-exiting {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#qs-opening-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.qs-day-sky,
+.qs-day-haze,
+.qs-night-sky,
+.qs-night-haze,
+.qs-stars,
+.qs-moon,
+.qs-day-glow {
+    transition: opacity 5.2s ease;
+}
+
+.qs-day-sky { opacity: 1; }
+.qs-day-haze { opacity: 1; }
+.qs-day-glow { opacity: 1; }
+.qs-night-sky { opacity: 0; }
+.qs-night-haze { opacity: 0; }
+.qs-stars { opacity: 0; }
+.qs-moon { opacity: 0; }
+
+#qs-opening-scene.qs-night .qs-day-sky { opacity: 0; }
+#qs-opening-scene.qs-night .qs-day-haze { opacity: 0; }
+#qs-opening-scene.qs-night .qs-day-glow { opacity: 0; }
+#qs-opening-scene.qs-night .qs-night-sky { opacity: 1; }
+#qs-opening-scene.qs-night .qs-night-haze { opacity: 1; }
+#qs-opening-scene.qs-night .qs-stars { opacity: 1; }
+#qs-opening-scene.qs-night .qs-moon { opacity: 1; }
+
+.qs-cloud-move {
+    animation: qsCloudMove 42s linear infinite;
+}
+
+.qs-cloud-move-2 {
+    animation: qsCloudMove 58s linear infinite;
+    animation-delay: -19s;
+}
+
+.qs-grass-sway {
+    transform-box: fill-box;
+    transform-origin: bottom center;
+    animation: qsGrassSway 5s ease-in-out infinite;
+}
+
+.qs-grass-sway-2 {
+    transform-box: fill-box;
+    transform-origin: bottom center;
+    animation: qsGrassSway 6.5s ease-in-out infinite reverse;
+}
+
+@keyframes qsCloudMove {
+    from { transform: translateX(-250px); }
+    to { transform: translateX(1900px); }
+}
+
+@keyframes qsGrassSway {
+    0%, 100% { transform: rotate(-1deg); }
+    50% { transform: rotate(1.2deg); }
+}
+
+#qs-opening-content {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 20px 7vh;
+    pointer-events: none;
+}
+
+#qs-opening-actions {
+    width: min(420px, 88vw);
+    text-align: center;
+    pointer-events: auto;
+}
+
+#qs-opening-actions button {
+    max-width: 420px;
+    margin: 0 auto;
+    color: #f4efe4;
+    background: rgba(17, 20, 24, 0.44);
+    border: 1px solid rgba(255,255,255,0.42);
+    border-radius: 999px;
+    padding: 14px 22px;
+    letter-spacing: 0.04em;
+    transition:
+        opacity 0.7s ease,
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+#qs-opening-actions button:hover {
+    background: rgba(17, 20, 24, 0.62);
+    border-color: rgba(255,255,255,0.7);
+    transform: translateY(-2px);
+}
+
+#qs-opening-actions button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+#qs-night-go {
+    display: none;
+    opacity: 0;
+}
+
+#qs-opening-scene.qs-night #qs-day-action {
+    display: none;
+}
+
+#qs-opening-scene.qs-night #qs-night-go {
+    display: block;
+    animation: qsButtonReveal 1.25s ease forwards;
+}
+
+#qs-opening-caption {
+    margin-bottom: 12px;
+    color: rgba(255,255,255,0.82);
+    font-size: 13px;
+    font-style: italic;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+}
+
+#qs-opening-scene.qs-night #qs-opening-caption {
+    opacity: 1;
+}
+
+@keyframes qsButtonReveal {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 700px) {
+    #qs-opening-content {
+        padding-bottom: 6vh;
+    }
+
+    #qs-opening-actions button {
+        font-size: 15px;
+        padding: 14px 20px;
+    }
+}
+
 </style>
 </head>
 
-<body>
+
+<body class="qs-opening">
+
+<div id="qs-opening-scene" aria-label="The Quiet Scribe opening">
+
+    <svg id="qs-opening-art"
+         viewBox="0 0 1600 900"
+         preserveAspectRatio="xMidYMid slice"
+         role="presentation"
+         aria-hidden="true">
+
+        <defs>
+            <linearGradient id="qsDaySky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8eafb8"/>
+                <stop offset="45%" stop-color="#bfd0cb"/>
+                <stop offset="100%" stop-color="#e3d1b1"/>
+            </linearGradient>
+
+            <linearGradient id="qsNightSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#101a2d"/>
+                <stop offset="48%" stop-color="#23334a"/>
+                <stop offset="100%" stop-color="#435163"/>
+            </linearGradient>
+
+            <linearGradient id="qsField" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#87956b"/>
+                <stop offset="100%" stop-color="#3d5f45"/>
+            </linearGradient>
+
+            <linearGradient id="qsNightField" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#53644f"/>
+                <stop offset="100%" stop-color="#1e332a"/>
+            </linearGradient>
+
+            <radialGradient id="qsSun" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff9df"/>
+                <stop offset="65%" stop-color="#f7e8af"/>
+                <stop offset="100%" stop-color="#e4c985"/>
+            </radialGradient>
+        </defs>
+
+        <rect class="qs-day-sky" x="0" y="0" width="1600" height="900" fill="url(#qsDaySky)"/>
+        <rect class="qs-night-sky" x="0" y="0" width="1600" height="900" fill="url(#qsNightSky)"/>
+
+        <g class="qs-day-glow">
+            <circle cx="1240" cy="165" r="78" fill="url(#qsSun)" opacity="0.98"/>
+            <circle cx="1240" cy="165" r="120" fill="#fff1bd" opacity="0.16"/>
+        </g>
+
+        <g class="qs-night-haze">
+            <rect x="0" y="420" width="1600" height="280" fill="#0d1825" opacity="0.14"/>
+        </g>
+
+        <g class="qs-day-haze">
+            <path d="M0 470 C220 405 390 435 550 470 C740 512 900 455 1060 472 C1250 492 1420 446 1600 458 L1600 700 L0 700 Z"
+                  fill="#d7d0bb" opacity="0.28"/>
+        </g>
+
+        <g class="qs-stars" fill="#ffffff">
+            <circle cx="145" cy="120" r="2"/>
+            <circle cx="268" cy="175" r="1.8"/>
+            <circle cx="406" cy="92" r="1.5"/>
+            <circle cx="552" cy="165" r="2"/>
+            <circle cx="684" cy="112" r="1.5"/>
+            <circle cx="824" cy="190" r="2"/>
+            <circle cx="964" cy="102" r="1.6"/>
+            <circle cx="1096" cy="154" r="1.4"/>
+            <circle cx="1374" cy="102" r="1.8"/>
+            <circle cx="1495" cy="205" r="1.4"/>
+            <circle cx="1184" cy="250" r="1.4"/>
+            <circle cx="742" cy="250" r="1.4"/>
+        </g>
+
+        <g class="qs-moon">
+            <circle cx="1270" cy="155" r="51" fill="#e9edf7"/>
+            <circle cx="1250" cy="140" r="51" fill="#152139"/>
+        </g>
+
+        <g class="qs-cloud-move" opacity="0.55" fill="#f5f2e9">
+            <path d="M30 210 C55 182 94 184 112 208 C126 176 183 171 205 209 C235 199 270 217 280 247 L0 247 C5 231 16 218 30 210 Z"/>
+        </g>
+
+        <g class="qs-cloud-move-2" opacity="0.30" fill="#ffffff">
+            <path d="M70 300 C98 273 140 277 161 306 C182 272 244 270 267 308 C302 298 337 316 345 346 L32 346 C36 326 49 309 70 300 Z"/>
+        </g>
+
+        <path d="M0 505
+                 L0 560
+                 L170 487
+                 L310 548
+                 L470 455
+                 L620 540
+                 L790 430
+                 L960 525
+                 L1130 440
+                 L1290 525
+                 L1450 465
+                 L1600 535
+                 L1600 650 L0 650 Z"
+              fill="#708483" opacity="0.9"/>
+
+        <path d="M0 545
+                 L130 505
+                 L245 558
+                 L395 510
+                 L535 574
+                 L680 500
+                 L820 570
+                 L980 495
+                 L1115 560
+                 L1270 500
+                 L1410 570
+                 L1600 515
+                 L1600 670 L0 670 Z"
+              fill="#4e6768" opacity="0.84"/>
+
+        <path d="M0 610
+                 L185 552
+                 L320 620
+                 L495 555
+                 L650 635
+                 L810 565
+                 L1000 630
+                 L1160 560
+                 L1335 625
+                 L1490 565
+                 L1600 610
+                 L1600 900 L0 900 Z"
+              fill="#40585a" opacity="0.82"/>
+
+        <rect x="0" y="625" width="1600" height="275" fill="url(#qsField)"/>
+
+        <rect class="qs-night-haze" x="0" y="625" width="1600" height="275" fill="url(#qsNightField)" opacity="0.70"/>
+
+        <path d="M0 670 C260 610 470 645 690 690 C930 742 1180 680 1600 650"
+              fill="none" stroke="#b0ad7b" stroke-width="22" opacity="0.35"/>
+
+        <path d="M0 735 C280 688 480 735 720 770 C1010 812 1310 742 1600 710"
+              fill="none" stroke="#294837" stroke-width="22" opacity="0.36"/>
+
+        <g class="qs-grass-sway" stroke="#2d5239" stroke-width="5" stroke-linecap="round" opacity="0.62">
+            <path d="M220 820 l-10 -28 M235 824 l7 -35 M252 820 l18 -31"/>
+        </g>
+
+        <g class="qs-grass-sway-2" stroke="#365d40" stroke-width="4" stroke-linecap="round" opacity="0.58">
+            <path d="M1220 760 l-9 -28 M1235 764 l4 -32 M1250 760 l18 -28"/>
+        </g>
+
+        <!-- foreground tree, intentionally a framing element -->
+        <g>
+            <path d="M0 900
+                     L0 250
+                     C86 235 142 250 196 282
+                     C250 244 330 246 393 286
+                     C472 238 575 264 625 325
+                     C682 294 748 302 790 351
+                     C845 364 886 413 870 466
+                     C820 492 752 472 708 443
+                     C676 521 625 564 557 576
+                     C519 655 478 724 456 900 Z"
+                  fill="#1f3528"/>
+
+            <path d="M244 900
+                     C260 788 286 655 315 530
+                     C343 420 368 336 405 260
+                     C426 236 457 240 470 264
+                     C445 356 438 444 450 526
+                     C466 653 485 774 500 900 Z"
+                  fill="#4b3328"/>
+
+            <path d="M385 474 C272 416 190 350 112 278"
+                  fill="none" stroke="#36251f" stroke-width="30" stroke-linecap="round"/>
+
+            <path d="M414 430 C534 363 636 326 753 308"
+                  fill="none" stroke="#382720" stroke-width="28" stroke-linecap="round"/>
+
+            <path d="M330 556 C232 515 150 487 56 471"
+                  fill="none" stroke="#3b2921" stroke-width="22" stroke-linecap="round"/>
+
+            <g fill="#294636">
+                <ellipse cx="120" cy="330" rx="130" ry="92"/>
+                <ellipse cx="265" cy="270" rx="138" ry="104"/>
+                <ellipse cx="430" cy="304" rx="153" ry="110"/>
+                <ellipse cx="598" cy="357" rx="150" ry="105"/>
+                <ellipse cx="716" cy="415" rx="126" ry="92"/>
+                <ellipse cx="142" cy="445" rx="140" ry="100"/>
+            </g>
+
+            <g fill="#38563b" opacity="0.72">
+                <ellipse cx="188" cy="245" rx="82" ry="58"/>
+                <ellipse cx="382" cy="214" rx="92" ry="62"/>
+                <ellipse cx="557" cy="280" rx="89" ry="68"/>
+                <ellipse cx="683" cy="347" rx="74" ry="56"/>
+            </g>
+        </g>
+
+        <!-- notebook and pen -->
+        <g transform="translate(760 718) rotate(-5)">
+            <rect x="0" y="0" width="310" height="135" rx="6" fill="#e7ddc5"/>
+            <rect x="18" y="16" width="274" height="103" fill="#eee6d4"/>
+            <line x1="38" y1="45" x2="270" y2="45" stroke="#b0a38b" stroke-width="2" opacity="0.55"/>
+            <line x1="38" y1="68" x2="270" y2="68" stroke="#b0a38b" stroke-width="2" opacity="0.42"/>
+            <line x1="38" y1="91" x2="228" y2="91" stroke="#b0a38b" stroke-width="2" opacity="0.34"/>
+            <text x="38" y="36" fill="#40382f" font-size="18" font-family="Georgia, Times New Roman, serif" opacity="0.86">write what remains</text>
+
+            <g transform="translate(248 -2) rotate(38)">
+                <rect x="0" y="0" width="10" height="150" rx="4" fill="#20262b"/>
+                <polygon points="0,150 10,150 5,166" fill="#b8a98e"/>
+            </g>
+        </g>
+
+    </svg>
+
+    <div id="qs-opening-content">
+        <div id="qs-opening-actions">
+            <div id="qs-opening-caption">the day has gone quiet</div>
+
+            <button id="qs-day-action" type="button">Stay a Little</button>
+            <button id="qs-night-go" type="button">Let's Go</button>
+        </div>
+    </div>
+</div>
+
 
 
 <!-- ============================= -->
@@ -3702,6 +4120,48 @@ renderCurrentChat();
 if ("Notification" in window) {
     Notification.requestPermission();
 }
+
+<script>
+(function () {
+    const scene = document.getElementById("qs-opening-scene");
+    const dayAction = document.getElementById("qs-day-action");
+    const nightGo = document.getElementById("qs-night-go");
+
+    if (!scene || !dayAction || !nightGo) return;
+
+    dayAction.addEventListener("click", function () {
+        if (scene.classList.contains("qs-night")) return;
+
+        scene.classList.add("qs-night");
+
+        setTimeout(function () {
+            nightGo.focus();
+        }, 5300);
+    });
+
+    nightGo.addEventListener("click", function () {
+        scene.classList.add("qs-exiting");
+
+        setTimeout(function () {
+            scene.remove();
+
+            document.body.classList.remove("qs-opening");
+            document.body.classList.add("qs-ready");
+
+            const welcome = document.getElementById("welcome");
+
+            if (welcome) {
+                document.querySelectorAll(".screen").forEach(function (screen) {
+                    screen.classList.remove("active");
+                });
+
+                welcome.classList.add("active");
+            }
+
+            window.scrollTo(0, 0);
+        }, 1750);
+    });
+})();
 </script>
 
 </body>

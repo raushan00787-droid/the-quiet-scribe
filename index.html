@@ -1202,9 +1202,13 @@ body.qs-opening.qs-ready > .container {
     opacity: 0;
 }
 
-#qs-opening-scene.qs-night #qs-day-action {
+#qs-day-action {
     display: block;
     opacity: 1;
+}
+
+#qs-opening-scene.qs-night #qs-day-action {
+    display: none;
 }
 
 #qs-opening-scene.qs-night #qs-night-go {
@@ -1468,8 +1472,8 @@ body.qs-opening.qs-ready > .container {
         <div id="qs-opening-actions">
             <div id="qs-opening-caption">the day has gone quiet</div>
 
-            <button id="qs-day-action" type="button" onclick="qsStartNight()">Stay a Little</button>
-            <button id="qs-night-go" type="button" onclick="qsEnterScribe()">Let's Go</button>
+            <button id="qs-day-action" type="button">Stay a Little</button>
+            <button id="qs-night-go" type="button">Let's Go</button>
         </div>
     </div>
 </div>
@@ -4124,25 +4128,53 @@ if ("Notification" in window) {
 </script>
 
 <script>
-function qsStartNight(){
-  var scene=document.getElementById('qs-opening-scene');
-  if(!scene) return;
-  scene.classList.add('qs-night');
-  setTimeout(function(){ var go=document.getElementById('qs-night-go'); if(go) go.focus(); },5300);
-}
-function qsEnterScribe(){
-  var scene=document.getElementById('qs-opening-scene');
-  if(scene) scene.classList.add('qs-exiting');
-  setTimeout(function(){
-    if(scene) scene.remove();
-    document.body.classList.remove('qs-opening');
-    document.body.classList.add('qs-ready');
-    document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('active');});
-    var purpose=document.getElementById('purpose');
-    if(purpose) purpose.classList.add('active');
-    window.scrollTo(0,0);
-  },1750);
-}
+(function () {
+    var scene = document.getElementById("qs-opening-scene");
+    var dayAction = document.getElementById("qs-day-action");
+    var nightGo = document.getElementById("qs-night-go");
+
+    if (!scene || !dayAction || !nightGo) return;
+
+    var transitioning = false;
+
+    dayAction.addEventListener("click", function () {
+        if (transitioning || scene.classList.contains("qs-night")) return;
+
+        transitioning = true;
+        scene.classList.add("qs-night");
+
+        window.setTimeout(function () {
+            transitioning = false;
+            nightGo.focus();
+        }, 5300);
+    });
+
+    nightGo.addEventListener("click", function () {
+        if (transitioning || !scene.classList.contains("qs-night")) return;
+
+        transitioning = true;
+        scene.classList.add("qs-exiting");
+
+        window.setTimeout(function () {
+            if (scene) scene.remove();
+
+            document.body.classList.remove("qs-opening");
+            document.body.classList.add("qs-ready");
+
+            document.querySelectorAll(".screen").forEach(function (screen) {
+                screen.classList.remove("active");
+            });
+
+            var purpose = document.getElementById("purpose");
+
+            if (purpose) {
+                purpose.classList.add("active");
+            }
+
+            window.scrollTo(0, 0);
+        }, 1750);
+    });
+})();
 </script>
 </body>
 </html>

@@ -1063,6 +1063,179 @@ button:active {
 #chat .chat-input-hint{padding:6px 8px 0;text-align:right;font-size:11px;opacity:.45}
 @media(max-width:600px){#chat{height:calc(100vh - 24px);min-height:560px;padding:12px 10px 8px}#chat .chat-box{padding-left:2px;padding-right:2px}#chat .chat-input-hint{display:none}}
 
+
+/* =========================================
+   QUIET CONVERSATION FINAL PROTOTYPE
+   ========================================= */
+#chat{
+    height:calc(100vh - 40px);
+    min-height:620px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    padding:18px 22px 14px;
+}
+#chat .chat-header{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:8px;
+    padding-bottom:14px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+#chat .chat-header h1{margin:0;font-size:28px;font-weight:normal}
+#chat .chat-header .subtitle{margin:5px 0 0;font-size:13px}
+#chat .chat-header-actions{display:flex;align-items:center;gap:8px}
+#chat .chat-new-button,#chat .chat-menu-button{
+    width:auto;
+    max-width:none;
+    margin:0;
+    padding:10px 13px;
+    border-radius:10px;
+    background:transparent;
+    border:1px solid #292932;
+    color:#aaa5ad;
+    font-size:13px;
+}
+#chat .chat-new-button:hover,#chat .chat-menu-button:hover{
+    background:#17171f;
+    border-color:#444450;
+    color:#e8e3d8;
+}
+#chat .chat-main{
+    width:min(1050px,100%);
+    flex:1 1 auto;
+    height:auto;
+    min-height:0;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+}
+#chat .chat-box{
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    overflow-y:auto;
+    padding:24px 12px 30px;
+    margin:0;
+    background:transparent;
+    border:none;
+    border-radius:0;
+    scroll-behavior:smooth;
+}
+#chat .chat-box::-webkit-scrollbar{width:6px}
+#chat .chat-box::-webkit-scrollbar-track{background:transparent}
+#chat .chat-box::-webkit-scrollbar-thumb{background:#292932;border-radius:20px}
+#chat .message{
+    max-width:min(760px,82%);
+    padding:13px 16px;
+    margin:12px 0;
+    border-radius:15px;
+    line-height:1.7;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+}
+#chat .user{
+    margin-left:auto;
+    margin-right:0;
+    background:#20212a;
+    border:1px solid #30313b;
+    border-bottom-right-radius:5px;
+}
+#chat .scribe{
+    margin-left:0;
+    margin-right:auto;
+    background:#121219;
+    border:1px solid #282831;
+    border-bottom-left-radius:5px;
+}
+#chat .chat-input-wrapper{
+    flex:0 0 auto;
+    width:100%;
+    padding:10px 0 0;
+    background:linear-gradient(to bottom,rgba(13,13,18,0),#0d0d12 24%);
+}
+#chat .chat-input-area{
+    width:100%;
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+    padding:7px;
+    margin:0;
+    background:#111118;
+    border:1px solid #292932;
+    border-radius:15px;
+    box-shadow:0 10px 35px rgba(0,0,0,.20);
+}
+#chat .chat-input{
+    flex:1;
+    min-width:0;
+    min-height:46px;
+    height:46px;
+    max-height:220px;
+    resize:none;
+    overflow-y:hidden;
+    padding:11px 12px;
+    background:transparent;
+    color:#e8e3d8;
+    border:none;
+    outline:none;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:16px;
+    line-height:1.5;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+}
+#chat .chat-input::placeholder{color:#73717a}
+#chat .send-button{
+    flex:0 0 43px;
+    width:43px;
+    height:43px;
+    margin:0;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:11px;
+    font-size:20px;
+}
+#chat .chat-controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:7px;
+}
+#chat .chat-controls button{
+    width:auto;
+    max-width:none;
+    margin:0;
+    padding:5px 8px;
+    background:transparent;
+    border:1px solid transparent;
+    font-size:11px;
+    opacity:.48;
+}
+#chat .chat-controls button:hover{opacity:1;background:#111118;border-color:#292932}
+#chat .chat-input-hint{
+    padding:6px 8px 0;
+    text-align:right;
+    font-size:11px;
+    opacity:.45;
+}
+@media(max-width:600px){
+    #chat{height:calc(100vh - 24px);min-height:560px;padding:12px 10px 8px}
+    #chat .chat-header h1{font-size:23px}
+    #chat .chat-header .subtitle{font-size:11px}
+    #chat .chat-new-button{font-size:11px;padding:8px 9px}
+    #chat .chat-menu-button{display:none}
+    #chat .chat-box{padding:18px 2px 22px}
+    #chat .message{max-width:90%;padding:11px 13px;font-size:15px}
+    #chat .chat-input-hint{display:none}
+}
+
 </style>
 </head>
 
@@ -1841,12 +2014,12 @@ button:active {
 
             <div class="chat-input-area">
 
-                <input
+                <textarea
                     id="chatInput"
                     class="chat-input"
                     type="text"
                     placeholder="Say what's on your mind..."
-                    onkeydown="handleEnter(event)">
+                    onkeydown="handleEnter(event)" rows="1" oninput="autoGrowChatInput(this)" onkeydown="handleEnter(event)"></textarea>
 
                 <button
                     class="send-button"
@@ -2858,7 +3031,7 @@ saveCurrentChat();
             ?.remove();
 
         addMessage(
-            "Error: " + error.message,
+            "The conversation couldn't continue right now. Please try again in a moment.",
             "scribe"
         );
 

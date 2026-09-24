@@ -2855,8 +2855,16 @@ function addMessage(text, type) {
     message.className =
         "message " + type;
 
-    message.textContent =
+    const content =
+        document.createElement("div");
+
+    content.className =
+        "message-content";
+
+    content.textContent =
         text;
+
+    message.appendChild(content);
 
     chatBox.appendChild(message);
 
@@ -2993,8 +3001,16 @@ End when the analysis is complete.`
     thinking.id =
         "thinkingMessage";
 
-    thinking.textContent =
+    const thinkingContent =
+        document.createElement("div");
+
+    thinkingContent.className =
+        "message-content";
+
+    thinkingContent.textContent =
         "Scribe is thinking…";
+
+    thinking.appendChild(thinkingContent);
 
     chatBox.appendChild(thinking);
 
@@ -3429,13 +3445,7 @@ function renderCurrentChat() {
 
     if (!chatBox) return;
 
-    chatBox.innerHTML = `
-        <div class="message scribe">
-            Welcome.
-            You don't need to explain why you're here.
-            Just say what is on your mind.
-        </div>
-    `;
+    chatBox.innerHTML = "";
 
     const conversation =
         JSON.parse(
@@ -3443,6 +3453,34 @@ function renderCurrentChat() {
                 "scribeConversation"
             )
         ) || [];
+
+    if (conversation.length === 0) {
+
+        chatBox.innerHTML = `
+            <div class="chat-empty">
+                <div class="chat-empty-inner">
+
+                    <div class="chat-empty-kicker">
+                        The Quiet Scribe
+                    </div>
+
+                    <h2>What's on your mind?</h2>
+
+                    <p>
+                        You don't need a polished thought to begin.
+                        Start with a question, a sentence, a book,
+                        a strange idea, or simply whatever is occupying
+                        your head right now.
+                    </p>
+
+                    <div class="chat-empty-line"></div>
+
+                </div>
+            </div>
+        `;
+
+        return;
+    }
 
     conversation.forEach(function(message) {
 

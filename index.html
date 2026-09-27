@@ -5160,6 +5160,8 @@ function sendMessage() {
         sendButton.setAttribute("aria-busy", "true");
     }
 
+    try {
+
     addMessage(text, "user");
 
     input.value = "";
@@ -5467,6 +5469,16 @@ saveCurrentChat();
         finishSend();
 
     });
+    } catch (error) {
+        document.getElementById("thinkingMessage")?.remove();
+        console.error("QUIET SCRIBE PRE-FETCH ERROR:", error);
+        addMessage(
+            "Scribe hit a local error before the request could be sent. " +
+            (error && error.message ? error.message : "Please try again."),
+            "scribe"
+        );
+        finishSend();
+    }
 }
 function finishSend(){
     sendMessage.pending = false;

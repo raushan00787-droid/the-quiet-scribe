@@ -4302,46 +4302,83 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 /* ============================= */
 
 const tonightQuestions = [
-    {
-        id: "identity-1",
-        text: "If nobody remembered your past, would you still be the same person?"
-    },
-    {
-        id: "change-1",
-        text: "What's something you believe now that you didn't believe a year ago?"
-    },
-    {
-        id: "future-1",
-        text: "If you could ask your future self one question and get an honest answer, what would you ask?"
-    },
-    {
-        id: "choice-1",
-        text: "How much of who you are is shaped by your choices, and how much by circumstances?"
-    },
-    {
-        id: "memory-1",
-        text: "If you could relive one ordinary day from your past, which day would you choose?"
-    },
-    {
-        id: "self-1",
-        text: "What's something about yourself that you understand better now than you used to?"
-    },
-    {
-        id: "meaning-1",
-        text: "Do we discover meaning in life, or do we create it?"
-    },
-    {
-        id: "perspective-1",
-        text: "What is something you once saw completely differently?"
-    },
-    {
-        id: "creative-1",
-        text: "If you could live inside any fictional world for one week, which would you choose?"
-    },
-    {
-        id: "human-1",
-        text: "What makes you feel genuinely understood by another person?"
-    }
+    { id: "identity-1", text: "If all the names people gave you disappeared, what would you call yourself?" },
+    { id: "identity-2", text: "Are you the person you believe yourself to be, or the person your choices repeatedly reveal?" },
+    { id: "memory-3", text: "If a memory changes every time you remember it, which version belongs to you?" },
+    { id: "memory-4", text: "Would you erase one painful memory if you knew it would also erase part of what it taught you?" },
+    { id: "time-5", text: "Do we ever live in the present, or are we always arriving from the past and leaning toward the future?" },
+    { id: "time-6", text: "What ordinary moment from your life might one day become your most precious memory?" },
+    { id: "choice-7", text: "Can refusing to choose be its own kind of choice?" },
+    { id: "choice-8", text: "How many of your decisions are really yours, and how many are habits wearing your voice?" },
+    { id: "freedom-9", text: "Is freedom the absence of responsibility, or the ability to choose what you are responsible for?" },
+    { id: "truth-10", text: "Is every truth worth speaking, even when truth causes unnecessary pain?" },
+    { id: "truth-11", text: "Would you rather know an uncomfortable truth or keep a beautiful illusion?" },
+    { id: "regret-12", text: "Do we regret what we did more, or what we were too afraid to do?" },
+    { id: "love-13", text: "Is being needed the same thing as being loved?" },
+    { id: "love-14", text: "Can love remain meaningful when it is not returned?" },
+    { id: "love-15", text: "What makes being chosen by one person different from being admired by many?" },
+    { id: "love-16", text: "Can you love someone without needing to possess a place in their life?" },
+    { id: "loneliness-17", text: "Can someone be lonely while surrounded by people who genuinely care about them?" },
+    { id: "belonging-18", text: "Is belonging something another person gives you, or something you build within yourself?" },
+    { id: "friendship-19", text: "What makes someone a friend rather than simply a person you know well?" },
+    { id: "attention-20", text: "What does it mean to truly give another person your attention?" },
+    { id: "human-21", text: "Why do people sometimes hurt what they are most afraid to lose?" },
+    { id: "human-22", text: "Why do we want certainty from a world that keeps changing?" },
+    { id: "human-23", text: "Why can one person's opinion matter more than the approval of hundreds?" },
+    { id: "human-24", text: "How much of your personality was chosen by you, and how much was handed to you by the world?" },
+    { id: "meaning-25", text: "If life has no guaranteed meaning, what would you choose to make meaningful?" },
+    { id: "meaning-26", text: "Can a small life contain a profound life?" },
+    { id: "meaning-27", text: "What would you keep doing if nobody could ever applaud you for it?" },
+    { id: "absurd-28", text: "If the universe owes you no explanation, what should you do with that freedom?" },
+    { id: "absurd-29", text: "Can accepting life's uncertainty make a person more alive rather than less secure?" },
+    { id: "existence-30", text: "Why do humans create things they know will eventually disappear?" },
+    { id: "death-31", text: "Does knowing that life ends make an ordinary afternoon more valuable?" },
+    { id: "hope-32", text: "Is hope stronger when there is evidence for it, or when there is none?" },
+    { id: "fear-33", text: "What would you attempt if fear stopped demanding permission?" },
+    { id: "courage-34", text: "Is courage the absence of fear, or the decision to act while afraid?" },
+    { id: "failure-35", text: "What can failure teach that success sometimes hides?" },
+    { id: "failure-36", text: "Can an honest failure be more meaningful than a success achieved for the wrong reason?" },
+    { id: "ambition-37", text: "When does ambition stop being a dream and start becoming a demand?" },
+    { id: "self-38", text: "Which truth about yourself are you still learning to accept?" },
+    { id: "self-39", text: "Which version of yourself do you secretly hope to meet again?" },
+    { id: "self-40", text: "Can you outgrow an old version of yourself without betraying who you once were?" },
+    { id: "change-41", text: "When does changing yourself become growth, and when does it become performance?" },
+    { id: "childhood-42", text: "What did you believe about adulthood when you were younger that you no longer believe?" },
+    { id: "future-43", text: "What are you becoming without noticing it?" },
+    { id: "future-44", text: "If your future self could answer one question honestly, what would you ask?" },
+    { id: "dreams-45", text: "What dream would you pursue if nobody could judge the attempt?" },
+    { id: "ordinary-46", text: "What tiny moment from your life deserves to be remembered more than it probably will be?" },
+    { id: "silence-47", text: "What thought keeps returning when everything else becomes quiet?" },
+    { id: "solitude-48", text: "What can you learn about yourself only when nobody is watching?" },
+    { id: "art-49", text: "Why can a fictional story sometimes tell us something true about ourselves?" },
+    { id: "books-50", text: "What story changed a question you were asking about life?" },
+    { id: "philosophy-51", text: "Is a difficult question valuable even when it has no final answer?" },
+    { id: "Kafka-52", text: "Kafka, you say that to be loved when the whole world feels misaligned is a miracle. But what if she already has others who comfort her, others who make her laugh, others she can turn to when the world falls apart? What if she does not need my attention at all? Then tell me, Kafka, what makes my being loved by her a miracle?" },
+    { id: "question-53", text: "What question about yourself are you avoiding because you already suspect the answer?" },
+    { id: "quiet-54", text: "What would you write if you knew nobody would ever read it?" },
+    { id: "home-55", text: "Is home a place, a person, a memory, or a feeling?" },
+    { id: "goodness-56", text: "Would you still do the right thing if nobody could ever know you did it?" },
+    { id: "forgiveness-57", text: "Does forgiving someone require understanding them?" },
+    { id: "society-58", text: "How much of your life is genuinely chosen, and how much is quietly expected of you?" },
+    { id: "beauty-59", text: "Why can imperfect things sometimes feel more alive than perfect ones?" },
+    { id: "nostalgia-60", text: "Do we miss the past itself, or the person we were inside it?" },
+    { id: "relationships-61", text: "What makes a relationship feel like a home rather than a habit?" },
+    { id: "distance-62", text: "Can distance reveal something that closeness keeps hidden?" },
+    { id: "unseen-63", text: "Can someone change your life without ever knowing they did?" },
+    { id: "ordinary-64", text: "What would become important if you suddenly knew this was an ordinary day you would remember forever?" },
+    { id: "identity-65", text: "If your personality changed completely, would the people who love you still be loving the same person?" },
+    { id: "love-66", text: "Can loving someone mean accepting that you may not be the person they need?" },
+    { id: "attention-67", text: "If someone already has many people who comfort them, what could your presence uniquely mean?" },
+    { id: "time-68", text: "If you could pause one moment forever, would that preserve its beauty or destroy what made it alive?" },
+    { id: "memory-69", text: "How much of your past is memory, and how much is the story you tell about it?" },
+    { id: "solitude-70", text: "Who are you when there is nobody to impress?" },
+    { id: "future-71", text: "If your life were a book, what chapter are you living right now?" },
+    { id: "legacy-72", text: "Why do we want to be remembered when we will not be here to experience being remembered?" },
+    { id: "art-73", text: "Why create something when you know it may never be understood?" },
+    { id: "choice-74", text: "What would you choose if there were no audience for your decision?" },
+    { id: "meaning-75", text: "If nobody could measure your achievements, what would still be worth doing?" },
+    { id: "love-76", text: "What remains of love when certainty, possession, and permanence are removed?" },
+    { id: "question-77", text: "What question would you leave behind if you could leave only one?" }
 ];
 
 function getTonightQuestion() {
@@ -4835,30 +4872,73 @@ function loadWriterDraft(){
 /* ============================= */
 
 const thoughts = [
-    {
-        title: "The Question of Identity",
-        text: "If nobody remembered your past, would you still be the same person?"
-    },
-    {
-        title: "Discovering or Creating",
-        text: "Do we discover who we are, or slowly create ourselves?"
-    },
-    {
-        title: "The Nature of Memory",
-        text: "Can a memory be part of who you are even when you know it is incomplete?"
-    },
-    {
-        title: "Understanding",
-        text: "Is being understood more important than being agreed with?"
-    },
-    {
-        title: "Thoughts That Change Us",
-        text: "If a thought changes you, does it become part of you?"
-    },
-    {
-        title: "The Same Person",
-        text: "What makes a person the same person across time?"
-    }
+    { title: "The Mask", text: "How many versions of yourself do you perform without noticing?" },
+    { title: "The Inner Judge", text: "Whose voice do you hear when you criticize yourself?" },
+    { title: "The Stranger", text: "How much of another person can we ever truly know?" },
+    { title: "The Unread Letter", text: "What would you say if you could write one letter with no possibility of receiving a reply?" },
+    { title: "The Burden of Choice", text: "Is having more choices always the same as having more freedom?" },
+    { title: "The Need to Belong", text: "Why do people sometimes betray their own nature just to remain inside a group?" },
+    { title: "The Unchosen Life", text: "Who might you have become if one important event had never happened?" },
+    { title: "The Impossible Answer", text: "Can an unanswered question shape a life more than an answered one?" },
+    { title: "The Weight of Memory", text: "If painful memories helped create you, would removing them also remove part of you?" },
+    { title: "The Quiet Person", text: "What might a quiet person notice that a louder person misses?" },
+    { title: "The Meaning of Home", text: "Is home a place, a person, a memory, or a feeling?" },
+    { title: "The Fear of Being Ordinary", text: "Why can being ordinary sometimes feel like failure?" },
+    { title: "The Future Stranger", text: "Would your future self recognize the person you are today?" },
+    { title: "The Moral Choice", text: "Does a good action remain good when it is done for selfish reasons?" },
+    { title: "The Cost of Truth", text: "Is every truth worth saying?" },
+    { title: "The Shape of Regret", text: "Do we regret what we did more, or what we never dared to do?" },
+    { title: "The Other Person", text: "Can you love someone without ever fully understanding them?" },
+    { title: "The Need to Be Needed", text: "Is being needed a form of love, or can it become a substitute for love?" },
+    { title: "The Invisible Life", text: "How much of a person's life is made of moments nobody else ever sees?" },
+    { title: "The Witness", text: "If nobody witnesses your life, does that make it less meaningful?" },
+    { title: "The Artist", text: "Why create something when you know it may never be understood?" },
+    { title: "The Book", text: "Can a book understand its reader better than the reader understands themselves?" },
+    { title: "The Stranger Within", text: "What part of yourself might feel unfamiliar if you met it years from now?" },
+    { title: "The Price of Certainty", text: "What would you lose if every uncertainty in your life suddenly disappeared?" },
+    { title: "The Beautiful Imperfection", text: "Why can something unfinished feel more alive than something flawless?" },
+    { title: "The Lost Version", text: "Do we mourn people, places, or the versions of ourselves that existed around them?" },
+    { title: "The Silent Question", text: "What question follows you even when you stop asking it aloud?" },
+    { title: "The Choice to Stay", text: "When is staying an act of love, and when is it an act of fear?" },
+    { title: "The Choice to Leave", text: "Can leaving someone be an honest form of care?" },
+    { title: "The Human Contradiction", text: "Why can a person sincerely want two completely opposite things?" },
+    { title: "The Memory of a Feeling", text: "Can you forget an event while still carrying the feeling it created?" },
+    { title: "The Unspoken", text: "How much of a relationship is built from things neither person says?" },
+    { title: "The Observer", text: "Does observing life carefully make you understand it, or sometimes keep you from participating in it?" },
+    { title: "The Mirror", text: "Are we more honest when nobody is watching, or when someone finally sees us clearly?" },
+    { title: "The Crowd", text: "Why can belonging to a crowd sometimes make a person feel more alone?" },
+    { title: "The Ordinary Day", text: "What makes an ordinary day worth remembering?" },
+    { title: "The Future", text: "Is becoming who you want to be more important than knowing who you are now?" },
+    { title: "The Past", text: "Can you forgive your younger self for decisions made with knowledge they did not have?" },
+    { title: "The Unfinished Self", text: "Must a person have a fixed identity, or can being unfinished be the point?" },
+    { title: "The Question of Love", text: "What makes love different from familiarity, attachment, admiration, or need?" },
+    { title: "The Miracle of Being Chosen", text: "If someone has many people around them, what can it mean for them to choose your presence?" },
+    { title: "The Kafka Question", text: "If someone does not need your attention, what would make giving it still meaningful?" },
+    { title: "The Camus Question", text: "If life offers no guaranteed answer, what kind of answer would you choose to live?" },
+    { title: "The Dostoevsky Question", text: "Can a person ever completely understand their own motives, or do we remain partly mysterious even to ourselves?" },
+    { title: "The Human Soul", text: "Is a person's deepest nature revealed by what they desire, what they resist, or what they choose?" },
+    { title: "The Moral Stranger", text: "Would you behave differently if you knew nobody could reward or punish you?" },
+    { title: "The Beautiful Failure", text: "Can failing honestly be more meaningful than succeeding at something you never cared about?" },
+    { title: "The Need for Meaning", text: "Why does the human mind keep turning events into stories?" },
+    { title: "The Freedom to Become", text: "If nobody expected anything from you, who would you try to become?" },
+    { title: "The Social Self", text: "Which parts of your personality exist because other people expect them?" },
+    { title: "The Private Self", text: "Who are you when there is nobody to impress?" },
+    { title: "The Last Day", text: "If you knew an ordinary day was your last, what would suddenly become important?" },
+    { title: "The First Day", text: "If you could begin again with your current understanding, what would you protect?" },
+    { title: "The Unknown", text: "Why does uncertainty frighten us even when certainty can also be painful?" },
+    { title: "The Human Need for Stories", text: "Why do people turn memories into narratives instead of leaving them as scattered moments?" },
+    { title: "The Unreachable Person", text: "Can someone change your life even if they never know the effect they had?" },
+    { title: "The Empty Room", text: "What thoughts appear when there is finally nothing demanding your attention?" },
+    { title: "The One Person", text: "Why can one person's opinion matter more than the opinion of hundreds?" },
+    { title: "The Unreturned Feeling", text: "Can a feeling remain valuable even when it is not returned?" },
+    { title: "The Limits of Understanding", text: "Is complete understanding between two people possible, or only approximation?" },
+    { title: "The Self and the Mask", text: "If a mask becomes comfortable enough, when does it stop feeling like a mask?" },
+    { title: "The Question of Goodness", text: "Is goodness still goodness when it is mixed with selfish motives?" },
+    { title: "The Fear of Forgetting", text: "Why does being forgotten feel frightening even though we cannot experience our own absence?" },
+    { title: "The Future Memory", text: "Which moment happening now might you one day wish you had noticed more carefully?" },
+    { title: "The Unwritten Life", text: "What part of your life exists only as a possibility right now?" },
+    { title: "The Quiet Miracle", text: "What small thing in your life would look miraculous to someone who had never experienced it?" },
+    { title: "The Final Question", text: "What question would you want to leave behind if you could leave only one?" }
 ];
 
 function newThought() {

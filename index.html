@@ -5376,7 +5376,26 @@ ${philosopherInstruction}`
             );
         }
 
-        return response.json();
+        return response.text().then(function(raw) {
+            let data;
+            try {
+                data = raw ? JSON.parse(raw) : {};
+            } catch (parseError) {
+                throw new Error("Worker returned non-JSON data.");
+            }
+
+            if (!response.ok) {
+                const detail =
+                    data?.error?.message ||
+                    data?.error ||
+                    data?.message ||
+                    raw ||
+                    ("HTTP " + response.status);
+                throw new Error(String(detail));
+            }
+
+            return data;
+        });
 
     })
 
@@ -5386,20 +5405,25 @@ ${philosopherInstruction}`
             .getElementById("thinkingMessage")
             ?.remove();
 
-        if (
-            !data.choices ||
-            !data.choices[0] ||
-            !data.choices[0].message
-        ) {
-
-            throw new Error(
-                "Invalid response"
-            );
-
-        }
-
         const response =
-            data.choices[0].message.content;
+            typeof data === "string"
+                ? data
+                : data?.choices?.[0]?.message?.content ||
+                  data?.choices?.[0]?.text ||
+                  data?.response ||
+                  data?.reply ||
+                  data?.content ||
+                  data?.text ||
+                  data?.message?.content ||
+                  data?.message ||
+                  data?.output_text ||
+                  data?.result?.response ||
+                  data?.result?.text ||
+                  "";
+
+        if (!response || typeof response !== "string") {
+            throw new Error("Worker returned no usable reply.");
+        }
 
         conversation.push({
     role: "assistant",
@@ -5429,8 +5453,9 @@ saveCurrentChat();
             .getElementById("thinkingMessage")
             ?.remove();
 
+        const reason = error && error.message ? " " + error.message : "";
         addMessage(
-            "I couldn't reach Scribe just now. Your message is saved locally, so you can try again when the connection is back.",
+            "I couldn't get a reply from Scribe just now. Your message is saved locally, so you can try again." + reason,
             "scribe"
         );
 

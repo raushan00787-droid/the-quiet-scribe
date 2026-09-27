@@ -5117,10 +5117,15 @@ function exportQuietData(){
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="quiet-scribe-data.json";link.click();URL.revokeObjectURL(url);
 }
 function clearQuietMemories(){if(!confirm("Forget every saved memory from this browser?"))return;localStorage.removeItem("quietScribeMemory");renderQuietMemory()}
-function clearQuietConversations(){if(!confirm("Clear all saved conversations from this browser?"))return;localStorage.removeItem("scribeChats");localStorage.removeItem("scribeConversation");localStorage.removeItem("scribeCurrentChat");renderChatList();renderCurrentChat()}
+function clearQuietConversations(){if(sendMessage.pending)return;if(!confirm("Clear all saved conversations from this browser?"))return;localStorage.removeItem("scribeChats");localStorage.removeItem("scribeConversation");localStorage.removeItem("scribeCurrentChat");renderChatList();renderCurrentChat()}
 function loadQuietSettings(){
- applyQuietTheme(localStorage.getItem("quietScribeTheme")||"midnight");const theme=localStorage.getItem("quietScribeTheme")||"midnight",tone=localStorage.getItem("quietScribeTone")||"balanced";
- document.querySelectorAll("[data-setting-theme]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-theme")===theme));document.querySelectorAll("[data-setting-tone]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-tone")===tone));
+ const theme=localStorage.getItem("quietScribeTheme")||"midnight";
+ const tone=localStorage.getItem("quietScribeTone")||"balanced";
+ quietSelectedTheme=theme;
+ quietSelectedTone=tone;
+ applyQuietTheme(theme);
+ document.querySelectorAll("[data-setting-theme]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-theme")===theme));
+ document.querySelectorAll("[data-setting-tone]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-tone")===tone));
  const dnd=localStorage.getItem("quietScribeDND")==="true";document.body.classList.toggle("dnd-mode",dnd);const db=document.getElementById("settingsDndButton");if(db)db.textContent="DND: "+(dnd?"ON":"OFF");
  philosopherMode=localStorage.getItem("quietScribePhilosopher")==="true";const pb=document.getElementById("settingsPhilosopherButton");if(pb)pb.textContent="Philosopher: "+(philosopherMode?"ON":"OFF");renderQuietMemory();
 }
@@ -5140,11 +5145,17 @@ function sendMessage() {
     const chatBox =
         document.getElementById("chatBox");
 
-    const text =
-        input.value.trim();
+    const text = input.value.trim();
 
-    if (text === "") {
+    if (text === "" || sendMessage.pending) {
         return;
+    }
+
+    const sendButton = document.querySelector("#chat.active .send-button");
+    sendMessage.pending = true;
+    if (sendButton) {
+        sendButton.disabled = true;
+        sendButton.setAttribute("aria-busy", "true");
     }
 
     addMessage(text, "user");
@@ -5171,6 +5182,15 @@ function sendMessage() {
         "scribeConversation",
         JSON.stringify(conversation)
     );
+    saveCurrentChat();
+
+    const tone = localStorage.getItem("quietScribeTone") || "balanced";
+    const toneInstruction =
+        tone === "quiet"
+            ? "Preferred response tone: quiet and concise. Keep replies focused and let depth appear only when needed."
+            : tone === "deep"
+                ? "Preferred response tone: deep and thoughtful. Give ideas enough room to breathe and explore."
+                : "Preferred response tone: balanced. Be concise when enough, but go deeper when the conversation calls for it.";
 
     const philosopherInstruction =
         philosopherMode
@@ -5338,6 +5358,8 @@ Do not use random or repetitive emojis.
 
 
 
+${toneInstruction}
+
 ${philosopherInstruction}` 
 
                     },
@@ -5401,6 +5423,8 @@ saveCurrentChat();
             "scribe"
         );
 
+        finishSend();
+
     })
     .catch(function(error) {
 
@@ -5409,7 +5433,7 @@ saveCurrentChat();
             ?.remove();
 
         addMessage(
-            "Error: " + error.message,
+            "I couldn't reach Scribe just now. Your message is saved locally, so you can try again when the connection is back.",
             "scribe"
         );
 
@@ -5418,8 +5442,27 @@ saveCurrentChat();
             error
         );
 
+        finishSend();
+
     });
 }
+function finishSend(){
+    sendMessage.pending = false;
+
+    const input = document.getElementById("chatInput");
+    const sendButton = document.querySelector("#chat.active .send-button");
+
+    if (sendButton) {
+        sendButton.disabled = false;
+        sendButton.removeAttribute("aria-busy");
+    }
+
+    if (input) {
+        input.focus();
+        resizeChatInput(input);
+    }
+}
+sendMessage.pending = false;
 /* ============================= */
 /* CLEAR CHAT */
 /* ============================= */

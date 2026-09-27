@@ -4353,7 +4353,10 @@ function getTonightQuestion() {
 
     // Same night → same question
     if (savedDate === today && savedQuestion) {
-        return JSON.parse(savedQuestion);
+        const saved = safeParseJSON(savedQuestion, null);
+        if (saved && saved.id && saved.text) return saved;
+        localStorage.removeItem("scribeTonightDate");
+        localStorage.removeItem("scribeTonightQuestion");
     }
 
     // New night → choose a new question

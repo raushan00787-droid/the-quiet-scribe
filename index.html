@@ -4692,171 +4692,104 @@ function openReading(id) {
 /* WRITER */
 /* ============================= */
 
-function saveWriting() {
+function saveWriting(){
+    const input=document.getElementById("writerInput");
+    const titleInput=document.getElementById("writerTitle");
+    if(!input||!titleInput)return;
 
-    const input =
-        document.getElementById("writerInput");
+    const text=input.value.trim();
+    const title=titleInput.value.trim();
+    if(text===""){input.focus();return}
 
-    const titleInput =
-        document.getElementById("writerTitle");
+    const entries=readStoredArray("scribeWritings");
+    entries.push({title:title||"Untitled Writing",text,date:new Date().toISOString()});
+    localStorage.setItem("scribeWritings",JSON.stringify(entries.slice(-100)));
 
-    const text =
-        input.value.trim();
-    const title =
-        titleInput.value.trim();
-
-    if (text === "") {
-        return;
-    }
-
-    const entries =
-        JSON.parse(
-            localStorage.getItem("scribeWritings")
-        ) || [];
-
-    entries.push({
-        title: title || "Untitled Writing",
-        text: text,
-        date: new Date().toLocaleString()
-    });
-
-    localStorage.setItem(
-        "scribeWritings",
-        JSON.stringify(entries)
-    );
-
-    input.value = "";
-    titleInput.value = "";
+    input.value="";
+    titleInput.value="";
     localStorage.removeItem("scribeWriterDraft");
-
     loadSavedWritings();
 }
+function formatWritingDate(value){
+    const date=new Date(value);
+    return Number.isNaN(date.getTime())?"":date.toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+}
+function loadSavedWritings(){
+    const container=document.getElementById("savedEntries");
+    if(!container)return;
 
+    const entries=readStoredArray("scribeWritings");
+    container.innerHTML="";
 
-function loadSavedWritings() {
-
-    const container =
-        document.getElementById("savedEntries");
-
-    if (!container) {
+    if(entries.length===0){
+        container.innerHTML='<p class="subtitle saved-empty">You haven\'t saved anything yet. When a piece is worth keeping, it can stay here.</p>';
         return;
     }
 
-    const entries =
-        JSON.parse(
-            localStorage.getItem("scribeWritings")
-        ) || [];
+    entries.slice().reverse().forEach(function(entry){
+        const div=document.createElement("article");
+        div.className="entry";
 
-    container.innerHTML = "";
+        const title=document.createElement("h3");
+        title.textContent=entry.title||"Untitled Writing";
 
-    if (entries.length === 0) {
+        const meta=document.createElement("div");
+        meta.className="entry-meta";
+        meta.textContent=formatWritingDate(entry.date);
 
-        container.innerHTML = `
-            <p class="subtitle">
-                You haven't saved anything yet.
-            </p>
-        `;
+        const text=document.createElement("p");
+        text.textContent=entry.text;
 
-        return;
-    }
-
-    entries.slice().reverse().forEach(function(entry) {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "entry";
-
-
-        const title =
-            document.createElement("h3");
-
-        title.textContent =
-            entry.title || "Untitled Writing";
-
-
-        const text =
-            document.createElement("p");
-
-        text.textContent =
-            entry.text;
-
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.textContent =
-            "🗑️ Delete";
-
-        deleteButton.onclick = function() {
-            deleteWriting(entry);
-        };
-
+        const deleteButton=document.createElement("button");
+        deleteButton.type="button";
+        deleteButton.className="entry-delete";
+        deleteButton.textContent="🗑️ Delete";
+        deleteButton.onclick=function(){deleteWriting(entry)};
 
         div.appendChild(title);
+        if(meta.textContent)div.appendChild(meta);
         div.appendChild(text);
         div.appendChild(deleteButton);
-
         container.appendChild(div);
-
     });
 }
+function deleteWriting(entryToDelete){
+    if(!confirm("Delete this writing from this browser?"))return;
 
+    const entries=readStoredArray("scribeWritings");
+    const updatedEntries=entries.filter(function(entry){
+        return !(entry.title===entryToDelete.title&&entry.text===entryToDelete.text&&entry.date===entryToDelete.date);
+    });
 
-function deleteWriting(entryToDelete) {
-
-    const entries =
-        JSON.parse(
-            localStorage.getItem("scribeWritings")
-        ) || [];
-
-    const updatedEntries =
-        entries.filter(function(entry) {
-
-            return !(
-                entry.title === entryToDelete.title &&
-                entry.text === entryToDelete.text &&
-                entry.date === entryToDelete.date
-            );
-
-        });
-
-    localStorage.setItem(
-        "scribeWritings",
-        JSON.stringify(updatedEntries)
-    );
-
+    localStorage.setItem("scribeWritings",JSON.stringify(updatedEntries));
     loadSavedWritings();
-    }
-  
-
-function saveWriterDraft() {
-    const title = document.getElementById("writerTitle");
-    const input = document.getElementById("writerInput");
-    if (!title || !input) return;
-
-    localStorage.setItem("scribeWriterDraft", JSON.stringify({
-        title: title.value,
-        text: input.value
-    }));
 }
+function saveWriterDraft(){
+    const title=document.getElementById("writerTitle");
+    const input=document.getElementById("writerInput");
+    if(!title||!input)return;
 
-function loadWriterDraft() {
-    const title = document.getElementById("writerTitle");
-    const input = document.getElementById("writerInput");
-    if (!title || !input) return;
-
-    try {
-        const draft = JSON.parse(localStorage.getItem("scribeWriterDraft") || "null");
-        if (!draft) return;
-        title.value = draft.title || "";
-        input.value = draft.text || "";
-    } catch (error) {
-        console.warn("Writer draft could not be restored.", error);
+    if(!title.value&&!input.value){
+        localStorage.removeItem("scribeWriterDraft");
+        return;
     }
+
+    localStorage.setItem("scribeWriterDraft",JSON.stringify({title:title.value,text:input.value}));
+}
+function loadWriterDraft(){
+    const title=document.getElementById("writerTitle");
+    const input=document.getElementById("writerInput");
+    if(!title||!input)return;
+
+    const draft=safeParseJSON(localStorage.getItem("scribeWriterDraft")||"null",null);
+    if(!draft||typeof draft!=="object")return;
+
+    title.value=draft.title||"";
+    input.value=draft.text||"";
 }
 
 /* ============================= */
+/* THINKER *//* ============================= */
 /* THINKER */
 /* ============================= */
 
@@ -5078,52 +5011,28 @@ function addMessage(text, type) {
 /* NAME MEMORY */
 /* ============================= */
 
-function rememberName(text) {
-
-    const patterns = [
-
+function rememberName(text){
+    const patterns=[
         /my name is\s+(.+)/i,
-
         /call me\s+(.+)/i,
-
-        /i am\s+(.+)/i,
-
-        /i'm\s+(.+)/i
-
+        /i am called\s+(.+)/i,
+        /i'm called\s+(.+)/i,
+        /people call me\s+(.+)/i
     ];
-
-    for (
-        let i = 0;
-        i < patterns.length;
-        i++
-    ) {
-
-        const match =
-            text.match(patterns[i]);
-
-        if (match) {
-
-            const name =
-                match[1].trim();
-
-            if (
-                name.length > 0 &&
-                name.length < 50
-            ) {
-
-                localStorage.setItem(
-                    "scribeName",
-                    name
-                );
-
+    for(let i=0;i<patterns.length;i++){
+        const match=text.match(patterns[i]);
+        if(match){
+            const name=match[1].trim();
+            if(name.length>0&&name.length<50){
+                localStorage.setItem("scribeName",name);
                 break;
             }
         }
     }
 }
 
-
 /* ============================= */
+/* PERSISTENT MEMORY *//* ============================= */
 /* PERSISTENT MEMORY */
 /* ============================= */
 function getQuietMemories(){try{return JSON.parse(localStorage.getItem("quietScribeMemory")||"[]")||[]}catch(error){console.error("Quiet memory read failed.",error);return[]}}

@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>The Quiet Scribe</title>
+<meta name="description" content="A quiet place for thoughts that have nowhere else to go. Write, think, read, and speak freely.">
+<meta name="theme-color" content="#0a0a0f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Quiet Scribe">
+<meta property="og:description" content="A quiet place for thoughts that have nowhere else to go.">
+<meta property="og:url" content="https://the-quiet-scribe.pages.dev/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230a0a0f'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-size='34' fill='%23e8e3d8'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
 
 <style>
 
@@ -2426,6 +2433,255 @@ textarea:focus-visible{
     }
 }
 
+
+/* =========================================================
+   FINAL POLISH
+   Airier conversation, calmer motion, better mobile behavior.
+   ========================================================= */
+
+body.qs-ready > .container{
+    transition:opacity .45s ease;
+}
+
+#qs-opening-title{
+    margin-bottom:18px;
+    color:rgba(255,255,255,.88);
+    font-size:clamp(28px,5vw,46px);
+    letter-spacing:.08em;
+    font-weight:normal;
+    text-shadow:0 8px 35px rgba(0,0,0,.24);
+    opacity:.78;
+    animation:qsOpeningTitleIn 1.2s ease both;
+}
+
+#qs-opening-scene.qs-night #qs-opening-title{
+    opacity:1;
+    letter-spacing:.12em;
+}
+
+#qs-opening-scene::after{
+    content:"";
+    position:absolute;
+    inset:-35% -20%;
+    z-index:3;
+    pointer-events:none;
+    background:
+        repeating-linear-gradient(
+            104deg,
+            transparent 0 26px,
+            rgba(255,255,255,.055) 27px 28px,
+            transparent 29px 54px
+        );
+    background-size:54px 108px;
+    opacity:.20;
+    mix-blend-mode:screen;
+    animation:qsRainFall .8s linear infinite;
+}
+
+@keyframes qsRainFall{
+    from{transform:translate3d(-3%, -6%, 0);}
+    to{transform:translate3d(3%, 6%, 0);}
+}
+
+@keyframes qsOpeningTitleIn{
+    from{opacity:0;transform:translateY(8px);letter-spacing:.02em;}
+    to{opacity:.78;transform:none;letter-spacing:.08em;}
+}
+
+body.theme-rain::before{
+    background-image:
+        repeating-linear-gradient(
+            104deg,
+            transparent 0 22px,
+            rgba(169,205,214,.035) 23px 24px,
+            transparent 25px 46px
+        );
+    background-size:46px 92px;
+    animation:qsAmbientRain 1.8s linear infinite;
+    opacity:.16;
+}
+
+@keyframes qsAmbientRain{
+    from{background-position:0 0;}
+    to{background-position:46px 92px;}
+}
+
+.google-loading{
+    min-height:44px;
+    display:grid;
+    place-items:center;
+    color:#8d8992;
+    font-size:13px;
+}
+
+/* The conversation should breathe instead of filling every pixel. */
+.container:has(#chat.active){
+    max-width:1040px;
+}
+
+#chat.active{
+    height:100dvh;
+    min-height:100dvh;
+    padding:22px clamp(18px,6vw,92px) 18px;
+}
+
+#chat.active .chat-header{
+    width:min(900px,100%);
+    margin:0 auto 10px;
+}
+
+#chat.active .chat-main{
+    width:min(900px,100%);
+    max-width:900px;
+    height:calc(100dvh - 124px);
+    margin:0 auto;
+}
+
+#chat.active .chat-box{
+    padding:32px 18px 56px;
+}
+
+#chat.active .message{
+    max-width:min(720px,86%);
+    padding:15px 18px;
+    margin:22px 0;
+    border-radius:18px;
+    line-height:1.9;
+    font-size:16px;
+}
+
+#chat.active .message + .message{
+    margin-top:28px;
+}
+
+#chat.active .scribe{
+    padding:4px 2px;
+}
+
+#chat.active .user{
+    padding-left:19px;
+    padding-right:19px;
+}
+
+#chat.active .chat-input-wrapper{
+    padding-top:18px;
+}
+
+#chat.active .chat-controls{
+    width:min(900px,100%);
+    max-width:900px;
+    padding:2px 6px 0;
+}
+
+#chat.active #thinkingMessage{
+    opacity:.62;
+    font-style:italic;
+    animation:qsThinkingPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes qsThinkingPulse{
+    0%,100%{opacity:.38;}
+    50%{opacity:.76;}
+}
+
+#chat.active .chat-box::-webkit-scrollbar{
+    width:7px;
+}
+
+#chat.active .chat-box::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.13);
+    border-radius:999px;
+}
+
+@media (max-width:700px){
+    #chat.active{
+        padding:14px 10px 10px;
+    }
+
+    #chat.active .chat-header{
+        margin-bottom:6px;
+    }
+
+    #chat.active .chat-main{
+        height:calc(100dvh - 104px);
+    }
+
+    #chat.active .chat-box{
+        padding:20px 4px 42px;
+    }
+
+    #chat.active .message{
+        max-width:93%;
+        margin:18px 0;
+        padding:13px 15px;
+        line-height:1.78;
+    }
+
+    #chat.active .message + .message{
+        margin-top:22px;
+    }
+
+    #chat.active .chat-input-wrapper{
+        padding-top:12px;
+    }
+
+    #chat.active .chat-controls{
+        padding-left:2px;
+        padding-right:2px;
+    }
+}
+
+@media (max-width:420px){
+    #chat.active .chat-header-actions{
+        gap:6px;
+        padding-left:8px;
+    }
+
+    #chat.active .chat-header-divider{
+        display:none;
+    }
+
+    #chat.active .chat-header-main h1{
+        font-size:21px;
+    }
+
+    #chat.active .chat-header-main .subtitle{
+        font-size:12px;
+    }
+
+    #chat.active .chat-new-button{
+        width:33px;
+        height:33px;
+        font-size:19px;
+    }
+
+    #chat.active .chat-menu-button{
+        min-width:37px;
+        padding:8px 10px;
+    }
+}
+
+@media (hover:none){
+    button:hover{
+        transform:none;
+    }
+
+    .reading-card:hover,
+    .person-card img:hover,
+    .creator-links a:hover,
+    .memory-item:hover{
+        transform:none;
+    }
+}
+
+@media (prefers-reduced-motion:reduce){
+    #qs-opening-scene::after,
+    body.theme-rain::before,
+    #chat.active #thinkingMessage{
+        animation:none !important;
+    }
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -2649,6 +2905,7 @@ textarea:focus-visible{
     </button>
 
     <div id="qs-opening-actions">
+            <div id="qs-opening-title">The Quiet Scribe</div>
             <div id="qs-opening-caption">the day has gone quiet</div>
 
             <button id="qs-day-action" type="button">Stay a Little</button>
@@ -4232,10 +4489,24 @@ function handleQuietGoogleCredential(response){
 function initQuietGoogle(){
     const button=document.getElementById("googleSignInButton");
     if(!button||button.dataset.ready==="true")return;
-    if(QUIET_GOOGLE_CLIENT_ID.includes("PASTE_")||!window.google||!google.accounts||!google.accounts.id){
-        button.innerHTML='<button type="button" onclick="alert(\'Google sign-in needs the Quiet Scribe Google Client ID first.\')">Continue with Google</button>';
+
+    if(QUIET_GOOGLE_CLIENT_ID.includes("PASTE_")){
+        button.innerHTML="<button type=\"button\" onclick=\"alert('Google sign-in needs the Quiet Scribe Google Client ID first.')\">Continue with Google</button>";
         return;
     }
+
+    if(!window.google||!window.google.accounts||!window.google.accounts.id){
+        const tries=Number(button.dataset.googleTries||"0");
+        if(tries<12){
+            button.dataset.googleTries=String(tries+1);
+            button.innerHTML="<div class=\"google-loading\">Preparing Google sign-in…</div>";
+            window.setTimeout(initQuietGoogle,500);
+        }else{
+            button.innerHTML="<button type=\"button\" onclick=\"alert('Google sign-in is unavailable right now. You can continue as a guest.')\">Google sign-in unavailable</button>";
+        }
+        return;
+    }
+
     google.accounts.id.initialize({client_id:QUIET_GOOGLE_CLIENT_ID,callback:handleQuietGoogleCredential,context:"signin"});
     google.accounts.id.renderButton(button,{type:"standard",theme:"outline",size:"large",text:"continue_with",shape:"rectangular",width:360});
     button.dataset.ready="true";
@@ -4308,22 +4579,28 @@ function loadQuietProfile(){
 /* ============================= */
 
 function showScreen(id) {
+    const screens=document.querySelectorAll(".screen");
 
-    const screens =
-        document.querySelectorAll(".screen");
-
-    screens.forEach(function(screen) {
-
+    screens.forEach(function(screen){
         screen.classList.remove("active");
-
     });
 
-    const target =
-        document.getElementById(id);
+    const target=document.getElementById(id);
 
-    if (target) {
+    if(target){
         target.classList.add("active");
     }
+
+    if(id!=="chat"){
+        const panel=document.getElementById("chatHistoryPanel");
+        const button=document.querySelector(".chat-history-button");
+        if(panel)panel.classList.remove("open");
+        if(button)button.setAttribute("aria-expanded","false");
+    }
+
+    window.requestAnimationFrame(function(){
+        window.scrollTo({top:0,behavior:"smooth"});
+    });
 }
 
 function toggleChatHistory() {
@@ -5181,9 +5458,13 @@ saveCurrentChat();
 /* ============================= */
 
 function getSavedChats() {
-    return JSON.parse(
-        localStorage.getItem("scribeChats")
-    ) || [];
+    try{
+        const parsed=JSON.parse(localStorage.getItem("scribeChats")||"[]");
+        return Array.isArray(parsed)?parsed:[];
+    }catch(error){
+        console.warn("Saved conversations could not be read.",error);
+        return [];
+    }
 }
 
 

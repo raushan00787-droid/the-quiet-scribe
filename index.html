@@ -5169,12 +5169,7 @@ function sendMessage() {
     rememberName(text);
     rememberFromMessage(text);
 
-    const conversation =
-        JSON.parse(
-            localStorage.getItem(
-                "scribeConversation"
-            )
-        ) || [];
+    const conversation = readStoredArray("scribeConversation");
 
     conversation.push({
         role: "user",

@@ -1138,6 +1138,7 @@ body.qs-opening.qs-ready > .container {
 }
 
 #qs-opening-skip {
+    pointer-events: auto;
     position: fixed;
     top: 22px;
     right: 24px;
@@ -1167,6 +1168,8 @@ body.qs-opening.qs-ready > .container {
     width: min(420px, 88vw);
     text-align: center;
     pointer-events: auto;
+    position: relative;
+    z-index: 8;
 }
 
 #qs-opening-actions button {
@@ -1325,7 +1328,12 @@ body.theme-paper{background:radial-gradient(circle at top,#302c29,#171514 70%)}
    ========================================================= */
 #purpose {
     position: relative;
+    z-index: 1;
     padding-right: clamp(150px, 16vw, 215px);
+}
+#purpose > button {
+    position: relative;
+    z-index: 2;
 }
 #purpose .quiet-utility-dock {
     position: absolute;
@@ -3972,7 +3980,13 @@ function togglePhilosopherMode() {
 
 function openChat() {
 
+    const panel = document.getElementById("chatHistoryPanel");
+    if (panel) panel.classList.remove("open");
+
     showScreen("chat");
+
+    const chat = document.getElementById("chat");
+    if (chat) chat.classList.add("active");
 
     const input =
         document.getElementById("chatInput");

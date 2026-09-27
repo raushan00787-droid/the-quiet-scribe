@@ -1,4 +1,5 @@
 name: Build Quiet Scribe Android App
+# APK build pipeline
 
 on:
   workflow_dispatch:

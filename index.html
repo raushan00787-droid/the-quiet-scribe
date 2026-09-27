@@ -1253,6 +1253,27 @@ body.qs-opening.qs-ready > .container {
 }
 
 
+
+/* ============================= */
+/* QUIET ONBOARDING + PROFILE */
+/* ============================= */
+#quiet-setup,#quiet-profile{text-align:center}
+.setup-card,.profile-card{max-width:620px;margin:28px auto;padding:24px;background:rgba(20,20,28,.62);border:1px solid #292932;border-radius:14px}
+.setup-label{display:block;margin:22px 0 10px;color:#aaa5ad;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.setup-input{width:100%;padding:14px 16px;background:#111118;color:#e8e3d8;border:1px solid #292932;border-radius:10px;font:inherit;outline:none}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.theme-choice{min-height:90px;margin:0;padding:14px 10px;border-radius:12px;background:#111118;border:1px solid #292932}
+.theme-choice.selected,.preference-choice.selected{border-color:#8f8a96;background:#24242e}
+.preference-grid{display:grid;gap:8px;margin-top:10px}
+.preference-choice{width:100%;max-width:none;margin:0;text-align:left;padding:13px 15px}
+.setup-note{color:#77747d;font-size:13px;line-height:1.6}
+.profile-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;margin:0 auto 14px;display:block;border:1px solid #34343e}
+.profile-name{font-size:22px;margin-bottom:6px}.profile-meta{color:#77747d;font-size:13px}
+body.theme-midnight{background:radial-gradient(circle at top,#1b1b26,#0d0d12 65%)}
+body.theme-rain{background:radial-gradient(circle at top,#182a32,#080e13 70%)}
+body.theme-paper{background:radial-gradient(circle at top,#302c29,#171514 70%)}
+@media(max-width:600px){.theme-grid{grid-template-columns:1fr}}
+
 /* ============================= */
 /* QUIET ENTRY: OATH + AUTH */
 /* ============================= */
@@ -1847,6 +1868,54 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 <!-- PURPOSE -->
 <!-- ============================= -->
 
+
+<section id="quiet-setup" class="screen">
+    <div class="oath-mark">🕯️</div>
+    <h1>Make the Quiet Yours</h1>
+    <p class="subtitle">A few choices, so this room can feel a little more like yours.</p>
+    <div class="setup-card">
+        <label class="setup-label" for="quietDisplayName">What should the Scribe call you?</label>
+        <input id="quietDisplayName" class="setup-input" type="text" maxlength="40" placeholder="Your name or nickname">
+
+        <span class="setup-label">Choose your atmosphere</span>
+        <div class="theme-grid">
+            <button type="button" class="theme-choice" data-theme="midnight" onclick="selectQuietTheme('midnight')">🌌<br>Midnight</button>
+            <button type="button" class="theme-choice" data-theme="rain" onclick="selectQuietTheme('rain')">🌧️<br>Rain</button>
+            <button type="button" class="theme-choice" data-theme="paper" onclick="selectQuietTheme('paper')">📜<br>Paper</button>
+        </div>
+
+        <span class="setup-label">What will you mostly use the Quiet for?</span>
+        <div class="preference-grid">
+            <button type="button" class="preference-choice" data-use="writing" onclick="selectQuietUse('writing')">🖋️ Writing and creating</button>
+            <button type="button" class="preference-choice" data-use="thinking" onclick="selectQuietUse('thinking')">🌙 Thinking and philosophy</button>
+            <button type="button" class="preference-choice" data-use="reading" onclick="selectQuietUse('reading')">📖 Reading and discovering</button>
+            <button type="button" class="preference-choice" data-use="conversation" onclick="selectQuietUse('conversation')">🕯️ Quiet conversations</button>
+        </div>
+
+        <span class="setup-label">How should the Scribe usually feel?</span>
+        <div class="preference-grid">
+            <button type="button" class="preference-choice" data-tone="quiet" onclick="selectQuietTone('quiet')">Quiet and concise</button>
+            <button type="button" class="preference-choice" data-tone="deep" onclick="selectQuietTone('deep')">Deep and thoughtful</button>
+            <button type="button" class="preference-choice" data-tone="balanced" onclick="selectQuietTone('balanced')">A balance of both</button>
+        </div>
+
+        <p class="setup-note">You can change these choices later. Nothing here is permanent.</p>
+        <button onclick="finishQuietSetup()">Enter the Quiet</button>
+    </div>
+</section>
+
+<section id="quiet-profile" class="screen">
+    <div class="oath-mark">🕯️</div>
+    <h1>Your Quiet</h1>
+    <div class="profile-card">
+        <img id="quietProfileAvatar" class="profile-avatar" alt="">
+        <div id="quietProfileName" class="profile-name">Guest</div>
+        <div id="quietProfileMeta" class="profile-meta"></div>
+        <button onclick="showScreen('quiet-setup');loadQuietSetup()">Edit personalization</button>
+        <button class="back" onclick="showScreen('purpose')">← Back</button>
+    </div>
+</section>
+
 <section id="purpose" class="screen">
 
     <h1>What brings you here?</h1>
@@ -1885,7 +1954,9 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
         onclick="showScreen('welcome')">
         ← Back
     </button>
-</section>
+<button onclick="showScreen('quiet-profile');loadQuietProfile()">🕯️ Your Quiet</button>
+
+    </section>
 <section id="marks" class="screen">
 
     <h1>The Ones Who Left a Mark</h1>
@@ -3166,6 +3237,121 @@ function initQuietGoogle() {
 }
 
 /* ============================= */
+/* QUIET ENTRY: OATH + AUTH */
+/* ============================= */
+
+const QUIET_GOOGLE_CLIENT_ID = "385405941998-7m2k8s6ghgdui067u9quq9n651j6vu0u.apps.googleusercontent.com";
+
+function getQuietMode(){return localStorage.getItem("quietScribeMode")||""}
+function isQuietSetupComplete(){return localStorage.getItem("quietScribeSetupComplete")==="true"}
+
+function continueAfterEntry(){
+    if(!isQuietSetupComplete()){showScreen("quiet-setup");loadQuietSetup()}
+    else{showScreen("purpose")}
+    window.scrollTo(0,0);
+}
+
+function acceptOath(){
+    localStorage.setItem("quietScribeOathAccepted","true");
+    showScreen("quiet-auth");
+    initQuietGoogle();
+}
+
+function continueAsGuest(){
+    localStorage.setItem("quietScribeMode","guest");
+    continueAfterEntry();
+}
+
+function handleQuietGoogleCredential(response){
+    if(!response||!response.credential)return;
+    try{
+        const payload=JSON.parse(atob(response.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+        localStorage.setItem("quietScribeMode","google");
+        localStorage.setItem("quietScribeGoogleProfile",JSON.stringify({
+            sub:payload.sub||"",name:payload.name||"",email:payload.email||"",picture:payload.picture||""
+        }));
+        continueAfterEntry();
+    }catch(error){
+        console.error("Google sign-in response could not be read.",error);
+        alert("Google sign-in could not be completed.");
+    }
+}
+
+function initQuietGoogle(){
+    const button=document.getElementById("googleSignInButton");
+    if(!button||button.dataset.ready==="true")return;
+    if(QUIET_GOOGLE_CLIENT_ID.includes("PASTE_")||!window.google||!google.accounts||!google.accounts.id){
+        button.innerHTML='<button type="button" onclick="alert(\'Google sign-in needs the Quiet Scribe Google Client ID first.\')">Continue with Google</button>';
+        return;
+    }
+    google.accounts.id.initialize({client_id:QUIET_GOOGLE_CLIENT_ID,callback:handleQuietGoogleCredential,context:"signin"});
+    google.accounts.id.renderButton(button,{type:"standard",theme:"outline",size:"large",text:"continue_with",shape:"rectangular",width:360});
+    button.dataset.ready="true";
+}
+
+/* ============================= */
+/* QUIET PERSONALIZATION */
+/* ============================= */
+
+let quietSelectedTheme=localStorage.getItem("quietScribeTheme")||"midnight";
+let quietSelectedUse=localStorage.getItem("quietScribeUse")||"";
+let quietSelectedTone=localStorage.getItem("quietScribeTone")||"";
+
+function selectQuietTheme(theme){
+    quietSelectedTheme=theme;
+    document.querySelectorAll(".theme-choice").forEach(function(b){b.classList.toggle("selected",b.dataset.theme===theme)});
+    applyQuietTheme(theme);
+}
+function selectQuietUse(use){
+    quietSelectedUse=use;
+    document.querySelectorAll(".preference-choice[data-use]").forEach(function(b){b.classList.toggle("selected",b.dataset.use===use)});
+}
+function selectQuietTone(tone){
+    quietSelectedTone=tone;
+    document.querySelectorAll(".preference-choice[data-tone]").forEach(function(b){b.classList.toggle("selected",b.dataset.tone===tone)});
+}
+function applyQuietTheme(theme){
+    document.body.classList.remove("theme-midnight","theme-rain","theme-paper");
+    document.body.classList.add("theme-"+(theme||"midnight"));
+}
+function loadQuietSetup(){
+    const profile=JSON.parse(localStorage.getItem("quietScribeGoogleProfile")||"null");
+    const input=document.getElementById("quietDisplayName");
+    if(input)input.value=localStorage.getItem("quietScribeDisplayName")||(profile&&profile.name)||"";
+    selectQuietTheme(localStorage.getItem("quietScribeTheme")||"midnight");
+    selectQuietUse(localStorage.getItem("quietScribeUse")||"");
+    selectQuietTone(localStorage.getItem("quietScribeTone")||"");
+}
+function finishQuietSetup(){
+    const input=document.getElementById("quietDisplayName");
+    const name=input?input.value.trim():"";
+    if(name) localStorage.setItem("quietScribeDisplayName",name);
+    localStorage.setItem("quietScribeTheme",quietSelectedTheme||"midnight");
+    localStorage.setItem("quietScribeUse",quietSelectedUse||"");
+    localStorage.setItem("quietScribeTone",quietSelectedTone||"");
+    localStorage.setItem("quietScribeSetupComplete","true");
+    applyQuietTheme(quietSelectedTheme||"midnight");
+    showScreen("purpose");
+    window.scrollTo(0,0);
+}
+function loadQuietProfile(){
+    const profile=JSON.parse(localStorage.getItem("quietScribeGoogleProfile")||"null");
+    const name=localStorage.getItem("quietScribeDisplayName")||(profile&&profile.name)||"Guest";
+    const nameElement=document.getElementById("quietProfileName");
+    const metaElement=document.getElementById("quietProfileMeta");
+    const avatar=document.getElementById("quietProfileAvatar");
+    if(nameElement)nameElement.textContent=name;
+    if(metaElement){
+        const use=localStorage.getItem("quietScribeUse");
+        metaElement.textContent=(getQuietMode()==="google"?((profile&&profile.email)||"Google account"):"Guest")+(use?" · "+use:"");
+    }
+    if(avatar){
+        if(profile&&profile.picture){avatar.src=profile.picture;avatar.style.display="block"}
+        else avatar.style.display="none";
+    }
+}
+
+/* ============================= */
 /* SCREEN SYSTEM */
 /* ============================= */
 
@@ -4354,10 +4540,18 @@ if ("Notification" in window) {
                 screen.classList.remove("active");
             });
 
-            var oath = document.getElementById("oath");
+            var nextScreen = "oath";
 
-            if (oath) {
-                oath.classList.add("active");
+            if (getQuietMode()) {
+                nextScreen = isQuietSetupComplete() ? "purpose" : "quiet-setup";
+                applyQuietTheme(localStorage.getItem("quietScribeTheme") || "midnight");
+                if (nextScreen === "quiet-setup") loadQuietSetup();
+            }
+
+            var target = document.getElementById(nextScreen);
+
+            if (target) {
+                target.classList.add("active");
             }
 
             window.scrollTo(0, 0);

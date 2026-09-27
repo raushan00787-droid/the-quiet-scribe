@@ -4451,6 +4451,14 @@ function newTonightQuestion() {
 
 const QUIET_GOOGLE_CLIENT_ID = "385405941998-7m2k8s6ghgdui067u9quq9n651j6vu0u.apps.googleusercontent.com";
 
+function safeParseJSON(value,fallback){
+    try{const parsed=JSON.parse(value);return parsed==null?fallback:parsed}
+    catch(error){console.warn("Quiet Scribe storage could not be read.",error);return fallback}
+}
+function readStoredArray(key){
+    const value=safeParseJSON(localStorage.getItem(key)||"[]",[]);
+    return Array.isArray(value)?value:[];
+}
 function getQuietMode(){return localStorage.getItem("quietScribeMode")||""}
 function isQuietSetupComplete(){return localStorage.getItem("quietScribeSetupComplete")==="true"}
 
@@ -4474,7 +4482,8 @@ function continueAsGuest(){
 function handleQuietGoogleCredential(response){
     if(!response||!response.credential)return;
     try{
-        const payload=JSON.parse(atob(response.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+        const encoded=response.credential.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
+        const payload=JSON.parse(atob(encoded+"=".repeat((4-encoded.length%4)%4)));
         localStorage.setItem("quietScribeMode","google");
         localStorage.setItem("quietScribeGoogleProfile",JSON.stringify({
             sub:payload.sub||"",name:payload.name||"",email:payload.email||"",picture:payload.picture||""
@@ -4521,29 +4530,35 @@ let quietSelectedUse=localStorage.getItem("quietScribeUse")||"";
 let quietSelectedTone=localStorage.getItem("quietScribeTone")||"";
 
 function selectQuietTheme(theme){
+    theme=["midnight","rain","paper"].includes(theme)?theme:"midnight";
     quietSelectedTheme=theme;
+    localStorage.setItem("quietScribeTheme",theme);
     document.querySelectorAll(".theme-choice").forEach(function(b){b.classList.toggle("selected",b.dataset.theme===theme)});
+    document.querySelectorAll("[data-setting-theme]").forEach(function(b){b.classList.toggle("selected",b.getAttribute("data-setting-theme")===theme)});
     applyQuietTheme(theme);
 }
 function selectQuietUse(use){
-    quietSelectedUse=use;
+    quietSelectedUse=use||"";
     document.querySelectorAll(".preference-choice[data-use]").forEach(function(b){b.classList.toggle("selected",b.dataset.use===use)});
 }
 function selectQuietTone(tone){
+    tone=["quiet","deep","balanced"].includes(tone)?tone:"balanced";
     quietSelectedTone=tone;
+    localStorage.setItem("quietScribeTone",tone);
     document.querySelectorAll(".preference-choice[data-tone]").forEach(function(b){b.classList.toggle("selected",b.dataset.tone===tone)});
+    document.querySelectorAll("[data-setting-tone]").forEach(function(b){b.classList.toggle("selected",b.getAttribute("data-setting-tone")===tone)});
 }
 function applyQuietTheme(theme){
     document.body.classList.remove("theme-midnight","theme-rain","theme-paper");
     document.body.classList.add("theme-"+(theme||"midnight"));
 }
 function loadQuietSetup(){
-    const profile=JSON.parse(localStorage.getItem("quietScribeGoogleProfile")||"null");
+    const profile=safeParseJSON(localStorage.getItem("quietScribeGoogleProfile")||"null",null);
     const input=document.getElementById("quietDisplayName");
     if(input)input.value=localStorage.getItem("quietScribeDisplayName")||(profile&&profile.name)||"";
     selectQuietTheme(localStorage.getItem("quietScribeTheme")||"midnight");
     selectQuietUse(localStorage.getItem("quietScribeUse")||"");
-    selectQuietTone(localStorage.getItem("quietScribeTone")||"");
+    selectQuietTone(localStorage.getItem("quietScribeTone")||"balanced");
 }
 function finishQuietSetup(){
     const input=document.getElementById("quietDisplayName");
@@ -4558,7 +4573,7 @@ function finishQuietSetup(){
     window.scrollTo(0,0);
 }
 function loadQuietProfile(){
-    const profile=JSON.parse(localStorage.getItem("quietScribeGoogleProfile")||"null");
+    const profile=safeParseJSON(localStorage.getItem("quietScribeGoogleProfile")||"null",null);
     const name=localStorage.getItem("quietScribeDisplayName")||(profile&&profile.name)||"Guest";
     const nameElement=document.getElementById("quietProfileName");
     const metaElement=document.getElementById("quietProfileMeta");
@@ -4569,12 +4584,13 @@ function loadQuietProfile(){
         metaElement.textContent=(getQuietMode()==="google"?((profile&&profile.email)||"Google account"):"Guest")+(use?" · "+use:"");
     }
     if(avatar){
-        if(profile&&profile.picture){avatar.src=profile.picture;avatar.style.display="block"}
-        else avatar.style.display="none";
+        if(profile&&profile.picture){avatar.src=profile.picture;avatar.alt=name+" profile photo";avatar.style.display="block"}
+        else{avatar.removeAttribute("src");avatar.alt="";avatar.style.display="none"}
     }
 }
 
 /* ============================= */
+/* SCREEN SYSTEM *//* ============================= */
 /* SCREEN SYSTEM */
 /* ============================= */
 

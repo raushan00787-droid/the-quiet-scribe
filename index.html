@@ -2682,6 +2682,45 @@ body.theme-rain::before{
     }
 }
 
+
+/* Final UX + mobile layer */
+html{color-scheme:dark}
+body.qs-ready.qs-entering > .container{opacity:0;transform:translateY(10px)}
+body.qs-ready > .container{opacity:1;transform:none;transition:opacity .52s ease,transform .52s cubic-bezier(.2,.7,.2,1)}
+
+body.theme-paper{--qs-text:#eadfce;--qs-muted:#b9ad9f;--qs-soft:#8e8174;--qs-line:rgba(245,230,206,.12);--qs-line-strong:rgba(245,230,206,.22);--qs-surface:rgba(33,28,24,.78)}
+body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(181,142,100,.09),transparent 34%),#100e0d}
+
+.chat-empty{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 80px}
+.chat-empty-mark{margin-bottom:20px;color:var(--qs-accent);font-size:21px;opacity:.6}
+.chat-empty-title{max-width:560px;color:#cdc6ce;font-size:clamp(20px,3vw,27px);line-height:1.5}
+.chat-empty-copy{max-width:500px;margin-top:10px;color:#77747d;font-size:14px;line-height:1.7}
+.chat-empty-prompts{width:min(720px,100%);display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:28px}
+.chat-empty-prompt{width:auto;max-width:100%;min-height:42px;margin:0;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.022);border:1px solid rgba(255,255,255,.07);color:#8f8992;font-size:12px;box-shadow:none}
+.chat-empty-prompt:hover{color:#c7c1c8;background:rgba(255,255,255,.045);border-color:var(--qs-line-strong);box-shadow:none}
+
+.chat-list-empty{padding:22px 8px;color:#77747d;font-size:13px;line-height:1.65;text-align:center}
+.chat-list-empty span{opacity:.65}
+.chat-history-row{display:flex;align-items:stretch;gap:4px;width:100%}
+.chat-history-row.active{border-radius:10px;background:rgba(255,255,255,.018)}
+.chat-history-row .chat-history-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:56px;justify-content:center}
+.chat-history-row.active .chat-history-item{background:transparent;border-color:transparent}
+.chat-history-title{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-history-meta{display:block;width:100%;color:#66626a;font-size:10px;line-height:1.2}
+.chat-history-delete{width:auto;min-width:34px;max-width:34px;min-height:34px;align-self:center;margin:0;padding:0;border:1px solid transparent;background:transparent;color:#625e66;box-shadow:none;font-size:17px}
+.chat-history-delete:hover{color:#c5bcc4;background:rgba(255,255,255,.035);border-color:var(--qs-line);box-shadow:none}
+
+#chat.active .chat-input-wrapper{padding-bottom:env(safe-area-inset-bottom)}
+#chat.active .chat-box{overscroll-behavior:contain}
+#chat.active .send-button:disabled{opacity:.4;cursor:wait;transform:none}
+@media(max-width:700px){
+  #chat.active .chat-empty{padding:44px 10px 60px}
+  #chat.active .chat-empty-prompts{gap:6px}
+  #chat.active .chat-empty-prompt{font-size:11px;padding:8px 11px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.qs-ready.qs-entering > .container{opacity:1;transform:none}
+}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -4152,7 +4191,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 <!-- ============================= -->
 <!-- CHAT -->
 <!-- ============================= -->
-<section id="chat" class="screen">
+<section id="chat" class="screen" aria-label="Quiet Conversation">
 
     <div class="chat-header">
 
@@ -4615,7 +4654,7 @@ function showScreen(id) {
     }
 
     window.requestAnimationFrame(function(){
-        window.scrollTo({top:0,behavior:"smooth"});
+        window.scrollTo({top:0,behavior:"auto"});
     });
 }
 
@@ -4909,7 +4948,7 @@ function ensureCurrentChat() {
 
     let legacyMessages = [];
     try {
-        legacyMessages = JSON.parse(localStorage.getItem("scribeConversation") || "[]") || [];
+        legacyMessages = readStoredArray("scribeConversation");
     } catch (error) {
         console.warn("Legacy conversation could not be restored.", error);
     }
@@ -4992,6 +5031,9 @@ function addMessage(text, type) {
 
     const chatBox =
         document.getElementById("chatBox");
+
+    if (!chatBox) return;
+    document.getElementById("chatEmptyState")?.remove();
 
     const message =
         document.createElement("div");
@@ -5444,14 +5486,13 @@ function saveCurrentChat() {
 
     if (index === -1) return;
 
-    const conversation =
-        JSON.parse(
-            localStorage.getItem(
-                "scribeConversation"
-            )
-        ) || [];
+    const conversation = readStoredArray("scribeConversation");
+    const now = new Date().toISOString();
 
     chats[index].messages = conversation;
+    chats[index].updatedAt = now;
+    chats[index].createdAt = chats[index].createdAt || chats[index].date || now;
+    chats[index].date = chats[index].date || chats[index].createdAt;
 
     const firstUserMessage =
         conversation.find(function(message) {
@@ -5476,11 +5517,14 @@ function saveCurrentChat() {
 
 function createNewChat() {
 
+    const now = new Date().toISOString();
     const chat = {
         id: createChatId(),
         title: "New Conversation",
         messages: [],
-        date: new Date().toISOString()
+        createdAt: now,
+        updatedAt: now,
+        date: now
     };
 
     const chats = getSavedChats();
@@ -5506,6 +5550,8 @@ function createNewChat() {
 
 function startNewChat() {
 
+    if (sendMessage.pending) return;
+
     saveCurrentChat();
 
     createNewChat();
@@ -5525,6 +5571,8 @@ function startNewChat() {
 
 function leaveChat() {
 
+    if (sendMessage.pending) return;
+
     saveCurrentChat();
 
     showScreen("purpose");
@@ -5532,6 +5580,8 @@ function leaveChat() {
 
 
 function loadSavedChat(chatId) {
+
+    if (sendMessage.pending) return;
 
     saveCurrentChat();
 
@@ -5552,7 +5602,7 @@ function loadSavedChat(chatId) {
     localStorage.setItem(
         "scribeConversation",
         JSON.stringify(
-            chat.messages || []
+            Array.isArray(chat.messages) ? chat.messages : []
         )
     );
 
@@ -5567,133 +5617,156 @@ function loadSavedChat(chatId) {
 
 
 function renderChatList() {
+    const chatList=document.getElementById("chatList");
+    if(!chatList)return;
 
-    const chatList =
-        document.getElementById("chatList");
+    const chats=getSavedChats();
+    const currentId=localStorage.getItem("scribeCurrentChat");
+    chatList.innerHTML="";
 
-    if (!chatList) return;
+    if(!chats.length){
+        chatList.innerHTML='<div class="chat-list-empty">No conversations yet.<br><span>Start a new one whenever you are ready.</span></div>';
+        return;
+    }
 
-    const chats = getSavedChats();
+    chats.forEach(function(chat){
+        const row=document.createElement("div");
+        row.className="chat-history-row";
+        if(chat.id===currentId)row.classList.add("active");
 
-    const currentId =
-        localStorage.getItem(
-            "scribeCurrentChat"
-        );
+        const button=document.createElement("button");
+        button.type="button";
+        button.className="chat-history-item";
+        button.setAttribute("aria-current",chat.id===currentId?"true":"false");
+        button.title=chat.title||"Untitled Conversation";
 
-    chatList.innerHTML = "";
+        const title=document.createElement("span");
+        title.className="chat-history-title";
+        title.textContent=chat.title||"Untitled Conversation";
 
-    chats.forEach(function(chat) {
+        const meta=document.createElement("span");
+        meta.className="chat-history-meta";
+        const count=Array.isArray(chat.messages)?chat.messages.length:0;
+        const date=formatChatDate(chat.updatedAt||chat.createdAt||chat.date);
+        meta.textContent=[count+" message"+(count===1?"":"s"),date].filter(Boolean).join(" · ");
 
-        const button =
-            document.createElement("button");
+        button.appendChild(title);
+        button.appendChild(meta);
+        button.onclick=function(){if(!sendMessage.pending)loadSavedChat(chat.id)};
 
-        button.className =
-            "chat-history-item";
+        const del=document.createElement("button");
+        del.type="button";
+        del.className="chat-history-delete";
+        del.textContent="×";
+        del.title="Delete conversation";
+        del.setAttribute("aria-label","Delete "+(chat.title||"conversation"));
+        del.onclick=function(event){
+            event.stopPropagation();
+            if(sendMessage.pending)return;
+            if(!confirm("Delete this conversation? It will be removed from this browser."))return;
 
-        if (chat.id === currentId) {
-            button.classList.add("active");
-        }
+            const remaining=getSavedChats().filter(function(item){return item.id!==chat.id});
+            saveSavedChats(remaining);
 
-        button.textContent =
-            chat.title || "Untitled Conversation";
+            if(localStorage.getItem("scribeCurrentChat")===chat.id){
+                if(remaining.length){
+                    const next=remaining[0];
+                    localStorage.setItem("scribeCurrentChat",next.id);
+                    localStorage.setItem("scribeConversation",JSON.stringify(Array.isArray(next.messages)?next.messages:[]));
+                }else{
+                    localStorage.removeItem("scribeCurrentChat");
+                    localStorage.setItem("scribeConversation",JSON.stringify([]));
+                    createNewChat();
+                    return;
+                }
+            }
+            renderChatList();
+            renderCurrentChat();
+        };
 
-        button.onclick =
-            function() {
-                loadSavedChat(chat.id);
+        row.appendChild(button);
+        row.appendChild(del);
+        chatList.appendChild(row);
+    });
+}
+
+function renderCurrentChat(){
+    const chatBox=document.getElementById("chatBox");
+    if(!chatBox)return;
+
+    const conversation=readStoredArray("scribeConversation");
+    chatBox.innerHTML="";
+
+    if(!conversation.length){
+        const empty=document.createElement("div");
+        empty.id="chatEmptyState";
+        empty.className="chat-empty";
+
+        const mark=document.createElement("div");
+        mark.className="chat-empty-mark";
+        mark.textContent="✦";
+
+        const title=document.createElement("div");
+        title.className="chat-empty-title";
+        title.textContent="You don't need to know where to begin.";
+
+        const copy=document.createElement("div");
+        copy.className="chat-empty-copy";
+        copy.textContent="Say something small. The rest can unfold from there.";
+
+        const prompts=document.createElement("div");
+        prompts.className="chat-empty-prompts";
+
+        ["Something I can't explain","A thought I keep returning to","I just want to talk"].forEach(function(promptText){
+            const prompt=document.createElement("button");
+            prompt.type="button";
+            prompt.className="chat-empty-prompt";
+            prompt.textContent=promptText;
+            prompt.onclick=function(){
+                const input=document.getElementById("chatInput");
+                if(!input||sendMessage.pending)return;
+                input.value=promptText;
+                resizeChatInput(input);
+                input.focus();
             };
+            prompts.appendChild(prompt);
+        });
 
-        chatList.appendChild(button);
+        empty.appendChild(mark);
+        empty.appendChild(title);
+        empty.appendChild(copy);
+        empty.appendChild(prompts);
+        chatBox.appendChild(empty);
+        return;
+    }
 
+    conversation.forEach(function(message){
+        if(message.role==="user")addMessage(message.content,"user");
+        if(message.role==="assistant")addMessage(message.content,"scribe");
     });
 }
 
 
-function renderCurrentChat() {
-
-    const chatBox =
-        document.getElementById("chatBox");
-
-    if (!chatBox) return;
-
-    chatBox.innerHTML = `
-        <div class="message scribe">
-            Welcome.
-            You don't need to explain why you're here.
-            Just say what is on your mind.
-        </div>
-    `;
-
-    const conversation =
-        JSON.parse(
-            localStorage.getItem(
-                "scribeConversation"
-            )
-        ) || [];
-
-    conversation.forEach(function(message) {
-
-        if (message.role === "user") {
-
-            addMessage(
-                message.content,
-                "user"
-            );
-
-        }
-
-        if (message.role === "assistant") {
-
-            addMessage(
-                message.content,
-                "scribe"
-            );
-
-        }
-
-    });
-}
 
 
 /* ============================= */
 /* LOAD SAVED CHAT */
 /* ============================= */
 
-function loadChat() {
+function loadChat(){
+    const conversation=readStoredArray("scribeConversation");
+    const chatBox=document.getElementById("chatBox");
+    if(!chatBox)return;
+    chatBox.innerHTML="";
 
-    const conversation =
-        JSON.parse(
-            localStorage.getItem(
-                "scribeConversation"
-            )
-        ) || [];
+    if(!conversation.length){
+        renderCurrentChat();
+        return;
+    }
 
-    const chatBox =
-        document.getElementById("chatBox");
-
-    conversation.forEach(function(message) {
-
-        if (
-            message.role === "user"
-        ) {
-
-            addMessage(
-                message.content,
-                "user"
-            );
-
-        }
-
-        if (
-            message.role === "assistant"
-        ) {
-
-            addMessage(
-                message.content,
-                "scribe"
-            );
-
-        }
-
+    conversation.forEach(function(message){
+        if(message.role==="user")addMessage(message.content,"user");
+        if(message.role==="assistant")addMessage(message.content,"scribe");
     });
 }
 /* ============================= */
@@ -5805,7 +5878,10 @@ loadSavedWritings();
         if (scene) scene.remove();
 
         document.body.classList.remove("qs-opening");
-        document.body.classList.add("qs-ready");
+        document.body.classList.add("qs-ready","qs-entering");
+        window.setTimeout(function(){
+            document.body.classList.remove("qs-entering");
+        },520);
 
         document.querySelectorAll(".screen").forEach(function (screen) {
             screen.classList.remove("active");

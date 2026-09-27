@@ -5501,6 +5501,23 @@ sendMessage.pending = false;
 /* CLEAR CHAT */
 /* ============================= */
 
+function formatChatDate(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+    }).format(date);
+}
+
+
 function getSavedChats() {
     try{
         const parsed=JSON.parse(localStorage.getItem("scribeChats")||"[]");

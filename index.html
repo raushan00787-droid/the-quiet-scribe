@@ -4309,15 +4309,15 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                         id="voiceStyleSelect"
                         class="voice-style-button"
                         onchange="setVoiceStyle(this.value)"
-                        aria-label="Choose Scribe voice"
+                        aria-label="Choose Scribe voice style"
                         title="Choose voice style">
-                        <option value="scribe">🎙️ Scribe</option>
-                        <option value="philosopher">🕯️ Philosopher</option>
-                        <option value="poet">📜 Poet</option>
-                        <option value="narrator">🎬 Narrator</option>
-                        <option value="calm">🌙 Calm</option>
-                        <option value="mysterious">🌫️ Mysterious</option>
-                        <option value="warm">☕ Warm</option>
+                        <option value="scribe">🎙️ Scribe · Natural Male</option>
+                        <option value="philosopher">🕯️ Philosopher · Deep Male</option>
+                        <option value="poet">📜 Poet · Soft Male</option>
+                        <option value="narrator">🎬 Narrator · Cinematic Male</option>
+                        <option value="calm">🌙 Calm · Gentle Male</option>
+                        <option value="mysterious">🌫️ Mysterious · Low Male</option>
+                        <option value="warm">☕ Warm · Warm Male</option>
                     </select>
                 </div>
 
@@ -5285,31 +5285,105 @@ function updateVoiceButton(){
     button.setAttribute("title",quietVoiceListening?"Stop listening":"Talk to Scribe");
 }
 const VOICE_STYLES={
-    scribe:{label:"Scribe",rate:.96,pitch:1,volume:.94},
-    philosopher:{label:"Philosopher",rate:.82,pitch:.80,volume:.94},
-    poet:{label:"Poet",rate:.88,pitch:1.08,volume:.90},
-    narrator:{label:"Narrator",rate:.90,pitch:.92,volume:1},
-    calm:{label:"Calm",rate:.78,pitch:1.02,volume:.82},
-    mysterious:{label:"Mysterious",rate:.84,pitch:.72,volume:.88},
-    warm:{label:"Warm",rate:.93,pitch:1.10,volume:.96}
+    scribe:{label:"Scribe · Natural Male",rate:.96,pitch:.96,volume:.94,voiceHint:"natural male"},
+    philosopher:{label:"Philosopher · Deep Male",rate:.82,pitch:.82,volume:.94,voiceHint:"deep male"},
+    poet:{label:"Poet · Soft Male",rate:.88,pitch:1.04,volume:.90,voiceHint:"soft male"},
+    narrator:{label:"Narrator · Cinematic Male",rate:.90,pitch:.90,volume:1,voiceHint:"narrator male"},
+    calm:{label:"Calm · Gentle Male",rate:.78,pitch:1.00,volume:.82,voiceHint:"gentle male"},
+    mysterious:{label:"Mysterious · Low Male",rate:.84,pitch:.76,volume:.88,voiceHint:"low male"},
+    warm:{label:"Warm · Warm Male",rate:.93,pitch:1.06,volume:.96,voiceHint:"warm male"}
 };
+
+let quietSpeechVoices=[];
+let quietSpeechVoicesReady=false;
+
+const QUIET_MALE_VOICE_NAMES=[
+    "google uk english male","google us english male","google english male",
+    "microsoft david","microsoft guy","microsoft mark","microsoft ryan",
+    "microsoft george","microsoft brian","microsoft daniel",
+    "alex","daniel","fred","tom","aaron","arthur","oliver","james",
+    "thomas","ravi","raj","male"
+];
+
+function refreshQuietSpeechVoices(){
+    if(!("speechSynthesis" in window))return;
+    try{
+        quietSpeechVoices=window.speechSynthesis.getVoices()||[];
+        quietSpeechVoicesReady=quietSpeechVoices.length>0;
+    }catch(error){
+        quietSpeechVoices=[];
+        quietSpeechVoicesReady=false;
+    }
+}
+
+function scoreQuietVoice(voice,style){
+    if(!voice)return -999;
+    const name=(voice.name||"").toLowerCase();
+    const lang=(voice.lang||"").toLowerCase();
+    let score=0;
+
+    if(QUIET_MALE_VOICE_NAMES.some(function(keyword){return name.includes(keyword)}))score+=80;
+    if(name.includes("female")||name.includes("woman")||name.includes("zira")||name.includes("samantha"))score-=100;
+    if(lang.indexOf((navigator.language||"en").toLowerCase())===0)score+=18;
+    else if(lang.indexOf("en")===0)score+=12;
+
+    if(style.voiceHint==="deep male"){
+        if(/deep|low|bass|david|guy|daniel|george/.test(name))score+=18;
+    }else if(style.voiceHint==="soft male"){
+        if(/soft|calm|natural|alex|daniel/.test(name))score+=10;
+    }else if(style.voiceHint==="narrator male"){
+        if(/narrat|david|george|brian|guy/.test(name))score+=16;
+    }else if(style.voiceHint==="low male"){
+        if(/deep|low|bass|david|guy|george/.test(name))score+=20;
+    }else if(style.voiceHint==="warm male"){
+        if(/warm|natural|alex|daniel|thomas/.test(name))score+=12;
+    }
+
+    return score;
+}
+
+function getQuietSpeechVoice(style){
+    refreshQuietSpeechVoices();
+    if(!quietSpeechVoices.length)return null;
+
+    let best=null;
+    let bestScore=-Infinity;
+    quietSpeechVoices.forEach(function(voice){
+        const score=scoreQuietVoice(voice,style);
+        if(score>bestScore){
+            bestScore=score;
+            best=voice;
+        }
+    });
+
+    return bestScore>0?best:null;
+}
+
 function getVoiceStyle(){
     const saved=localStorage.getItem("quietScribeVoiceStyle")||"scribe";
     return VOICE_STYLES[saved]?saved:"scribe";
 }
+
 function setVoiceStyle(style){
     if(!VOICE_STYLES[style])style="scribe";
     localStorage.setItem("quietScribeVoiceStyle",style);
     const select=document.getElementById("voiceStyleSelect");
     if(select)select.value=style;
     if("speechSynthesis" in window)window.speechSynthesis.cancel();
-    setVoiceStatus(VOICE_STYLES[style].label+" voice enabled.");
-    window.setTimeout(function(){setVoiceStatus("")},1800);
+    const voice=getQuietSpeechVoice(VOICE_STYLES[style]);
+    setVoiceStatus(
+        voice
+            ? VOICE_STYLES[style].label+" · "+voice.name
+            : VOICE_STYLES[style].label+" enabled."
+    );
+    window.setTimeout(function(){setVoiceStatus("")},2200);
 }
+
 function updateVoiceStyleButton(){
     const select=document.getElementById("voiceStyleSelect");
     if(select)select.value=getVoiceStyle();
 }
+
 function speakScribeResponse(text){
     if(!("speechSynthesis" in window)||!text){
         if(quietVoiceMode) scheduleQuietVoiceRestart(350);
@@ -5323,7 +5397,13 @@ function speakScribeResponse(text){
             .replace(/\n{2,}/g,". ")
             .trim();
         const utterance=new SpeechSynthesisUtterance(cleanText);
-        utterance.lang=navigator.language||"en-US";
+        const preferredVoice=getQuietSpeechVoice(style);
+        if(preferredVoice){
+            utterance.voice=preferredVoice;
+            utterance.lang=preferredVoice.lang||navigator.language||"en-US";
+        }else{
+            utterance.lang=navigator.language||"en-US";
+        }
         utterance.rate=style.rate;
         utterance.pitch=style.pitch;
         utterance.volume=style.volume;
@@ -6237,6 +6317,11 @@ function loadChat(){
         if(message.role==="assistant")addMessage(message.content,"scribe");
     });
 }
+if("speechSynthesis" in window){
+    refreshQuietSpeechVoices();
+    window.speechSynthesis.onvoiceschanged=refreshQuietSpeechVoices;
+}
+
 /* ============================= */
 /* STARTUP */
 /* ============================= */

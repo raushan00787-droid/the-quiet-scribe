@@ -5378,6 +5378,7 @@ let quietBargeInWarmupFrames = 0;
 let quietBargeInVoiceFrames = 0;
 let quietBargeInEchoFloor = 0.012;
 let quietBargeInCandidateFrames = 0;
+let quietBargeInStarting = false;
 let quietBargeInPermissionFailed = false;
 
 function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
@@ -5486,6 +5487,8 @@ function stopQuietBargeInDetector(){
 }
 
 function stopQuietBargeIn(){
+    quietBargeInStarting=false;
+
     if(quietBargeInRestartTimer){
         window.clearTimeout(quietBargeInRestartTimer);
         quietBargeInRestartTimer=null;
@@ -5712,11 +5715,16 @@ function scheduleQuietBargeInRestart(delay){
 async function startQuietBargeIn(){
     if(!quietBargeInEnabled||quietBargeInPermissionFailed||
        !quietVoiceSupported||!quietVoiceRecognition||
-       sendMessage.pending||quietBargeInActive||
+       sendMessage.pending||quietBargeInActive||quietBargeInStarting||
        !isQuietScribeSpeaking()||quietSpeechInterrupted)return;
+
+    // Lock startup synchronously so multiple TTS callbacks cannot open
+    // multiple microphone streams at the same time.
+    quietBargeInStarting=true;
 
     const ready=await createQuietBargeInDetector();
     if(!ready){
+        quietBargeInStarting=false;
         if(isQuietScribeSpeaking()&&quietBargeInEnabled&&!quietBargeInPermissionFailed){
             setVoiceStatus("Voice interruption is unavailable on this browser.");
         }
@@ -5724,10 +5732,12 @@ async function startQuietBargeIn(){
     }
 
     if(!isQuietScribeSpeaking()||quietSpeechInterrupted){
+        quietBargeInStarting=false;
         stopQuietBargeInDetector();
         return;
     }
 
+    quietBargeInStarting=false;
     quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
 }
 
@@ -6554,13 +6564,6 @@ function speakScribeResponse(text){
             };
 
             synth.speak(utterance);
-
-            window.setTimeout(function(){
-                if(synth.speaking&&!quietSpeechInterrupted){
-                    updateVoiceInterruptButton();
-                    if(quietBargeInEnabled)startQuietBargeIn();
-                }
-            },650);
         }
 
         speakNextSegment();

@@ -5367,7 +5367,7 @@ function getQuietSpeechVoice(style,language){
             if(lang.indexOf("hi-in")===0)score+=140;
             else score+=110;
 
-            if(QUIET_FEMALE_VOICE_MARKERS.some(function(marker){return name.includes(marker)}))score-=140;
+            if(QUIET_FEMALE_VOICE_MARKERS.some(function(marker){return name.includes(marker)}))score-=180;
             if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=28;
             if(style.voiceHint==="deep male"&&/deep|low|bass|david|guy|george/.test(name))score+=16;
             if(style.voiceHint==="soft male"&&/soft|calm|natural|daniel|alex/.test(name))score+=10;
@@ -5757,18 +5757,19 @@ function stripQuietEmoji(text){
 
 function cleanScribeSpeechText(text){
     return stripQuietEmoji(String(text||""))
-        .replace(/https?:\\/\\/\\S+/gi," ")
-        .replace(/www\\.\\S+/gi," ")
-        .replace(/\\[([^\\]]+)\\]\\([^\\)]+\\)/g,"$1")
-        .replace(/[*_#~\\`]/g,"")
-        .replace(/^[\\s]*[-•]\\s+/gm,"")
-        .replace(/^[\\s]*>\\s+/gm,"")
-        .replace(/\\b(?:https?|www)\\b/gi,"")
-        .replace(/[\\u200B-\\u200D\\uFEFF]/g,"")
-        .replace(/\\n{2,}/g,". ")
-        .replace(/\\n/g," ")
-        .replace(/\\s+/g," ")
-        .replace(/\\s+([,.!?;:])/g,"$1")
+        .replace(/https?:\/\/\S+/gi," ")
+        .replace(/www\.\S+/gi," ")
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g,"$1")
+        .replace(/[*_#~]/g,"")
+        .replace(new RegExp(String.fromCharCode(96),"g"),"")
+        .replace(/^[\s]*[-•]\s+/gm,"")
+        .replace(/^[\s]*>\s+/gm,"")
+        .replace(/\b(?:https?|www)\b/gi,"")
+        .replace(/[\u200B-\u200D\uFEFF]/g,"")
+        .replace(/\n{2,}/g,". ")
+        .replace(/\n/g," ")
+        .replace(/\s+/g," ")
+        .replace(/\s+([,.!?;:])/g,"$1")
         .replace(/([.!?]){2,}/g,"$1")
         .trim();
 }
@@ -5801,7 +5802,7 @@ const QUIET_COMMON_ENGLISH_WORDS=new Set([
     "different","same","first","last","again","now","here","there","inside",
     "outside","deep","quiet","calm","soft","warm","dark","light","open","close",
     "stay","leave","go","come","keep","find","lost","found","look","see",
-    "hear","heard","know","think","thought","believe","maybe","perhaps"
+    "hear","heard","know","think","thought","believe"
 ]);
 
 const QUIET_HINDI_PHONETIC_ENGLISH={
@@ -5822,7 +5823,7 @@ const QUIET_HINDI_PHONETIC_ENGLISH={
     "problems":"प्रॉब्लम्स",
     "message":"मैसेज",
     "messages":"मैसेजेस",
-    "important":"इम्पोर्टन्ट",
+    "important":"इम्पॉर्टन्ट",
     "natural":"नैचरल",
     "artificial":"आर्टिफिशल",
     "intelligence":"इंटेलिजेन्स",
@@ -5875,12 +5876,14 @@ const QUIET_HINDI_PHONETIC_ENGLISH={
     "quiet":"क्वाइट",
     "calm":"काम",
     "soft":"सॉफ्ट",
-    "warm":"वॉर्म"
+    "warm":"वॉर्म",
+    "your":"योर",
+    "my":"माय"
 };
 
 function getQuietSpeechLanguage(word){
     const value=String(word||"");
-    if(/^[\\s]*[\\u0900-\\u097F]/u.test(value))return "hi-IN";
+    if(/[\s]*[\u0900-\u097F]/u.test(value))return "hi-IN";
     if(isLikelyQuietRomanHindiWord(value))return "hi-IN";
     return "en-US";
 }
@@ -5908,9 +5911,9 @@ function detectQuietSentenceLanguage(sentence){
     const value=String(sentence||"").trim();
     if(!value)return "en-US";
 
-    if(/[\\u0900-\\u097F]/u.test(value))return "hi-IN";
+    if(/[\u0900-\u097F]/u.test(value))return "hi-IN";
 
-    const words=value.split(/\\s+/).filter(Boolean);
+    const words=value.split(/\s+/).filter(Boolean);
     const hindiCount=countQuietRomanHindiWords(words);
     const englishCount=countQuietEnglishWords(words);
 
@@ -5922,43 +5925,18 @@ function detectQuietSentenceLanguage(sentence){
 }
 
 function normalizeQuietHindiSpeech(sentence){
-    return String(sentence||"").replace(/\\b[A-Za-z][A-Za-z0-9+.#-]*\\b/g,function(word){
+    return String(sentence||"").replace(/\b[A-Za-z][A-Za-z0-9+.#-]*\b/g,function(word){
         const key=word.toLowerCase();
         return QUIET_HINDI_PHONETIC_ENGLISH[key]||word;
     });
 }
 
 function splitQuietSpeechSentences(text){
-    const value=String(text||"")
-        .replace(/\\s+/g," ")
-        .trim();
+    const value=String(text||"").replace(/\s+/g," ").trim();
     if(!value)return [];
 
-    const pieces=[];
-    let buffer="";
-    let quoteDepth=0;
-
-    for(let i=0;i<value.length;i++){
-        const char=value[i];
-        buffer+=char;
-
-        if(char==="""||char==="“"||char==="”")quoteDepth=quoteDepth?0:1;
-
-        const isEndPunctuation=char==="."||char==="!"||char==="?"||char==="।";
-        const next=value[i+1]||"";
-
-        if(isEndPunctuation&&!quoteDepth){
-            if(char==="."&&/\\d/.test(next))continue;
-            if(next===" "||next==="") {
-                const item=buffer.trim();
-                if(item)pieces.push(item);
-                buffer="";
-            }
-        }
-    }
-
-    if(buffer.trim())pieces.push(buffer.trim());
-    return pieces;
+    return value.match(/[^.!?।]+(?:[.!?।]+(?=\s|$)|$)/g)||
+        [value];
 }
 
 function buildQuietSpeechSegments(text){
@@ -5970,7 +5948,7 @@ function buildQuietSpeechSegments(text){
         return {
             text:language==="hi-IN"
                 ? normalizeQuietHindiSpeech(sentence)
-                : sentence,
+                : sentence.trim(),
             language:language
         };
     });

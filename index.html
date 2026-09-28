@@ -2721,6 +2721,14 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 @media(prefers-reduced-motion:reduce){
   body.qs-ready.qs-entering > .container{opacity:1;transform:none}
 }
+<style>
+.voice-button{width:42px;height:42px;flex-shrink:0;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:19px;line-height:1;background:transparent;border:1px solid transparent;color:#9d98a0;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .12s ease}
+.voice-button:hover{background:#20202a;border-color:#34343e;color:#e8e3d8}
+.voice-button.is-listening{background:#24242e;border-color:#555563;color:#e8e3d8;animation:qsVoicePulse 1.2s ease-in-out infinite}
+.voice-button:disabled{opacity:.4;cursor:not-allowed}
+@keyframes qsVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(232,227,216,.04)}50%{box-shadow:0 0 0 7px rgba(232,227,216,.04)}}
+.voice-status{min-height:16px;margin-top:5px;color:#77747d;font-size:11px;text-align:center;opacity:.75}
+</style>
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -4265,6 +4273,16 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                     aria-label="Message Scribe"></textarea>
 
                 <button
+                    id="voiceInputButton"
+                    class="voice-button"
+                    type="button"
+                    onclick="toggleVoiceInput()"
+                    aria-label="Talk to Scribe"
+                    title="Talk to Scribe">
+                    🎙️
+                </button>
+
+                <button
                     class="send-button"
                     onclick="sendMessage()"
                     aria-label="Send message">
@@ -4272,6 +4290,8 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                 </button>
 
             </div>
+
+            <div id="voiceStatus" class="voice-status" aria-live="polite"></div>
 
             <div class="chat-controls">
 
@@ -5214,6 +5234,89 @@ function loadQuietSettings(){
 
 
 /* ============================= */
+/* QUIET VOICE */
+/* ============================= */
+
+let quietVoiceRecognition = null;
+let quietVoiceListening = false;
+let quietVoiceSupported = false;
+
+function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
+function setVoiceStatus(text){ const status=document.getElementById("voiceStatus"); if(status) status.textContent=text||""; }
+function updateVoiceButton(){
+    const button=getVoiceButton();
+    if(!button) return;
+    button.classList.toggle("is-listening",quietVoiceListening);
+    button.textContent=quietVoiceListening?"■":"🎙️";
+    button.setAttribute("aria-label",quietVoiceListening?"Stop listening":"Talk to Scribe");
+    button.setAttribute("title",quietVoiceListening?"Stop listening":"Talk to Scribe");
+}
+function speakScribeResponse(text){
+    if(!("speechSynthesis" in window)||!text) return;
+    try{
+        window.speechSynthesis.cancel();
+        const utterance=new SpeechSynthesisUtterance(String(text).replace(/[*_#]/g,""));
+        utterance.lang=navigator.language||"en-US";
+        utterance.rate=.96;
+        utterance.pitch=1;
+        utterance.onerror=function(){};
+        window.speechSynthesis.speak(utterance);
+    }catch(error){ console.warn("Quiet Scribe voice output unavailable.",error); }
+}
+function stopQuietVoice(){
+    if(quietVoiceRecognition){ try{quietVoiceRecognition.stop()}catch(error){} }
+    quietVoiceListening=false;
+    updateVoiceButton();
+    setVoiceStatus("");
+}
+function initQuietVoice(){
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    quietVoiceSupported=!!SpeechRecognition;
+    if(!quietVoiceSupported){
+        const button=getVoiceButton();
+        if(button){button.disabled=true;button.title="Voice input is not supported in this browser";button.setAttribute("aria-label","Voice input is not supported");}
+        return;
+    }
+    quietVoiceRecognition=new SpeechRecognition();
+    quietVoiceRecognition.continuous=false;
+    quietVoiceRecognition.interimResults=true;
+    quietVoiceRecognition.lang=navigator.language||"en-US";
+    quietVoiceRecognition.onstart=function(){quietVoiceListening=true;updateVoiceButton();setVoiceStatus("Listening…");};
+    quietVoiceRecognition.onresult=function(event){
+        let finalText="",interimText="";
+        for(let i=event.resultIndex;i<event.results.length;i++){
+            const transcript=event.results[i][0].transcript;
+            if(event.results[i].isFinal) finalText+=transcript; else interimText+=transcript;
+        }
+        setVoiceStatus(interimText?"Listening: "+interimText:"Listening…");
+        if(finalText.trim()){
+            const input=document.getElementById("chatInput");
+            if(input){input.value=finalText.trim();resizeChatInput(input);}
+            stopQuietVoice();
+            sendMessage();
+        }
+    };
+    quietVoiceRecognition.onerror=function(event){
+        quietVoiceListening=false;updateVoiceButton();
+        const messages={"not-allowed":"Microphone permission was denied.","service-not-allowed":"Voice recognition is not available here.","no-speech":"I didn't hear anything.","audio-capture":"No microphone was available."};
+        setVoiceStatus(messages[event.error]||"Voice input stopped.");
+        window.setTimeout(function(){setVoiceStatus("")},2200);
+        console.warn("Quiet Scribe voice input:",event.error);
+    };
+    quietVoiceRecognition.onend=function(){quietVoiceListening=false;updateVoiceButton();setVoiceStatus("");};
+}
+function toggleVoiceInput(){
+    if(!quietVoiceSupported){setVoiceStatus("Voice input is not supported in this browser.");return;}
+    if(quietVoiceListening){stopQuietVoice();return;}
+    if(sendMessage.pending) return;
+    try{
+        if("speechSynthesis" in window) window.speechSynthesis.cancel();
+        quietVoiceRecognition.lang=navigator.language||"en-US";
+        quietVoiceRecognition.start();
+    }catch(error){console.warn("Could not start voice input.",error);setVoiceStatus("Couldn't start the microphone.");window.setTimeout(function(){setVoiceStatus("")},2200);}
+}
+
+/* ============================= */
 /* SEND MESSAGE */
 /* ============================= */
 
@@ -5525,6 +5628,10 @@ saveCurrentChat();
             response,
             "scribe"
         );
+
+        if(quietVoiceSupported){
+            speakScribeResponse(response);
+        }
 
         finishSend();
 
@@ -5954,6 +6061,7 @@ loadSavedWritings();
   renderChatList();
   resizeChatInput(document.getElementById("chatInput"));
   renderCurrentChat();
+  initQuietVoice();
   loadQuietSettings();
   async function leaveThought() {
 

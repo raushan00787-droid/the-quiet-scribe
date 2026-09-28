@@ -4661,6 +4661,12 @@ function restoreQuietSession(){
 
 function acceptOath(){
     localStorage.setItem("quietScribeOathAccepted","true");
+
+    if(hasQuietRememberedSession()){
+        continueAfterEntry();
+        return;
+    }
+
     showScreen("quiet-auth");
     initQuietGoogle();
 }

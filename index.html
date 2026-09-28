@@ -5935,8 +5935,9 @@ function splitQuietSpeechSentences(text){
     const value=String(text||"").replace(/\s+/g," ").trim();
     if(!value)return [];
 
-    return value.match(/[^.!?।]+(?:[.!?।]+(?=\s|$)|$)/g)||
-        [value];
+    return (value.match(/[^.!?।]+(?:[.!?।]+(?=\s|$)|$)/g)||[value])
+        .map(function(piece){return piece.trim();})
+        .filter(Boolean);
 }
 
 function buildQuietSpeechSegments(text){

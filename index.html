@@ -3020,7 +3020,7 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 
         <img
             src="scribe.jpg"
-            alt="Fyodor Dostoevsky">
+            alt="Fyodor Dostoevsky" loading="lazy" decoding="async">
 
         <h2>Why he left a mark</h2>
 
@@ -3098,7 +3098,7 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 
         <img
     src="kafka.jpg.webp"
-    alt="Franz Kafka">
+    alt="Franz Kafka" loading="lazy" decoding="async">
   
 
 
@@ -3177,7 +3177,7 @@ His characters often found themselves inside systems they could neither understa
 
         <img
             src="camus.jpg"
-            alt="Albert Camus">
+            alt="Albert Camus" loading="lazy" decoding="async">
 
         <h2>Why he left a mark</h2>
 
@@ -3473,7 +3473,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
       <img
           src="Miyazaki.jpg"
-          alt="Hayao Miyazaki">
+          alt="Hayao Miyazaki" loading="lazy" decoding="async">
 
       <h2>Why he left a mark</h2>
 
@@ -3570,7 +3570,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
       <img
           src="Stan.jpg"
-          alt="Stan Lee">
+          alt="Stan Lee" loading="lazy" decoding="async">
 
       <h2>Why he left a mark</h2>
 
@@ -3657,7 +3657,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
       <img
           src="Oda.jpg"
-          alt="Eiichiro Oda">
+          alt="Eiichiro Oda" loading="lazy" decoding="async">
 
       <h2>Why he left a mark</h2>
 
@@ -3745,7 +3745,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
       <img
           src="Beethoven.jpg"
-          alt="Ludwig van Beethoven">
+          alt="Ludwig van Beethoven" loading="lazy" decoding="async">
 
       <h2>Why he left a mark</h2>
 
@@ -3834,7 +3834,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
       <img
           src="Chopin.jpg"
-          alt="Frédéric Chopin">
+          alt="Frédéric Chopin" loading="lazy" decoding="async">
 
       <h2>Why he left a mark</h2>
 
@@ -5770,7 +5770,7 @@ const QUIET_MALE_VOICE_NAMES=[
     "google uk english male","google us english male","google english male",
     "microsoft david","microsoft guy","microsoft mark","microsoft ryan",
     "microsoft george","microsoft brian","microsoft daniel",
-    "microsoft heera","microsoft ravi","microsoft hemant",
+    "microsoft ravi","microsoft hemant",
     "alex","daniel","fred","tom","aaron","arthur","oliver","james",
     "thomas","ravi","raj","amit","arjun","rahul","male"
 ];
@@ -6613,6 +6613,12 @@ function scheduleQuietVoiceRestart(delay){
 }
 function startQuietVoiceListening(){
     if(!quietVoiceMode||!quietVoiceSupported||quietVoiceListening||sendMessage.pending||!quietVoiceRecognition)return;
+
+    if(isQuietScribeSpeaking()){
+        scheduleQuietVoiceRestart(420);
+        return;
+    }
+
     try{
         quietVoiceRecognition.lang=navigator.language||"en-US";
         quietVoiceRecognition.start();
@@ -6659,6 +6665,14 @@ function initQuietVoice(){
         quietVoiceRecognition.interimResults=true;
         quietVoiceRecognition.lang=navigator.language||"en-US";
         quietVoiceRecognition.onstart=function(){
+            if(isQuietScribeSpeaking()){
+                quietVoiceListening=false;
+                try{quietVoiceRecognition.abort()}catch(error){}
+                setVoiceStatus("Scribe is still speaking.");
+                scheduleQuietVoiceRestart(500);
+                return;
+            }
+
             if(quietBargeInActive){
                 quietVoiceListening=false;
                 setVoiceStatus("Scribe is speaking · say something to interrupt.");

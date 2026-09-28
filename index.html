@@ -5301,8 +5301,13 @@ const QUIET_MALE_VOICE_NAMES=[
     "google uk english male","google us english male","google english male",
     "microsoft david","microsoft guy","microsoft mark","microsoft ryan",
     "microsoft george","microsoft brian","microsoft daniel",
+    "microsoft heera","microsoft ravi","microsoft hemant",
     "alex","daniel","fred","tom","aaron","arthur","oliver","james",
-    "thomas","ravi","raj","male"
+    "thomas","ravi","raj","amit","arjun","rahul","male"
+];
+const QUIET_FEMALE_VOICE_MARKERS=[
+    "female","woman","zira","samantha","susan","heera","google hindi female",
+    "google india female","microsoft heera"
 ];
 
 function refreshQuietSpeechVoices(){
@@ -5362,8 +5367,9 @@ function getQuietSpeechVoice(style,language){
             if(lang.indexOf("hi-in")===0)score+=140;
             else score+=110;
 
-            if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=20;
-            if(style.voiceHint==="deep male"&&/deep|low|bass|david|guy|george/.test(name))score+=15;
+            if(QUIET_FEMALE_VOICE_MARKERS.some(function(marker){return name.includes(marker)}))score-=140;
+            if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=28;
+            if(style.voiceHint==="deep male"&&/deep|low|bass|david|guy|george/.test(name))score+=16;
             if(style.voiceHint==="soft male"&&/soft|calm|natural|daniel|alex/.test(name))score+=10;
             if(style.voiceHint==="narrator male"&&/david|george|brian|guy/.test(name))score+=10;
             if(style.voiceHint==="low male"&&/deep|low|bass|david|guy|george/.test(name))score+=15;
@@ -5751,10 +5757,19 @@ function stripQuietEmoji(text){
 
 function cleanScribeSpeechText(text){
     return stripQuietEmoji(String(text||""))
-        .replace(/[*_#~\`]/g,"")
-        .replace(/[\u200B-\u200D\uFEFF]/g,"")
-        .replace(/\n{2,}/g,". ")
-        .replace(/\s+/g," ")
+        .replace(/https?:\\/\\/\\S+/gi," ")
+        .replace(/www\\.\\S+/gi," ")
+        .replace(/\\[([^\\]]+)\\]\\([^\\)]+\\)/g,"$1")
+        .replace(/[*_#~\\`]/g,"")
+        .replace(/^[\\s]*[-•]\\s+/gm,"")
+        .replace(/^[\\s]*>\\s+/gm,"")
+        .replace(/\\b(?:https?|www)\\b/gi,"")
+        .replace(/[\\u200B-\\u200D\\uFEFF]/g,"")
+        .replace(/\\n{2,}/g,". ")
+        .replace(/\\n/g," ")
+        .replace(/\\s+/g," ")
+        .replace(/\\s+([,.!?;:])/g,"$1")
+        .replace(/([.!?]){2,}/g,"$1")
         .trim();
 }
 
@@ -5765,41 +5780,200 @@ function isLikelyQuietRomanHindiWord(word){
     return normalized.length>0&&QUIET_ROMAN_HINDI_WORDS.has(normalized);
 }
 
+const QUIET_COMMON_ENGLISH_WORDS=new Set([
+    "i","you","he","she","we","they","it","this","that","these","those",
+    "the","a","an","and","or","but","because","so","if","then","when","what",
+    "why","how","where","who","which","can","could","would","should","will",
+    "not","just","really","very","more","less","maybe","always","never",
+    "sometimes","today","tomorrow","yesterday","life","love","world","mind",
+    "heart","thought","thoughts","idea","ideas","question","questions","answer",
+    "answers","philosophy","philosopher","meaning","memory","memories",
+    "voice","voices","conversation","problem","problems","message","messages",
+    "important","natural","artificial","intelligence","music","story","stories",
+    "writing","writer","reader","school","study","website","app","screen",
+    "button","chat","chatgpt","google","youtube","instagram","anime","manga",
+    "coffee","rain","night","day","beautiful","simple","nothing","something",
+    "everything","actually","probably","perhaps","enough","okay","ok","fine",
+    "true","false","real","future","past","present","alone","together",
+    "start","started","finish","finished","remember","understand","understood",
+    "listen","listening","speak","speaking","talk","talking","feel","feeling",
+    "make","made","makes","want","need","help","change","changed","better",
+    "different","same","first","last","again","now","here","there","inside",
+    "outside","deep","quiet","calm","soft","warm","dark","light","open","close",
+    "stay","leave","go","come","keep","find","lost","found","look","see",
+    "hear","heard","know","think","thought","believe","maybe","perhaps"
+]);
+
+const QUIET_HINDI_PHONETIC_ENGLISH={
+    "philosophy":"फिलॉसफी",
+    "philosopher":"फिलॉसफर",
+    "philosophers":"फिलॉसफर्स",
+    "question":"क्वेश्चन",
+    "questions":"क्वेश्चन्स",
+    "answer":"आन्सर",
+    "answers":"आन्सर्स",
+    "meaning":"मीनिंग",
+    "memory":"मेमरी",
+    "memories":"मेमोरीज़",
+    "voice":"वॉइस",
+    "voices":"वॉइसेज़",
+    "conversation":"कन्वर्सेशन",
+    "problem":"प्रॉब्लम",
+    "problems":"प्रॉब्लम्स",
+    "message":"मैसेज",
+    "messages":"मैसेजेस",
+    "important":"इम्पोर्टन्ट",
+    "natural":"नैचरल",
+    "artificial":"आर्टिफिशल",
+    "intelligence":"इंटेलिजेन्स",
+    "music":"म्यूज़िक",
+    "story":"स्टोरी",
+    "stories":"स्टोरीज़",
+    "writing":"राइटिंग",
+    "writer":"राइटर",
+    "reader":"रीडर",
+    "website":"वेबसाइट",
+    "button":"बटन",
+    "chat":"चैट",
+    "chatgpt":"चैट जीपीटी",
+    "google":"गूगल",
+    "youtube":"यूट्यूब",
+    "instagram":"इंस्टाग्राम",
+    "anime":"ऐनिमे",
+    "manga":"मांगा",
+    "coffee":"कॉफी",
+    "rain":"रेन",
+    "night":"नाइट",
+    "day":"डे",
+    "beautiful":"ब्यूटिफुल",
+    "simple":"सिम्पल",
+    "something":"समथिंग",
+    "everything":"एवरीथिंग",
+    "actually":"ऐक्चुअली",
+    "probably":"प्रॉबबली",
+    "perhaps":"परहैप्स",
+    "enough":"इनफ",
+    "okay":"ओके",
+    "ok":"ओके",
+    "fine":"फाइन",
+    "true":"ट्रू",
+    "false":"फॉल्स",
+    "real":"रियल",
+    "future":"फ्यूचर",
+    "past":"पास्ट",
+    "present":"प्रेज़ेन्ट",
+    "alone":"अलोन",
+    "together":"टुगेदर",
+    "different":"डिफरेंट",
+    "same":"सेम",
+    "first":"फर्स्ट",
+    "last":"लास्ट",
+    "again":"अगेन",
+    "inside":"इनसाइड",
+    "outside":"आउटसाइड",
+    "deep":"डीप",
+    "quiet":"क्वाइट",
+    "calm":"काम",
+    "soft":"सॉफ्ट",
+    "warm":"वॉर्म"
+};
+
 function getQuietSpeechLanguage(word){
     const value=String(word||"");
-    if(/[\u0900-\u097F]/u.test(value))return "hi-IN";
+    if(/^[\\s]*[\\u0900-\\u097F]/u.test(value))return "hi-IN";
     if(isLikelyQuietRomanHindiWord(value))return "hi-IN";
     return "en-US";
 }
 
-function buildQuietSpeechSegments(text){
-    const words=String(text||"").split(/\s+/).filter(Boolean);
-    if(!words.length)return [];
+function countQuietRomanHindiWords(words){
+    let count=0;
+    words.forEach(function(word){
+        if(isLikelyQuietRomanHindiWord(word))count++;
+    });
+    return count;
+}
 
-    const segments=[];
-    let currentLanguage="";
-    let current=[];
+function countQuietEnglishWords(words){
+    let count=0;
+    words.forEach(function(word){
+        const normalized=String(word||"")
+            .toLowerCase()
+            .replace(/[^a-z]/g,"");
+        if(QUIET_COMMON_ENGLISH_WORDS.has(normalized))count++;
+    });
+    return count;
+}
 
-    function flush(){
-        if(!current.length)return;
-        const value=current.join(" ").trim();
-        if(value)segments.push({
-            text:value,
-            language:currentLanguage||"en-US"
-        });
-        current=[];
+function detectQuietSentenceLanguage(sentence){
+    const value=String(sentence||"").trim();
+    if(!value)return "en-US";
+
+    if(/[\\u0900-\\u097F]/u.test(value))return "hi-IN";
+
+    const words=value.split(/\\s+/).filter(Boolean);
+    const hindiCount=countQuietRomanHindiWords(words);
+    const englishCount=countQuietEnglishWords(words);
+
+    if(hindiCount===0&&englishCount===0)return "en-US";
+    if(hindiCount>0&&hindiCount>=englishCount)return "hi-IN";
+    if(hindiCount>0&&hindiCount>=2&&englishCount<=hindiCount+2)return "hi-IN";
+
+    return "en-US";
+}
+
+function normalizeQuietHindiSpeech(sentence){
+    return String(sentence||"").replace(/\\b[A-Za-z][A-Za-z0-9+.#-]*\\b/g,function(word){
+        const key=word.toLowerCase();
+        return QUIET_HINDI_PHONETIC_ENGLISH[key]||word;
+    });
+}
+
+function splitQuietSpeechSentences(text){
+    const value=String(text||"")
+        .replace(/\\s+/g," ")
+        .trim();
+    if(!value)return [];
+
+    const pieces=[];
+    let buffer="";
+    let quoteDepth=0;
+
+    for(let i=0;i<value.length;i++){
+        const char=value[i];
+        buffer+=char;
+
+        if(char==="""||char==="“"||char==="”")quoteDepth=quoteDepth?0:1;
+
+        const isEndPunctuation=char==="."||char==="!"||char==="?"||char==="।";
+        const next=value[i+1]||"";
+
+        if(isEndPunctuation&&!quoteDepth){
+            if(char==="."&&/\\d/.test(next))continue;
+            if(next===" "||next==="") {
+                const item=buffer.trim();
+                if(item)pieces.push(item);
+                buffer="";
+            }
+        }
     }
 
-    words.forEach(function(word){
-        const language=getQuietSpeechLanguage(word);
+    if(buffer.trim())pieces.push(buffer.trim());
+    return pieces;
+}
 
-        if(current.length&&language!==currentLanguage)flush();
-        if(!current.length)currentLanguage=language;
-        current.push(word);
+function buildQuietSpeechSegments(text){
+    const sentences=splitQuietSpeechSentences(text);
+    if(!sentences.length)return [];
+
+    return sentences.map(function(sentence){
+        const language=detectQuietSentenceLanguage(sentence);
+        return {
+            text:language==="hi-IN"
+                ? normalizeQuietHindiSpeech(sentence)
+                : sentence,
+            language:language
+        };
     });
-
-    flush();
-    return segments;
 }
 
 function speakScribeResponse(text){
@@ -5809,7 +5983,8 @@ function speakScribeResponse(text){
     }
 
     try{
-        window.speechSynthesis.cancel();
+        const synth=window.speechSynthesis;
+        synth.cancel();
 
         const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
         const cleanText=cleanScribeSpeechText(text);
@@ -5824,7 +5999,7 @@ function speakScribeResponse(text){
 
         function speakNextSegment(){
             if(index>=segments.length){
-                if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+                if(quietVoiceMode) scheduleQuietVoiceRestart(260);
                 return;
             }
 
@@ -5836,7 +6011,6 @@ function speakScribeResponse(text){
                 utterance.voice=preferredVoice;
                 utterance.lang=preferredVoice.lang||segment.language;
             }else{
-                // Let the browser select its native voice for this language.
                 utterance.lang=segment.language;
             }
 
@@ -5847,19 +6021,19 @@ function speakScribeResponse(text){
             utterance.onend=speakNextSegment;
             utterance.onerror=function(){
                 if(index<segments.length){
-                    window.setTimeout(speakNextSegment,120);
+                    window.setTimeout(speakNextSegment,70);
                 }else if(quietVoiceMode){
-                    scheduleQuietVoiceRestart(500);
+                    scheduleQuietVoiceRestart(400);
                 }
             };
 
-            window.speechSynthesis.speak(utterance);
+            synth.speak(utterance);
         }
 
         speakNextSegment();
     }catch(error){
         console.warn("Quiet Scribe voice output unavailable.",error);
-        if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+        if(quietVoiceMode) scheduleQuietVoiceRestart(260);
     }
 }
 function stopQuietVoice(manual){

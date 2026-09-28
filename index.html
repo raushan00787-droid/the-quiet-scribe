@@ -2730,15 +2730,16 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 .voice-style-button{width:auto;max-width:150px;margin:0;padding:7px 10px;background:transparent;border:1px solid transparent;border-radius:8px;font-size:12px;opacity:.7;color:#aaa4ad}
 .voice-style-button:hover{opacity:1;background:#111118;border-color:#292932}
 .voice-style-button:focus{outline:none;border-color:#45434d;opacity:1}
-.interrupt-button{width:auto;max-width:170px;margin:0;padding:7px 10px;background:transparent;border:1px solid transparent;border-radius:8px;font-size:12px;opacity:.7;color:#aaa4ad}
+.interrupt-button{display:none !important;width:auto;max-width:180px;margin:0;padding:7px 10px;background:transparent;border:1px solid transparent;border-radius:8px;font-size:12px;opacity:.8;color:#aaa4ad;align-items:center;justify-content:center;white-space:nowrap}
+.interrupt-button.is-visible{display:inline-flex !important}
 .interrupt-button:hover{opacity:1;background:#111118;border-color:#292932}
 .interrupt-button.is-on{color:#c9c3cb;border-color:#3a3942;background:rgba(255,255,255,.025)}
-.interrupt-button.is-off{opacity:.5}
+.interrupt-button.is-off{opacity:.52}
 .interrupt-button:focus{outline:none;border-color:#45434d;opacity:1}
 @media(max-width:700px){
   #chat.active .chat-controls > div{gap:5px !important}
   .voice-style-button{max-width:145px}
-  .interrupt-button{max-width:145px}
+  .interrupt-button{max-width:150px}
 }
 
 </style>
@@ -4337,7 +4338,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                         onclick="toggleVoiceInterrupt()"
                         aria-pressed="true"
                         aria-label="Interrupt Scribe when voice is detected"
-                        title="Stop Scribe when your voice is detected">
+                        title="Interrupt Scribe while he is speaking">
                         🔊 Interrupt: ON
                     </button>
                 </div>
@@ -5298,11 +5299,23 @@ let quietVoiceRestartTimer = null;
 let quietBargeInEnabled = localStorage.getItem("quietScribeInterruptOnVoice") !== "false";
 let quietBargeInActive = false;
 let quietBargeInRestartTimer = null;
+let quietBargeInRecognitionDelay = null;
 let quietSpeechInterrupted = false;
 let quietSpeechCurrentText = "";
 
+let quietBargeInStream = null;
+let quietBargeInAudioContext = null;
+let quietBargeInAnalyser = null;
+let quietBargeInSource = null;
+let quietBargeInMonitorId = null;
+let quietBargeInNoiseFloor = 0.012;
+let quietBargeInWarmupFrames = 0;
+let quietBargeInVoiceFrames = 0;
+let quietBargeInPermissionFailed = false;
+
 function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
 function setVoiceStatus(text){ const status=document.getElementById("voiceStatus"); if(status) status.textContent=text||""; }
+
 function updateVoiceButton(){
     const button=getVoiceButton();
     if(!button) return;
@@ -5312,16 +5325,23 @@ function updateVoiceButton(){
     button.setAttribute("title",quietVoiceListening?"Stop listening":"Talk to Scribe");
 }
 
+function isQuietScribeSpeaking(){
+    return !!("speechSynthesis" in window && window.speechSynthesis.speaking && !quietSpeechInterrupted);
+}
+
 function updateVoiceInterruptButton(){
     const button=document.getElementById("interruptVoiceButton");
     if(!button)return;
+
+    const speaking=isQuietScribeSpeaking();
+    button.classList.toggle("is-visible",speaking);
     button.classList.toggle("is-on",quietBargeInEnabled);
     button.classList.toggle("is-off",!quietBargeInEnabled);
     button.setAttribute("aria-pressed",quietBargeInEnabled?"true":"false");
-    button.textContent=quietBargeInEnabled?"🔊 Interrupt: ON":"🔇 Interrupt: OFF";
+    button.textContent=quietBargeInEnabled?"🎙️ Auto-interrupt: ON":"🔇 Auto-interrupt: OFF";
     button.title=quietBargeInEnabled
-        ?"Stop Scribe as soon as voice is detected while he is speaking"
-        :"Keep Scribe speaking until the reply ends";
+        ?"Scribe will stop when your voice is detected"
+        :"Automatic voice interruption is off";
 }
 
 function toggleVoiceInterrupt(){
@@ -5330,10 +5350,16 @@ function toggleVoiceInterrupt(){
 
     if(!quietBargeInEnabled){
         stopQuietBargeIn();
-        setVoiceStatus("");
+        setVoiceStatus(isQuietScribeSpeaking()?"Auto-interrupt disabled.":"");
     }else{
-        setVoiceStatus("Voice interruption enabled.");
-        window.setTimeout(function(){setVoiceStatus("")},1800);
+        setVoiceStatus("Auto-interrupt enabled.");
+        if(isQuietScribeSpeaking()&&!quietSpeechInterrupted){
+            scheduleQuietBargeInRestart(220);
+        }
+        window.setTimeout(function(){
+            if(isQuietScribeSpeaking())setVoiceStatus("Scribe is speaking.");
+            else setVoiceStatus("");
+        },1300);
     }
 
     updateVoiceInterruptButton();
@@ -5367,16 +5393,212 @@ function quietTranscriptLooksLikeScribe(text){
     return overlap>=3 && (overlap/Math.max(1,heardWords.size))>=0.55;
 }
 
+function stopQuietBargeInDetector(){
+    if(quietBargeInMonitorId){
+        window.cancelAnimationFrame(quietBargeInMonitorId);
+        quietBargeInMonitorId=null;
+    }
+
+    if(quietBargeInStream){
+        quietBargeInStream.getTracks().forEach(function(track){
+            try{track.stop()}catch(error){}
+        });
+        quietBargeInStream=null;
+    }
+
+    if(quietBargeInAudioContext){
+        try{quietBargeInAudioContext.close()}catch(error){}
+        quietBargeInAudioContext=null;
+    }
+
+    quietBargeInAnalyser=null;
+    quietBargeInSource=null;
+    quietBargeInWarmupFrames=0;
+    quietBargeInVoiceFrames=0;
+}
+
 function stopQuietBargeIn(){
-    quietBargeInActive=false;
     if(quietBargeInRestartTimer){
         window.clearTimeout(quietBargeInRestartTimer);
         quietBargeInRestartTimer=null;
     }
-    if(quietVoiceRecognition&&quietVoiceListening===false){
+
+    if(quietBargeInRecognitionDelay){
+        window.clearTimeout(quietBargeInRecognitionDelay);
+        quietBargeInRecognitionDelay=null;
+    }
+
+    if(quietBargeInActive&&quietVoiceRecognition){
         try{quietVoiceRecognition.abort()}catch(error){}
     }
+
+    quietBargeInActive=false;
+    stopQuietBargeInDetector();
     quietSpeechCurrentText="";
+}
+
+async function createQuietBargeInDetector(){
+    if(quietBargeInPermissionFailed)return false;
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;
+
+    try{
+        const stream=await navigator.mediaDevices.getUserMedia({
+            audio:{
+                echoCancellation:true,
+                noiseSuppression:true,
+                autoGainControl:true,
+                channelCount:1
+            },
+            video:false
+        });
+
+        if(!isQuietScribeSpeaking()||!quietBargeInEnabled||quietSpeechInterrupted){
+            stream.getTracks().forEach(function(track){
+                try{track.stop()}catch(error){}
+            });
+            return false;
+        }
+
+        const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+        if(!AudioContextClass){
+            stream.getTracks().forEach(function(track){
+                try{track.stop()}catch(error){}
+            });
+            return false;
+        }
+
+        const context=new AudioContextClass();
+        const analyser=context.createAnalyser();
+        analyser.fftSize=1024;
+        analyser.smoothingTimeConstant=0.82;
+        analyser.minDecibels=-90;
+        analyser.maxDecibels=-10;
+
+        const source=context.createMediaStreamSource(stream);
+        source.connect(analyser);
+
+        quietBargeInStream=stream;
+        quietBargeInAudioContext=context;
+        quietBargeInSource=source;
+        quietBargeInAnalyser=analyser;
+        quietBargeInNoiseFloor=0.012;
+        quietBargeInWarmupFrames=0;
+        quietBargeInVoiceFrames=0;
+
+        try{await context.resume()}catch(error){}
+
+        return true;
+    }catch(error){
+        if(error&&(
+            error.name==="NotAllowedError"||
+            error.name==="PermissionDeniedError"||
+            error.name==="SecurityError"
+        )){
+            quietBargeInPermissionFailed=true;
+            console.warn("Quiet Scribe automatic interruption microphone permission was denied.",error);
+        }else{
+            console.warn("Quiet Scribe automatic interruption detector unavailable.",error);
+        }
+        return false;
+    }
+}
+
+function getQuietMicRms(){
+    if(!quietBargeInAnalyser)return 0;
+
+    const data=new Uint8Array(quietBargeInAnalyser.fftSize);
+    quietBargeInAnalyser.getByteTimeDomainData(data);
+
+    let sum=0;
+    for(let i=0;i<data.length;i++){
+        const value=(data[i]-128)/128;
+        sum+=value*value;
+    }
+
+    return Math.sqrt(sum/data.length);
+}
+
+function triggerQuietVoiceInterruption(){
+    if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking())return;
+
+    quietSpeechInterrupted=true;
+    stopQuietBargeInDetector();
+
+    if(quietBargeInRestartTimer){
+        window.clearTimeout(quietBargeInRestartTimer);
+        quietBargeInRestartTimer=null;
+    }
+
+    if(quietBargeInRecognitionDelay){
+        window.clearTimeout(quietBargeInRecognitionDelay);
+        quietBargeInRecognitionDelay=null;
+    }
+
+    if(quietVoiceRecognition){
+        try{quietVoiceRecognition.abort()}catch(error){}
+    }
+
+    quietBargeInActive=false;
+
+    if("speechSynthesis" in window){
+        window.speechSynthesis.cancel();
+    }
+
+    updateVoiceInterruptButton();
+    setVoiceStatus("Interrupted.");
+
+    if(quietVoiceMode){
+        quietVoiceListening=false;
+        updateVoiceButton();
+
+        window.setTimeout(function(){
+            quietSpeechInterrupted=false;
+            if(quietVoiceMode&&!sendMessage.pending){
+                startQuietVoiceListening();
+            }
+        },180);
+    }else{
+        window.setTimeout(function(){
+            quietSpeechInterrupted=false;
+            updateVoiceInterruptButton();
+            if(!isQuietScribeSpeaking())setVoiceStatus("");
+        },500);
+    }
+}
+
+function monitorQuietBargeIn(){
+    if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking()||
+       !quietBargeInAnalyser||sendMessage.pending){
+        stopQuietBargeInDetector();
+        return;
+    }
+
+    const rms=getQuietMicRms();
+
+    if(quietBargeInWarmupFrames<18){
+        quietBargeInWarmupFrames++;
+        quietBargeInNoiseFloor=(quietBargeInNoiseFloor*0.82)+(rms*0.18);
+    }else{
+        const threshold=Math.max(0.035,quietBargeInNoiseFloor*3.0);
+        if(rms>threshold){
+            quietBargeInVoiceFrames++;
+        }else{
+            quietBargeInVoiceFrames=Math.max(0,quietBargeInVoiceFrames-2);
+        }
+
+        if(quietBargeInVoiceFrames>=7){
+            quietBargeInVoiceFrames=0;
+            startQuietBargeRecognition();
+            return;
+        }
+
+        quietBargeInNoiseFloor=Math.min(
+            0.06,
+            (quietBargeInNoiseFloor*0.985)+(rms*0.015)
+        );
+    }
+
+    quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
 }
 
 function scheduleQuietBargeInRestart(delay){
@@ -5384,9 +5606,11 @@ function scheduleQuietBargeInRestart(delay){
         window.clearTimeout(quietBargeInRestartTimer);
         quietBargeInRestartTimer=null;
     }
-    if(!quietBargeInEnabled||!quietVoiceSupported||!quietVoiceRecognition||
-       !window.speechSynthesis?.speaking||sendMessage.pending||
-       quietSpeechInterrupted)return;
+
+    if(!quietBargeInEnabled||quietBargeInPermissionFailed||
+       !quietVoiceSupported||!quietVoiceRecognition||
+       !isQuietScribeSpeaking()||sendMessage.pending||
+       quietSpeechInterrupted||quietBargeInActive)return;
 
     quietBargeInRestartTimer=window.setTimeout(function(){
         quietBargeInRestartTimer=null;
@@ -5394,27 +5618,63 @@ function scheduleQuietBargeInRestart(delay){
     },Math.max(180,delay||300));
 }
 
-function startQuietBargeIn(){
-    if(!quietBargeInEnabled||!quietVoiceSupported||!quietVoiceRecognition||
+async function startQuietBargeIn(){
+    if(!quietBargeInEnabled||quietBargeInPermissionFailed||
+       !quietVoiceSupported||!quietVoiceRecognition||
        sendMessage.pending||quietBargeInActive||
-       !window.speechSynthesis?.speaking||quietSpeechInterrupted)return;
+       !isQuietScribeSpeaking()||quietSpeechInterrupted)return;
 
+    const ready=await createQuietBargeInDetector();
+    if(!ready){
+        if(isQuietScribeSpeaking()&&quietBargeInEnabled&&!quietBargeInPermissionFailed){
+            setVoiceStatus("Voice interruption is unavailable on this browser.");
+        }
+        return;
+    }
+
+    if(!isQuietScribeSpeaking()||quietSpeechInterrupted){
+        stopQuietBargeInDetector();
+        return;
+    }
+
+    quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
+}
+
+function startQuietBargeRecognition(){
+    if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking()||
+       sendMessage.pending||quietBargeInActive||!quietVoiceRecognition)return;
+
+    stopQuietBargeInDetector();
     quietBargeInActive=true;
 
     try{
         quietVoiceRecognition.lang=navigator.language||"en-US";
-        quietVoiceRecognition.start();
+        quietBargeInRecognitionDelay=window.setTimeout(function(){
+            quietBargeInRecognitionDelay=null;
+
+            if(!quietBargeInActive||quietSpeechInterrupted||!isQuietScribeSpeaking()){
+                quietBargeInActive=false;
+                return;
+            }
+
+            try{
+                quietVoiceRecognition.start();
+            }catch(error){
+                quietBargeInActive=false;
+                if(error&&error.name==="InvalidStateError"){
+                    scheduleQuietBargeInRestart(320);
+                }else{
+                    console.warn("Could not start voice interruption recognition.",error);
+                    scheduleQuietBargeInRestart(650);
+                }
+            }
+        },90);
     }catch(error){
-        if(error&&error.name==="InvalidStateError"){
-            quietBargeInActive=false;
-            scheduleQuietBargeInRestart(350);
-            return;
-        }
         quietBargeInActive=false;
-        console.warn("Could not start voice interruption detection.",error);
-        scheduleQuietBargeInRestart(700);
+        scheduleQuietBargeInRestart(450);
     }
 }
+
 const VOICE_STYLES={
     scribe:{label:"Scribe · Natural Male",rate:.96,pitch:.96,volume:.94,voiceHint:"natural male"},
     philosopher:{label:"Philosopher · Deep Male",rate:.82,pitch:.82,volume:.94,voiceHint:"deep male"},
@@ -6112,6 +6372,7 @@ function speakScribeResponse(text){
             if(index>=segments.length){
                 quietSpeechCurrentText="";
                 stopQuietBargeIn();
+                updateVoiceInterruptButton();
                 if(quietVoiceMode) scheduleQuietVoiceRestart(260);
                 return;
             }
@@ -6134,7 +6395,8 @@ function speakScribeResponse(text){
             utterance.volume=style.volume;
 
             utterance.onstart=function(){
-                if(quietBargeInEnabled&&!quietVoiceMode&&!quietSpeechInterrupted){
+                updateVoiceInterruptButton();
+                if(quietBargeInEnabled&&!quietSpeechInterrupted){
                     scheduleQuietBargeInRestart(650);
                 }
             };
@@ -6143,6 +6405,7 @@ function speakScribeResponse(text){
                 if(quietSpeechInterrupted)return;
                 quietSpeechCurrentText="";
                 stopQuietBargeIn();
+                updateVoiceInterruptButton();
                 window.setTimeout(function(){
                     if(!quietSpeechInterrupted)speakNextSegment();
                 },80);
@@ -6152,6 +6415,7 @@ function speakScribeResponse(text){
                 if(quietSpeechInterrupted)return;
                 quietSpeechCurrentText="";
                 stopQuietBargeIn();
+                updateVoiceInterruptButton();
                 if(index<segments.length){
                     window.setTimeout(speakNextSegment,70);
                 }else if(quietVoiceMode){
@@ -6161,17 +6425,19 @@ function speakScribeResponse(text){
 
             synth.speak(utterance);
 
-            if(quietBargeInEnabled){
-                window.setTimeout(function(){
-                    if(synth.speaking&&!quietSpeechInterrupted)startQuietBargeIn();
-                },650);
-            }
+            window.setTimeout(function(){
+                if(synth.speaking&&!quietSpeechInterrupted){
+                    updateVoiceInterruptButton();
+                    if(quietBargeInEnabled)startQuietBargeIn();
+                }
+            },650);
         }
 
         speakNextSegment();
     }catch(error){
         console.warn("Quiet Scribe voice output unavailable.",error);
         stopQuietBargeIn();
+        updateVoiceInterruptButton();
         if(quietVoiceMode) scheduleQuietVoiceRestart(260);
     }
 }
@@ -6180,14 +6446,21 @@ function stopQuietVoice(manual){
         window.clearTimeout(quietVoiceRestartTimer);
         quietVoiceRestartTimer=null;
     }
+
     stopQuietBargeIn();
+
     if(quietVoiceRecognition){ try{quietVoiceRecognition.stop()}catch(error){} }
     quietVoiceListening=false;
+
     if(manual !== false){
         quietVoiceMode=false;
+        quietSpeechInterrupted=true;
         if("speechSynthesis" in window) window.speechSynthesis.cancel();
+        window.setTimeout(function(){quietSpeechInterrupted=false},120);
     }
+
     updateVoiceButton();
+    updateVoiceInterruptButton();
     setVoiceStatus(quietVoiceMode ? "Voice mode on." : "");
 }
 function scheduleQuietVoiceRestart(delay){
@@ -6269,44 +6542,28 @@ function initQuietVoice(){
                 const heard=finalText.trim()||interimText.trim();
 
                 if(heard && !quietTranscriptLooksLikeScribe(heard)){
-                    quietSpeechInterrupted=true;
-                    quietBargeInActive=false;
-                    if(quietBargeInRestartTimer){
-                        window.clearTimeout(quietBargeInRestartTimer);
-                        quietBargeInRestartTimer=null;
-                    }
-                    if("speechSynthesis" in window)window.speechSynthesis.cancel();
+                    triggerQuietVoiceInterruption();
 
-                    if(quietVoiceMode){
-                        quietVoiceListening=true;
-                        updateVoiceButton();
-
-                        if(finalText.trim()){
-                            const input=document.getElementById("chatInput");
-                            if(input){
-                                input.value=finalText.trim();
-                                resizeChatInput(input);
-                            }
-                            quietVoiceReplyPending=true;
-                            stopQuietVoice(false);
-                            sendMessage();
-                        }else{
-                            setVoiceStatus("Listening…");
+                    if(quietVoiceMode&&finalText.trim()){
+                        const input=document.getElementById("chatInput");
+                        if(input){
+                            input.value=finalText.trim();
+                            resizeChatInput(input);
                         }
-                    }else{
-                        try{quietVoiceRecognition.stop()}catch(error){}
-                        quietVoiceListening=false;
-                        updateVoiceButton();
-                        setVoiceStatus("Interrupted.");
-                        window.setTimeout(function(){
-                            if(!quietVoiceMode)setVoiceStatus("");
-                        },1200);
+                        quietVoiceReplyPending=true;
+                        quietSpeechInterrupted=false;
+                        stopQuietVoice(false);
+                        sendMessage();
                     }
+                }else if(heard){
+                    quietBargeInActive=false;
+                    scheduleQuietBargeInRestart(180);
                 }
                 return;
             }
 
             setVoiceStatus(interimText?"Listening: "+interimText:"Listening…");
+
             if(finalText.trim()){
                 const input=document.getElementById("chatInput");
                 if(input){input.value=finalText.trim();resizeChatInput(input);}
@@ -6318,16 +6575,16 @@ function initQuietVoice(){
         quietVoiceRecognition.onerror=function(event){
             const wasBargeIn=quietBargeInActive;
             quietVoiceListening=false;
+            updateVoiceButton();
 
             if(wasBargeIn){
                 quietBargeInActive=false;
                 if(event.error!=="not-allowed"&&event.error!=="service-not-allowed"&&event.error!=="audio-capture"){
-                    scheduleQuietBargeInRestart(event.error==="no-speech"?260:550);
+                    scheduleQuietBargeInRestart(event.error==="no-speech"?240:520);
                 }
                 return;
             }
 
-            updateVoiceButton();
             const messages={
                 "not-allowed":"Microphone permission was denied.",
                 "service-not-allowed":"Voice recognition is not available here.",
@@ -6337,7 +6594,9 @@ function initQuietVoice(){
             const fatalVoiceError=event.error==="not-allowed"||
                 event.error==="service-not-allowed"||
                 event.error==="audio-capture";
+
             setVoiceStatus(messages[event.error]||"Voice input stopped.");
+
             if(fatalVoiceError){
                 quietVoiceMode=false;
                 if(quietVoiceRestartTimer){
@@ -6345,13 +6604,15 @@ function initQuietVoice(){
                     quietVoiceRestartTimer=null;
                 }
                 updateVoiceButton();
-                if("speechSynthesis" in window) window.speechSynthesis.cancel();
+                if("speechSynthesis" in window)window.speechSynthesis.cancel();
             }else if(quietVoiceMode){
                 scheduleQuietVoiceRestart(event.error==="no-speech"?350:600);
             }
+
             window.setTimeout(function(){
                 if(!quietVoiceMode)setVoiceStatus("");
             },2200);
+
             console.warn("Quiet Scribe voice input:",event.error);
         };
         quietVoiceRecognition.onend=function(){
@@ -6360,13 +6621,14 @@ function initQuietVoice(){
             quietVoiceListening=false;
 
             if(wasBargeIn){
-                if(window.speechSynthesis?.speaking&&!quietSpeechInterrupted){
+                if(isQuietScribeSpeaking()&&!quietSpeechInterrupted){
                     scheduleQuietBargeInRestart(220);
                 }
                 return;
             }
 
             updateVoiceButton();
+
             if(quietVoiceMode){
                 setVoiceStatus("Voice mode on.");
                 scheduleQuietVoiceRestart(350);
@@ -6391,12 +6653,20 @@ function toggleVoiceInput(){
         setVoiceStatus("Voice input is not supported in this browser.");
         return;
     }
+
     if(quietVoiceMode){
         stopQuietVoice(true);
         return;
     }
+
     quietVoiceMode=true;
-    setVoiceStatus(sendMessage.pending ? "Voice mode on. I'll listen after this reply." : "Voice mode on.");
+    quietSpeechInterrupted=false;
+
+    setVoiceStatus(sendMessage.pending
+        ? "Voice mode on. I'll listen after this reply."
+        : "Voice mode on."
+    );
+
     if(!sendMessage.pending){
         startQuietVoiceListening();
     }

@@ -2727,10 +2727,9 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 .voice-button:disabled{opacity:.4;cursor:not-allowed}
 @keyframes qsVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(232,227,216,.04)}50%{box-shadow:0 0 0 7px rgba(232,227,216,.04)}}
 .voice-status{min-height:16px;margin-top:5px;color:#77747d;font-size:11px;text-align:center;opacity:.75}
-.voice-style-button{width:auto;max-width:none;margin:0;padding:7px 10px;background:transparent;border:1px solid transparent;font-size:12px;opacity:.55}
+.voice-style-button{width:auto;max-width:150px;margin:0;padding:7px 10px;background:transparent;border:1px solid transparent;border-radius:8px;font-size:12px;opacity:.7;color:#aaa4ad}
 .voice-style-button:hover{opacity:1;background:#111118;border-color:#292932}
-.voice-style-button.philosopher-active{opacity:.95;color:#d8d0c6}
-.voice-style-button.philosopher-active:hover{background:#17171f}
+.voice-style-button:focus{outline:none;border-color:#45434d;opacity:1}
 
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -4306,14 +4305,20 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                         🧠 Philosopher Mode: OFF
                     </button>
 
-                    <button
-                        id="voiceStyleButton"
+                    <select
+                        id="voiceStyleSelect"
                         class="voice-style-button"
-                        type="button"
-                        onclick="toggleVoiceStyle()"
-                        aria-label="Use Scribe voice">
-                        🎙️ Voice: Scribe
-                    </button>
+                        onchange="setVoiceStyle(this.value)"
+                        aria-label="Choose Scribe voice"
+                        title="Choose voice style">
+                        <option value="scribe">🎙️ Scribe</option>
+                        <option value="philosopher">🕯️ Philosopher</option>
+                        <option value="poet">📜 Poet</option>
+                        <option value="narrator">🎬 Narrator</option>
+                        <option value="calm">🌙 Calm</option>
+                        <option value="mysterious">🌫️ Mysterious</option>
+                        <option value="warm">☕ Warm</option>
+                    </select>
                 </div>
 
                 <button
@@ -5277,46 +5282,49 @@ function updateVoiceButton(){
     button.setAttribute("aria-label",quietVoiceListening?"Stop listening":"Talk to Scribe");
     button.setAttribute("title",quietVoiceListening?"Stop listening":"Talk to Scribe");
 }
+const VOICE_STYLES={
+    scribe:{label:"Scribe",rate:.96,pitch:1,volume:.94},
+    philosopher:{label:"Philosopher",rate:.82,pitch:.80,volume:.94},
+    poet:{label:"Poet",rate:.88,pitch:1.08,volume:.90},
+    narrator:{label:"Narrator",rate:.90,pitch:.92,volume:1},
+    calm:{label:"Calm",rate:.78,pitch:1.02,volume:.82},
+    mysterious:{label:"Mysterious",rate:.84,pitch:.72,volume:.88},
+    warm:{label:"Warm",rate:.93,pitch:1.10,volume:.96}
+};
 function getVoiceStyle(){
-    return localStorage.getItem("quietScribeVoiceStyle")||"scribe";
+    const saved=localStorage.getItem("quietScribeVoiceStyle")||"scribe";
+    return VOICE_STYLES[saved]?saved:"scribe";
 }
-function updateVoiceStyleButton(){
-    const button=document.getElementById("voiceStyleButton");
-    if(!button)return;
-    const philosopher=getVoiceStyle()==="philosopher";
-    button.textContent=philosopher?"🕯️ Voice: Philosopher":"🎙️ Voice: Scribe";
-    button.setAttribute("aria-label",philosopher?"Use Scribe voice":"Use Philosopher voice");
-    button.setAttribute("title",philosopher
-        ? "Philosopher voice: slower and more contemplative"
-        : "Scribe voice: natural conversational pace");
-    button.classList.toggle("philosopher-active",philosopher);
-}
-function toggleVoiceStyle(){
-    const next=getVoiceStyle()==="philosopher"?"scribe":"philosopher";
-    localStorage.setItem("quietScribeVoiceStyle",next);
-    updateVoiceStyleButton();
-    setVoiceStatus(next==="philosopher"
-        ? "Philosopher voice enabled."
-        : "Scribe voice enabled.");
+function setVoiceStyle(style){
+    if(!VOICE_STYLES[style])style="scribe";
+    localStorage.setItem("quietScribeVoiceStyle",style);
+    const select=document.getElementById("voiceStyleSelect");
+    if(select)select.value=style;
+    if("speechSynthesis" in window)window.speechSynthesis.cancel();
+    setVoiceStatus(VOICE_STYLES[style].label+" voice enabled.");
     window.setTimeout(function(){setVoiceStatus("")},1800);
 }
+function updateVoiceStyleButton(){
+    const select=document.getElementById("voiceStyleSelect");
+    if(select)select.value=getVoiceStyle();
+}
 function speakScribeResponse(text){
-    if(!("speechSynthesis" in window)||!text) return;
+    if(!("speechSynthesis" in window)||!text)return;
     try{
         window.speechSynthesis.cancel();
-        const philosopher=getVoiceStyle()==="philosopher";
+        const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
         const cleanText=String(text)
             .replace(/[*_#]/g,"")
             .replace(/\n{2,}/g,". ")
             .trim();
         const utterance=new SpeechSynthesisUtterance(cleanText);
         utterance.lang=navigator.language||"en-US";
-        utterance.rate=philosopher?.82:.96;
-        utterance.pitch=philosopher?.80:1;
-        utterance.volume=.94;
+        utterance.rate=style.rate;
+        utterance.pitch=style.pitch;
+        utterance.volume=style.volume;
         utterance.onerror=function(){};
         window.speechSynthesis.speak(utterance);
-    }catch(error){ console.warn("Quiet Scribe voice output unavailable.",error); }
+    }catch(error){console.warn("Quiet Scribe voice output unavailable.",error);}
 }
 function stopQuietVoice(){
     if(quietVoiceRecognition){ try{quietVoiceRecognition.stop()}catch(error){} }

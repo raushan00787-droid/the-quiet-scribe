@@ -4612,10 +4612,51 @@ function readStoredArray(key){
 function getQuietMode(){return localStorage.getItem("quietScribeMode")||""}
 function isQuietSetupComplete(){return localStorage.getItem("quietScribeSetupComplete")==="true"}
 
+function hasQuietRememberedSession(){
+    const mode=getQuietMode();
+
+    if(mode==="google"){
+        const profile=safeParseJSON(localStorage.getItem("quietScribeGoogleProfile")||"null",null);
+        return !!(profile&&profile.sub);
+    }
+
+    if(mode==="guest"){
+        return true;
+    }
+
+    return false;
+}
+
+function clearRememberedQuietSession(){
+    localStorage.removeItem("quietScribeMode");
+    localStorage.removeItem("quietScribeGoogleProfile");
+}
+
 function continueAfterEntry(){
-    if(!isQuietSetupComplete()){showScreen("quiet-setup");loadQuietSetup()}
-    else{showScreen("purpose")}
+    if(!isQuietSetupComplete()){
+        showScreen("quiet-setup");
+        loadQuietSetup();
+    }else{
+        showScreen("purpose");
+    }
     window.scrollTo(0,0);
+}
+
+function restoreQuietSession(){
+    if(!localStorage.getItem("quietScribeOathAccepted"))return false;
+    if(!hasQuietRememberedSession())return false;
+
+    applyQuietTheme(localStorage.getItem("quietScribeTheme")||"midnight");
+
+    if(isQuietSetupComplete()){
+        showScreen("purpose");
+    }else{
+        showScreen("quiet-setup");
+        loadQuietSetup();
+    }
+
+    window.scrollTo(0,0);
+    return true;
 }
 
 function acceptOath(){
@@ -7564,6 +7605,15 @@ loadSavedWritings();
         });
 
         var nextScreen = "welcome";
+
+        if (typeof restoreQuietSession === "function") {
+            const restored = restoreQuietSession();
+            if (restored) {
+                nextScreen = isQuietSetupComplete()
+                    ? "purpose"
+                    : "quiet-setup";
+            }
+        }
 
         var target = document.getElementById(nextScreen);
 

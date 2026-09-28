@@ -6257,12 +6257,15 @@ const QUIET_COMMON_ENGLISH_WORDS=new Set([
     "make","made","makes","want","need","help","change","changed","better",
     "different","same","first","last","again","now","here","there","inside",
     "outside","deep","quiet","calm","soft","warm","dark","light","open","close",
-    "scribe","kafka","camus","dostoevsky","miyazaki","beethoven","chopin",
     "stay","leave","go","come","keep","find","lost","found","look","see",
     "hear","heard","know","think","thought","believe"
 ]);
 
-const QUIET_HINDI_PHONETIC_ENGLISH={
+const QUIET_PROPER_ENGLISH_WORDS=new Set([
+    "scribe","kafka","camus","dostoevsky","miyazaki","beethoven","chopin"
+]);
+
+const QUIET_HINDI_PHONETIC_ENGLISH=
     "philosophy":"फिलॉसफी",
     "philosopher":"फिलॉसफर",
     "philosophers":"फिलॉसफर्स",
@@ -6401,7 +6404,20 @@ function isQuietStrongEnglishWord(word){
     const value=String(word||"").trim();
     const normalized=value.toLowerCase().replace(/[^a-z]/g,"");
     if(!normalized)return false;
-    if(isLikelyQuietRomanHindiWord(value))return false;
+
+    if(/^[A-Z][A-Za-z0-9]+$/.test(value) &&
+       QUIET_COMMON_ENGLISH_WORDS.has(normalized)){
+        return true;
+    }
+
+    if(QUIET_PROPER_ENGLISH_WORDS.has(normalized)){
+        return true;
+    }
+
+    if(isLikelyQuietRomanHindiWord(value)){
+        return false;
+    }
+
     return QUIET_COMMON_ENGLISH_WORDS.has(normalized);
 }
 

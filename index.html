@@ -5353,18 +5353,33 @@ function getQuietSpeechVoice(style,language){
     quietSpeechVoices.forEach(function(voice){
         const name=(voice.name||"").toLowerCase();
         const lang=(voice.lang||"").toLowerCase();
-        let score=scoreQuietVoice(voice,style);
 
         if(targetLanguage.indexOf("hi")===0){
-            if(lang.indexOf("hi-in")===0)score+=120;
-            else if(lang.indexOf("hi")===0)score+=105;
-            else if(lang.indexOf("en")===0)score-=15;
-            if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=8;
-        }else{
-            if(targetLanguage && lang.indexOf(targetLanguage)===0)score+=22;
-            else if(lang.indexOf("en")===0)score+=12;
+            // Never force an English voice onto Hindi text.
+            if(lang.indexOf("hi")!==0)return;
+
+            let score=0;
+            if(lang.indexOf("hi-in")===0)score+=140;
+            else score+=110;
+
+            if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=20;
+            if(style.voiceHint==="deep male"&&/deep|low|bass|david|guy|george/.test(name))score+=15;
+            if(style.voiceHint==="soft male"&&/soft|calm|natural|daniel|alex/.test(name))score+=10;
+            if(style.voiceHint==="narrator male"&&/david|george|brian|guy/.test(name))score+=10;
+            if(style.voiceHint==="low male"&&/deep|low|bass|david|guy|george/.test(name))score+=15;
+            if(style.voiceHint==="warm male"&&/warm|natural|daniel|thomas/.test(name))score+=10;
+
+            if(score>bestScore){
+                bestScore=score;
+                best=voice;
+            }
+            return;
         }
 
+        if(lang.indexOf("en")!==0)return;
+
+        let score=scoreQuietVoice(voice,style);
+        if(targetLanguage && lang.indexOf(targetLanguage)===0)score+=25;
         if(score>bestScore){
             bestScore=score;
             best=voice;
@@ -5373,7 +5388,6 @@ function getQuietSpeechVoice(style,language){
 
     return bestScore>0?best:null;
 }
-
 function getVoiceStyle(){
     const saved=localStorage.getItem("quietScribeVoiceStyle")||"scribe";
     return VOICE_STYLES[saved]?saved:"scribe";
@@ -5399,19 +5413,91 @@ function updateVoiceStyleButton(){
     if(select)select.value=getVoiceStyle();
 }
 
+const QUIET_ROMAN_HINDI_WORDS=new Set([
+    "main","mein","mai","mujhe","mera","meri","mere","hum","ham","hume","humne",
+    "tum","tumhe","tumhara","tumhari","aap","aapko","apka","apki",
+    "tu","tera","teri","tere","bhi","toh","to","hi","haan","han","na","nahi","nahin",
+    "bhai","bro","yaar","yar","kya","kyu","kyun","kyunki","kaise","kaisa","kaisi",
+    "kab","kahan","kahaan","kaun","kis","kiske","kitna","kitni","kitne",
+    "hai","hain","ho","hun","hu","tha","thi","the","hoga","hogi","honge",
+    "kar","karo","kare","karen","karna","karte","karti","karta","kiya","kiye","ki",
+    "ja","jaa","jaye","jayein","jana","jaana","jao","gaya","gayi","gaye",
+    "aa","aao","aana","aaya","aayi","aaye",
+    "ab","aaj","kal","phir","fir","pehle","baad","andar","bahar","upar","neeche",
+    "sab","sabhi","kuch","koi","kisi","kisko","iska","iske","iski","uska","uske","uski",
+    "ye","yeh","woh","vo","wo","yah","vah",
+    "aur","ya","lekin","magar","agar","jab","tab","kyunki","isliye","bas",
+    "bahut","bohot","zyada","kam","accha","achha","acha","bura","sahi","galat",
+    "acha","theek","thik","problem","mila","mili","mil","raha","rahe","rahi",
+    "waha","wahaan","yaha","yahaan","dil","baat","bata","batau","bol","bola","batao",
+    "sun","suno","dekh","dekho","samajh","samjha","samjho","lagta","lag","chahta",
+    "chahti","chahiye","pata","matlab","kyon","liye","liye","wala","wali","wale"
+]);
+
+function isQuietEmojiCodePoint(codePoint){
+    return (
+        (codePoint>=0x1F000&&codePoint<=0x1FAFF) ||
+        (codePoint>=0x1FC00&&codePoint<=0x1FFFF) ||
+        (codePoint>=0x2300&&codePoint<=0x23FF) ||
+        (codePoint>=0x2600&&codePoint<=0x27BF) ||
+        (codePoint>=0x2900&&codePoint<=0x29FF) ||
+        (codePoint>=0x2B00&&codePoint<=0x2BFF) ||
+        codePoint===0x00A9 ||
+        codePoint===0x00AE ||
+        codePoint===0x203C ||
+        codePoint===0x2049 ||
+        codePoint===0x2122 ||
+        codePoint===0x2139 ||
+        codePoint===0x3030 ||
+        codePoint===0x303D ||
+        codePoint===0x3297 ||
+        codePoint===0x3299
+    );
+}
+
+function stripQuietEmoji(text){
+    let output="";
+    for(const character of String(text||"")){
+        const codePoint=character.codePointAt(0);
+        if(
+            isQuietEmojiCodePoint(codePoint) ||
+            codePoint===0xFE0F ||
+            codePoint===0x200D ||
+            codePoint===0x20E3 ||
+            (codePoint>=0x1F3FB&&codePoint<=0x1F3FF)
+        ){
+            continue;
+        }
+        output+=character;
+    }
+    return output;
+}
+
 function cleanScribeSpeechText(text){
-    return String(text||"")
-        .replace(/https?:\\/\\/\\S+/gi," ")
-        .replace(/[*_#~`]/g,"")
-        .replace(/[\\p{Extended_Pictographic}\\p{Emoji_Presentation}\\p{Emoji_Modifier}\\p{Regional_Indicator}\\uFE0F\\u200D\\u20E3]/gu," ")
-        .replace(/[\\u200B-\\u200D\\uFEFF]/g,"")
-        .replace(/\\n{2,}/g,". ")
-        .replace(/\\s+/g," ")
+    return stripQuietEmoji(String(text||""))
+        .replace(/[*_#~\`]/g,"")
+        .replace(/[\u200B-\u200D\uFEFF]/g,"")
+        .replace(/\n{2,}/g,". ")
+        .replace(/\s+/g," ")
         .trim();
 }
 
+function isLikelyQuietRomanHindiWord(word){
+    const normalized=String(word||"")
+        .toLowerCase()
+        .replace(/[^a-z]/g,"");
+    return normalized.length>0&&QUIET_ROMAN_HINDI_WORDS.has(normalized);
+}
+
+function getQuietSpeechLanguage(word){
+    const value=String(word||"");
+    if(/[\u0900-\u097F]/u.test(value))return "hi-IN";
+    if(isLikelyQuietRomanHindiWord(value))return "hi-IN";
+    return "en-US";
+}
+
 function buildQuietSpeechSegments(text){
-    const words=String(text||"").split(/\\s+/).filter(Boolean);
+    const words=String(text||"").split(/\s+/).filter(Boolean);
     if(!words.length)return [];
 
     const segments=[];
@@ -5429,8 +5515,7 @@ function buildQuietSpeechSegments(text){
     }
 
     words.forEach(function(word){
-        const isHindi=/[\\u0900-\\u097F]/u.test(word);
-        const language=isHindi?"hi-IN":"en-US";
+        const language=getQuietSpeechLanguage(word);
 
         if(current.length&&language!==currentLanguage)flush();
         if(!current.length)currentLanguage=language;
@@ -5475,6 +5560,7 @@ function speakScribeResponse(text){
                 utterance.voice=preferredVoice;
                 utterance.lang=preferredVoice.lang||segment.language;
             }else{
+                // Let the browser select its native voice for this language.
                 utterance.lang=segment.language;
             }
 
@@ -6549,13 +6635,7 @@ loadSavedWritings();
             screen.classList.remove("active");
         });
 
-        var nextScreen = "oath";
-
-        if (getQuietMode()) {
-            nextScreen = isQuietSetupComplete() ? "purpose" : "quiet-setup";
-            applyQuietTheme(localStorage.getItem("quietScribeTheme") || "midnight");
-            if (nextScreen === "quiet-setup") loadQuietSetup();
-        }
+        var nextScreen = "welcome";
 
         var target = document.getElementById(nextScreen);
 

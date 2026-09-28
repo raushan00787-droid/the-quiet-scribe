@@ -5376,6 +5376,8 @@ let quietBargeInMonitorId = null;
 let quietBargeInNoiseFloor = 0.012;
 let quietBargeInWarmupFrames = 0;
 let quietBargeInVoiceFrames = 0;
+let quietBargeInEchoFloor = 0.012;
+let quietBargeInCandidateFrames = 0;
 let quietBargeInPermissionFailed = false;
 
 function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
@@ -5480,6 +5482,7 @@ function stopQuietBargeInDetector(){
     quietBargeInSource=null;
     quietBargeInWarmupFrames=0;
     quietBargeInVoiceFrames=0;
+    quietBargeInCandidateFrames=0;
 }
 
 function stopQuietBargeIn(){
@@ -5547,8 +5550,10 @@ async function createQuietBargeInDetector(){
         quietBargeInSource=source;
         quietBargeInAnalyser=analyser;
         quietBargeInNoiseFloor=0.012;
+        quietBargeInEchoFloor=0.012;
         quietBargeInWarmupFrames=0;
         quietBargeInVoiceFrames=0;
+        quietBargeInCandidateFrames=0;
 
         try{await context.resume()}catch(error){}
 
@@ -5586,7 +5591,12 @@ function getQuietMicRms(){
 function triggerQuietVoiceInterruption(){
     if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking())return;
 
+    // Important: NEVER run SpeechRecognition while Scribe is speaking.
+    // First stop playback, then open the normal user-mic recognizer.
     quietSpeechInterrupted=true;
+    quietBargeInActive=false;
+    quietBargeInCandidateFrames=0;
+
     stopQuietBargeInDetector();
 
     if(quietBargeInRestartTimer){
@@ -5603,25 +5613,24 @@ function triggerQuietVoiceInterruption(){
         try{quietVoiceRecognition.abort()}catch(error){}
     }
 
-    quietBargeInActive=false;
-
     if("speechSynthesis" in window){
         window.speechSynthesis.cancel();
     }
 
     updateVoiceInterruptButton();
-    setVoiceStatus("Interrupted.");
+    setVoiceStatus("Interrupted. Listening for you…");
 
     if(quietVoiceMode){
         quietVoiceListening=false;
         updateVoiceButton();
 
+        // Give the speaker/OS echo path a moment to settle before recognition starts.
         window.setTimeout(function(){
             quietSpeechInterrupted=false;
             if(quietVoiceMode&&!sendMessage.pending){
                 startQuietVoiceListening();
             }
-        },180);
+        },260);
     }else{
         window.setTimeout(function(){
             quietSpeechInterrupted=false;
@@ -5640,25 +5649,42 @@ function monitorQuietBargeIn(){
 
     const rms=getQuietMicRms();
 
-    if(quietBargeInWarmupFrames<18){
+    // The first few frames estimate how much of Scribe's own speaker output
+    // is still leaking back into the microphone after browser echo cancellation.
+    if(quietBargeInWarmupFrames<20){
         quietBargeInWarmupFrames++;
-        quietBargeInNoiseFloor=(quietBargeInNoiseFloor*0.82)+(rms*0.18);
+        quietBargeInEchoFloor=(quietBargeInEchoFloor*0.88)+(rms*0.12);
+        quietBargeInNoiseFloor=(quietBargeInNoiseFloor*0.88)+(rms*0.12);
+        quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
+        return;
+    }
+
+    const baseline=Math.max(quietBargeInNoiseFloor,quietBargeInEchoFloor);
+    const threshold=Math.max(0.045,(baseline*1.85)+0.008);
+
+    // Require a sustained energy rise above the current speaker-leakage baseline.
+    if(rms>threshold){
+        quietBargeInCandidateFrames++;
     }else{
-        const threshold=Math.max(0.035,quietBargeInNoiseFloor*3.0);
-        if(rms>threshold){
-            quietBargeInVoiceFrames++;
-        }else{
-            quietBargeInVoiceFrames=Math.max(0,quietBargeInVoiceFrames-2);
-        }
+        quietBargeInCandidateFrames=Math.max(0,quietBargeInCandidateFrames-3);
+    }
 
-        if(quietBargeInVoiceFrames>=7){
-            quietBargeInVoiceFrames=0;
-            startQuietBargeRecognition();
-            return;
-        }
+    // ~180-220ms of sustained user-level audio before we react.
+    if(quietBargeInCandidateFrames>=12){
+        quietBargeInCandidateFrames=0;
+        triggerQuietVoiceInterruption();
+        return;
+    }
 
+    // Track the speaker leakage floor slowly. Do not let short loud speech
+    // instantly become the new baseline.
+    if(rms<baseline*1.35){
+        quietBargeInEchoFloor=Math.min(
+            0.10,
+            (quietBargeInEchoFloor*0.985)+(rms*0.015)
+        );
         quietBargeInNoiseFloor=Math.min(
-            0.06,
+            0.10,
             (quietBargeInNoiseFloor*0.985)+(rms*0.015)
         );
     }
@@ -5705,40 +5731,13 @@ async function startQuietBargeIn(){
     quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
 }
 
+// Kept for compatibility with existing event flow, but deliberately unused.
+// Recognition must not listen to the microphone while Scribe is speaking.
 function startQuietBargeRecognition(){
-    if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking()||
-       sendMessage.pending||quietBargeInActive||!quietVoiceRecognition)return;
-
-    stopQuietBargeInDetector();
-    quietBargeInActive=true;
-
-    try{
-        quietVoiceRecognition.lang=navigator.language||"en-US";
-        quietBargeInRecognitionDelay=window.setTimeout(function(){
-            quietBargeInRecognitionDelay=null;
-
-            if(!quietBargeInActive||quietSpeechInterrupted||!isQuietScribeSpeaking()){
-                quietBargeInActive=false;
-                return;
-            }
-
-            try{
-                quietVoiceRecognition.start();
-            }catch(error){
-                quietBargeInActive=false;
-                if(error&&error.name==="InvalidStateError"){
-                    scheduleQuietBargeInRestart(320);
-                }else{
-                    console.warn("Could not start voice interruption recognition.",error);
-                    scheduleQuietBargeInRestart(650);
-                }
-            }
-        },90);
-    }catch(error){
-        quietBargeInActive=false;
-        scheduleQuietBargeInRestart(450);
-    }
+    if(!isQuietScribeSpeaking())return;
+    triggerQuietVoiceInterruption();
 }
+
 
 const VOICE_STYLES={
     scribe:{label:"Scribe · Natural Male",rate:.96,pitch:.96,volume:.94,voiceHint:"natural male"},
@@ -6669,30 +6668,8 @@ function initQuietVoice(){
                 if(event.results[i].isFinal) finalText+=transcript; else interimText+=transcript;
             }
 
-            if(quietBargeInActive){
-                const heard=finalText.trim()||interimText.trim();
-
-                if(heard && !quietTranscriptLooksLikeScribe(heard)){
-                    triggerQuietVoiceInterruption();
-
-                    if(quietVoiceMode&&finalText.trim()){
-                        const input=document.getElementById("chatInput");
-                        if(input){
-                            input.value=finalText.trim();
-                            resizeChatInput(input);
-                        }
-                        quietVoiceReplyPending=true;
-                        quietSpeechInterrupted=false;
-                        stopQuietVoice(false);
-                        sendMessage();
-                    }
-                }else if(heard){
-                    quietBargeInActive=false;
-                    scheduleQuietBargeInRestart(180);
-                }
-                return;
-            }
-
+            // During Scribe playback the barge-in detector does not start recognition.
+            // Normal recognition only runs after playback has already stopped.
             setVoiceStatus(interimText?"Listening: "+interimText:"Listening…");
 
             if(finalText.trim()){

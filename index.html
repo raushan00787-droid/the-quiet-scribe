@@ -3987,6 +3987,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
         <span>Tonight's thought</span>
 
         <button
+            id="tonightAnalyzeButton"
             class="scribe-read-button"
             onclick="analyzeTonightAnswer()">
             🕯️ Let the Scribe read this
@@ -4473,17 +4474,17 @@ function getTonightQuestion() {
 }
   
     function analyzeTonightAnswer() {
-    const answerElement = document.getElementById("tonightAnswer");
+    const answerElement=document.getElementById("tonightAnswer");
+    const button=document.getElementById("tonightAnalyzeButton");
 
-    if (!answerElement) return;
+    if(!answerElement||analyzeTonightAnswer.pending)return;
 
-    const answer = answerElement.value.trim();
+    const answer=answerElement.value.trim();
+    if(!answer)return;
 
-    if (!answer) return;
+    const question=getTonightQuestion();
 
-    const question = getTonightQuestion();
-
-    const analysisPrompt = `
+    const analysisPrompt=`
 You are Quiet Scribe.
 
 Tonight's Question:
@@ -4503,102 +4504,129 @@ Do not simply praise or summarize.
 Respond naturally in the same language and style as the user's answer.
 `;
 
-    const thinking = document.createElement("p");
-    thinking.id = "thinkingMessage";
-    thinking.textContent = "Scribe is reading...";
+    analyzeTonightAnswer.pending=true;
+
+    if(button){
+        button.disabled=true;
+        button.setAttribute("aria-busy","true");
+    }
+
+    document.getElementById("thinkingMessage")?.remove();
+    document.getElementById("tonightAnalysis")?.remove();
+
+    const thinking=document.createElement("p");
+    thinking.id="thinkingMessage";
+    thinking.textContent="Scribe is reading…";
 
     document.getElementById("tonight")?.appendChild(thinking);
 
-    const requestController = new AbortController();
-    const requestTimeout = window.setTimeout(function () {
+    const requestController=new AbortController();
+    const requestTimeout=window.setTimeout(function(){
         requestController.abort();
-    }, 25000);
+    },25000);
 
     fetch(
         "https://quiet-scribe-ai.thequietscribe.workers.dev",
         {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Accept":"application/json"
             },
-
-            signal: requestController.signal,
-
-            body: JSON.stringify({
-                messages: [
-                    {
-                        role: "system",
-                        content: analysisPrompt
-                    },
-                    {
-                        role: "user",
-                        content: answer
-                    }
+            signal:requestController.signal,
+            body:JSON.stringify({
+                messages:[
+                    {role:"system",content:analysisPrompt},
+                    {role:"user",content:answer}
                 ]
             })
         }
     )
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error("Worker returned an error");
+    .then(function(response){
+        return response.text().then(function(raw){
+            let data={};
+            try{
+                data=raw?JSON.parse(raw):{};
+            }catch(parseError){
+                if(!response.ok){
+                    throw new Error("HTTP "+response.status+": "+(raw||response.statusText||"Worker error"));
+                }
+                throw new Error("Worker returned non-JSON data.");
+            }
+
+            if(!response.ok){
+                const detail=
+                    data?.error?.message||
+                    data?.error||
+                    data?.message||
+                    raw||
+                    response.statusText||
+                    ("HTTP "+response.status);
+                throw new Error(String(detail));
+            }
+
+            return data;
+        });
+    })
+    .then(function(data){
+        window.clearTimeout(requestTimeout);
+        document.getElementById("thinkingMessage")?.remove();
+
+        const resultText=
+            typeof data==="string"
+                ? data
+                : data?.choices?.[0]?.message?.content||
+                  data?.choices?.[0]?.text||
+                  data?.response||
+                  data?.reply||
+                  data?.content||
+                  data?.text||
+                  data?.message?.content||
+                  data?.message||
+                  data?.output_text||
+                  data?.result?.response||
+                  data?.result?.text||
+                  "";
+
+        if(!resultText||typeof resultText!=="string"){
+            throw new Error("Worker returned no usable analysis.");
         }
 
-        return response.json();
+        const result=document.createElement("div");
+        result.className="reading-content";
+        result.textContent=resultText;
+
+        document.getElementById("tonightAnalysis")?.remove();
+        result.dataset.analysis="tonight";
+        result.id="tonightAnalysis";
+        document.getElementById("tonight")?.appendChild(result);
     })
-    .then(function(data) {
-
+    .catch(function(error){
         window.clearTimeout(requestTimeout);
+        document.getElementById("thinkingMessage")?.remove();
+        document.getElementById("tonightAnalysis")?.remove();
 
-        document
-            .getElementById("thinkingMessage")
-            ?.remove();
+        console.error("Tonight analysis error:",error);
 
-        if (
-            !data.choices ||
-            !data.choices[0] ||
-            !data.choices[0].message
-        ) {
-            throw new Error("Invalid response from Worker");
+        const result=document.createElement("div");
+        result.id="tonightAnalysis";
+        result.className="reading-content";
+        result.textContent=
+            error&&error.name==="AbortError"
+                ?"The Scribe took too long to respond. Please try again."
+                :"The Scribe could not read this thought right now. Please try again.";
+
+        document.getElementById("tonight")?.appendChild(result);
+    })
+    .finally(function(){
+        analyzeTonightAnswer.pending=false;
+        if(button){
+            button.disabled=false;
+            button.removeAttribute("aria-busy");
         }
-
-        const result = document.createElement("div");
-
-        result.id = "tonightAnalysis";
-        result.className = "reading-content";
-        result.textContent =
-            data.choices[0].message.content;
-
-        document
-            .getElementById("tonight")
-            ?.appendChild(result);
-    })
-    .catch(function(error) {
-
-        window.clearTimeout(requestTimeout);
-
-        document
-            .getElementById("thinkingMessage")
-            ?.remove();
-
-        console.error(error);
-
-        const result = document.createElement("div");
-        result.id = "tonightAnalysis";
-        result.className = "reading-content";
-        result.textContent =
-            error && error.name === "AbortError"
-                ? "The Scribe took too long to respond. Please try again."
-                : "The Scribe could not read this thought right now. Please try again.";
-
-        document
-            .getElementById("tonight")
-            ?.appendChild(result);
     });
-    }
-
-      
+}
+analyzeTonightAnswer.pending=false;
 
 function newTonightQuestion() {
     const question = getTonightQuestion();
@@ -5079,12 +5107,12 @@ const thoughts = [
 ];
 
 function newThought() {
-    const thought = document.getElementById("thought");
+    const thought=document.getElementById("thought");
+    if(!thought||!thoughts.length)return;
 
-    const random =
-        thoughts[Math.floor(Math.random() * thoughts.length)];
+    const random=thoughts[Math.floor(Math.random()*thoughts.length)];
 
-    thought.innerHTML = `
+    thought.innerHTML=`
         <strong>${random.title}</strong><br><br>
         ${random.text}
     `;
@@ -5325,6 +5353,17 @@ function detectMemoryCandidate(text){
  const signals=[/\bmy favorite\b/i,/\bmy favourite\b/i,/\bi like\b/i,/\bi love\b/i,/\bi prefer\b/i,/\bmy goal is\b/i,/\bi'm working on\b/i,/\bi am working on\b/i,/\bmy project is\b/i];if(signals.some(p=>p.test(original)))return original;return "";
 }
 function rememberFromMessage(text){const candidate=detectMemoryCandidate(text);if(candidate)addQuietMemory(candidate,"automatic")}
+function getQuietPersonalizationSystemContext(){
+ const name=localStorage.getItem("quietScribeDisplayName")||localStorage.getItem("scribeName")||"";
+ const use=localStorage.getItem("quietScribeUse")||"";
+ if(!name&&!use)return "";
+ let context="\nUSER PERSONALIZATION\n";
+ if(name)context+="Preferred name: "+name+"\n";
+ if(use)context+="Primary reason for using the Quiet: "+use+"\n";
+ context+="Use this context naturally when relevant. Do not mention this internal personalization unless it genuinely belongs in the conversation.\n";
+ return context;
+}
+
 function getMemorySystemContext(){
  const memories=getQuietMemories().slice(0,20);if(!memories.length)return "";
  const lines=memories.map((m,i)=>(i+1)+". "+m.text).join("\n");
@@ -5420,6 +5459,7 @@ function toggleVoiceInterrupt(){
         stopQuietBargeIn();
         setVoiceStatus(isQuietScribeSpeaking()?"Auto-interrupt disabled.":"");
     }else{
+        quietBargeInPermissionFailed=false;
         setVoiceStatus("Auto-interrupt enabled.");
         if(isQuietScribeSpeaking()&&!quietSpeechInterrupted){
             scheduleQuietBargeInRestart(220);
@@ -5431,34 +5471,6 @@ function toggleVoiceInterrupt(){
     }
 
     updateVoiceInterruptButton();
-}
-
-function normalizeQuietInterruptText(text){
-    return String(text||"")
-        .toLowerCase()
-        .replace(/[^a-z0-9\u0900-\u097f\s]/gu," ")
-        .replace(/\s+/g," ")
-        .trim();
-}
-
-function quietTranscriptLooksLikeScribe(text){
-    const heard=normalizeQuietInterruptText(text);
-    const spoken=normalizeQuietInterruptText(quietSpeechCurrentText);
-
-    if(!heard||!spoken)return false;
-    if(heard.length<3)return true;
-    if(spoken.includes(heard)||heard.includes(spoken))return true;
-
-    const heardWords=new Set(heard.split(" ").filter(Boolean));
-    const spokenWords=spoken.split(" ").filter(Boolean);
-    if(!spokenWords.length)return false;
-
-    let overlap=0;
-    spokenWords.forEach(function(word){
-        if(heardWords.has(word))overlap++;
-    });
-
-    return overlap>=3 && (overlap/Math.max(1,heardWords.size))>=0.55;
 }
 
 function stopQuietBargeInDetector(){
@@ -5740,14 +5752,6 @@ async function startQuietBargeIn(){
     quietBargeInStarting=false;
     quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
 }
-
-// Kept for compatibility with existing event flow, but deliberately unused.
-// Recognition must not listen to the microphone while Scribe is speaking.
-function startQuietBargeRecognition(){
-    if(!isQuietScribeSpeaking())return;
-    triggerQuietVoiceInterruption();
-}
-
 
 const VOICE_STYLES={
     scribe:{label:"Scribe · Natural Male",rate:.96,pitch:.96,volume:.94,voiceHint:"natural male"},
@@ -6940,6 +6944,7 @@ Be concise when a short answer is enough, but become deeper when the conversatio
 Think before responding. Explore the user's meaning, assumptions, and perspective when useful. Do not rush to give solutions. Prefer thoughtful, nuanced responses over quick generic answers.
 Do not pretend to have feelings or personal experiences. Do not claim to remember something unless it is actually available in the conversation or memory provided to you.
 
+${getQuietPersonalizationSystemContext()}
 ${getMemorySystemContext()}
 
 If the user asks a factual question, answer clearly and accurately. If you are uncertain, say so rather than inventing information.

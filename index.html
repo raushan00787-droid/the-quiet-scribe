@@ -2721,14 +2721,13 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 @media(prefers-reduced-motion:reduce){
   body.qs-ready.qs-entering > .container{opacity:1;transform:none}
 }
-<style>
 .voice-button{width:42px;height:42px;flex-shrink:0;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:19px;line-height:1;background:transparent;border:1px solid transparent;color:#9d98a0;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .12s ease}
 .voice-button:hover{background:#20202a;border-color:#34343e;color:#e8e3d8}
 .voice-button.is-listening{background:#24242e;border-color:#555563;color:#e8e3d8;animation:qsVoicePulse 1.2s ease-in-out infinite}
 .voice-button:disabled{opacity:.4;cursor:not-allowed}
 @keyframes qsVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(232,227,216,.04)}50%{box-shadow:0 0 0 7px rgba(232,227,216,.04)}}
 .voice-status{min-height:16px;margin-top:5px;color:#77747d;font-size:11px;text-align:center;opacity:.75}
-</style>
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -5240,6 +5239,7 @@ function loadQuietSettings(){
 let quietVoiceRecognition = null;
 let quietVoiceListening = false;
 let quietVoiceSupported = false;
+let quietVoiceReplyPending = false;
 
 function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
 function setVoiceStatus(text){ const status=document.getElementById("voiceStatus"); if(status) status.textContent=text||""; }
@@ -5292,6 +5292,7 @@ function initQuietVoice(){
         if(finalText.trim()){
             const input=document.getElementById("chatInput");
             if(input){input.value=finalText.trim();resizeChatInput(input);}
+            quietVoiceReplyPending = true;
             stopQuietVoice();
             sendMessage();
         }
@@ -5629,7 +5630,8 @@ saveCurrentChat();
             "scribe"
         );
 
-        if(quietVoiceSupported){
+        if(quietVoiceReplyPending){
+            quietVoiceReplyPending = false;
             speakScribeResponse(response);
         }
 
@@ -6110,111 +6112,3 @@ loadSavedWritings();
 
 
         titleInput.value = "";
-        thoughtInput.value = "";
-
-        alert("Your thought has been left. 🕯️");
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "Something went wrong. Please try again."
-        );
-    }
-  }
-</script>
-
-<script>
-(function () {
-    var scene = document.getElementById("qs-opening-scene");
-    var dayAction = document.getElementById("qs-day-action");
-    var nightGo = document.getElementById("qs-night-go");
-    var skipButton = document.getElementById("qs-opening-skip");
-
-    if (!scene || !dayAction || !nightGo) return;
-
-    var transitioning = false;
-
-    function enterQuiet(skipAnimation) {
-        if (transitioning) return;
-
-        transitioning = true;
-
-        if (!skipAnimation) {
-            scene.classList.add("qs-exiting");
-
-            window.setTimeout(function () {
-                finishOpening();
-            }, 1750);
-        } else {
-            scene.classList.add("qs-exiting");
-            scene.style.transition = "opacity .45s ease";
-            window.setTimeout(function () {
-                finishOpening();
-            }, 450);
-        }
-    }
-
-    function finishOpening() {
-        if (scene) scene.remove();
-
-        document.body.classList.remove("qs-opening");
-        document.body.classList.add("qs-ready","qs-entering");
-        window.setTimeout(function(){
-            document.body.classList.remove("qs-entering");
-        },520);
-
-        document.querySelectorAll(".screen").forEach(function (screen) {
-            screen.classList.remove("active");
-        });
-
-        var nextScreen = "oath";
-
-        if (getQuietMode()) {
-            nextScreen = isQuietSetupComplete() ? "purpose" : "quiet-setup";
-            applyQuietTheme(localStorage.getItem("quietScribeTheme") || "midnight");
-            if (nextScreen === "quiet-setup") loadQuietSetup();
-        }
-
-        var target = document.getElementById(nextScreen);
-
-        if (target) {
-            target.classList.add("active");
-        }
-
-        window.scrollTo(0, 0);
-    }
-
-    dayAction.addEventListener("click", function () {
-        if (transitioning || scene.classList.contains("qs-night")) return;
-
-        transitioning = true;
-        scene.classList.add("qs-night");
-
-        window.setTimeout(function () {
-            transitioning = false;
-            nightGo.focus();
-        }, 5300);
-    });
-
-    nightGo.addEventListener("click", function () {
-        if (transitioning || !scene.classList.contains("qs-night")) return;
-        enterQuiet(false);
-    });
-
-    if (skipButton) {
-        skipButton.addEventListener("click", function () {
-            enterQuiet(true);
-        });
-    }
-
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && scene && document.body.classList.contains("qs-opening")) {
-            enterQuiet(true);
-        }
-    });
-})();
-</script>
-</body>
-</html>

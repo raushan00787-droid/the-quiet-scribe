@@ -5385,7 +5385,7 @@ function scheduleQuietBargeInRestart(delay){
         quietBargeInRestartTimer=null;
     }
     if(!quietBargeInEnabled||!quietVoiceSupported||!quietVoiceRecognition||
-       !window.speechSynthesis?.speaking||quietVoiceMode||sendMessage.pending||
+       !window.speechSynthesis?.speaking||sendMessage.pending||
        quietSpeechInterrupted)return;
 
     quietBargeInRestartTimer=window.setTimeout(function(){
@@ -5396,7 +5396,7 @@ function scheduleQuietBargeInRestart(delay){
 
 function startQuietBargeIn(){
     if(!quietBargeInEnabled||!quietVoiceSupported||!quietVoiceRecognition||
-       quietVoiceMode||sendMessage.pending||quietBargeInActive||
+       sendMessage.pending||quietBargeInActive||
        !window.speechSynthesis?.speaking||quietSpeechInterrupted)return;
 
     quietBargeInActive=true;
@@ -6161,7 +6161,7 @@ function speakScribeResponse(text){
 
             synth.speak(utterance);
 
-            if(quietBargeInEnabled&&!quietVoiceMode){
+            if(quietBargeInEnabled){
                 window.setTimeout(function(){
                     if(synth.speaking&&!quietSpeechInterrupted)startQuietBargeIn();
                 },650);
@@ -6276,13 +6276,32 @@ function initQuietVoice(){
                         quietBargeInRestartTimer=null;
                     }
                     if("speechSynthesis" in window)window.speechSynthesis.cancel();
-                    try{quietVoiceRecognition.stop()}catch(error){}
-                    quietVoiceListening=false;
-                    updateVoiceButton();
-                    setVoiceStatus("Interrupted.");
-                    window.setTimeout(function(){
-                        if(!quietVoiceMode)setVoiceStatus("");
-                    },1200);
+
+                    if(quietVoiceMode){
+                        quietVoiceListening=true;
+                        updateVoiceButton();
+
+                        if(finalText.trim()){
+                            const input=document.getElementById("chatInput");
+                            if(input){
+                                input.value=finalText.trim();
+                                resizeChatInput(input);
+                            }
+                            quietVoiceReplyPending=true;
+                            stopQuietVoice(false);
+                            sendMessage();
+                        }else{
+                            setVoiceStatus("Listening…");
+                        }
+                    }else{
+                        try{quietVoiceRecognition.stop()}catch(error){}
+                        quietVoiceListening=false;
+                        updateVoiceButton();
+                        setVoiceStatus("Interrupted.");
+                        window.setTimeout(function(){
+                            if(!quietVoiceMode)setVoiceStatus("");
+                        },1200);
+                    }
                 }
                 return;
             }

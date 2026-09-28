@@ -2727,6 +2727,10 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 .voice-button:disabled{opacity:.4;cursor:not-allowed}
 @keyframes qsVoicePulse{0%,100%{box-shadow:0 0 0 0 rgba(232,227,216,.04)}50%{box-shadow:0 0 0 7px rgba(232,227,216,.04)}}
 .voice-status{min-height:16px;margin-top:5px;color:#77747d;font-size:11px;text-align:center;opacity:.75}
+.voice-style-button{width:auto;max-width:none;margin:0;padding:7px 10px;background:transparent;border:1px solid transparent;font-size:12px;opacity:.55}
+.voice-style-button:hover{opacity:1;background:#111118;border-color:#292932}
+.voice-style-button.philosopher-active{opacity:.95;color:#d8d0c6}
+.voice-style-button.philosopher-active:hover{background:#17171f}
 
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -4295,11 +4299,22 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
             <div class="chat-controls">
 
-                <button
-                    class="philosopher-button"
-                    onclick="togglePhilosopherMode()">
-                    🧠 Philosopher Mode: OFF
-                </button>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <button
+                        class="philosopher-button"
+                        onclick="togglePhilosopherMode()">
+                        🧠 Philosopher Mode: OFF
+                    </button>
+
+                    <button
+                        id="voiceStyleButton"
+                        class="voice-style-button"
+                        type="button"
+                        onclick="toggleVoiceStyle()"
+                        aria-label="Use Scribe voice">
+                        🎙️ Voice: Scribe
+                    </button>
+                </div>
 
                 <button
                     class="leave-chat-button"
@@ -5262,14 +5277,43 @@ function updateVoiceButton(){
     button.setAttribute("aria-label",quietVoiceListening?"Stop listening":"Talk to Scribe");
     button.setAttribute("title",quietVoiceListening?"Stop listening":"Talk to Scribe");
 }
+function getVoiceStyle(){
+    return localStorage.getItem("quietScribeVoiceStyle")||"scribe";
+}
+function updateVoiceStyleButton(){
+    const button=document.getElementById("voiceStyleButton");
+    if(!button)return;
+    const philosopher=getVoiceStyle()==="philosopher";
+    button.textContent=philosopher?"🕯️ Voice: Philosopher":"🎙️ Voice: Scribe";
+    button.setAttribute("aria-label",philosopher?"Use Scribe voice":"Use Philosopher voice");
+    button.setAttribute("title",philosopher
+        ? "Philosopher voice: slower and more contemplative"
+        : "Scribe voice: natural conversational pace");
+    button.classList.toggle("philosopher-active",philosopher);
+}
+function toggleVoiceStyle(){
+    const next=getVoiceStyle()==="philosopher"?"scribe":"philosopher";
+    localStorage.setItem("quietScribeVoiceStyle",next);
+    updateVoiceStyleButton();
+    setVoiceStatus(next==="philosopher"
+        ? "Philosopher voice enabled."
+        : "Scribe voice enabled.");
+    window.setTimeout(function(){setVoiceStatus("")},1800);
+}
 function speakScribeResponse(text){
     if(!("speechSynthesis" in window)||!text) return;
     try{
         window.speechSynthesis.cancel();
-        const utterance=new SpeechSynthesisUtterance(String(text).replace(/[*_#]/g,""));
+        const philosopher=getVoiceStyle()==="philosopher";
+        const cleanText=String(text)
+            .replace(/[*_#]/g,"")
+            .replace(/\n{2,}/g,". ")
+            .trim();
+        const utterance=new SpeechSynthesisUtterance(cleanText);
         utterance.lang=navigator.language||"en-US";
-        utterance.rate=.96;
-        utterance.pitch=1;
+        utterance.rate=philosopher?.82:.96;
+        utterance.pitch=philosopher?.80:1;
+        utterance.volume=.94;
         utterance.onerror=function(){};
         window.speechSynthesis.speak(utterance);
     }catch(error){ console.warn("Quiet Scribe voice output unavailable.",error); }
@@ -6111,6 +6155,7 @@ loadSavedWritings();
   renderCurrentChat();
   loadQuietSettings();
   try{
+    updateVoiceStyleButton();
     initQuietVoice();
   }catch(error){
     console.warn("Quiet Scribe voice startup skipped.",error);

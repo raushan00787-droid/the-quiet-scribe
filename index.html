@@ -5342,14 +5342,29 @@ function scoreQuietVoice(voice,style){
     return score;
 }
 
-function getQuietSpeechVoice(style){
+function getQuietSpeechVoice(style,language){
     refreshQuietSpeechVoices();
     if(!quietSpeechVoices.length)return null;
 
+    const targetLanguage=String(language||"").toLowerCase();
     let best=null;
     let bestScore=-Infinity;
+
     quietSpeechVoices.forEach(function(voice){
-        const score=scoreQuietVoice(voice,style);
+        const name=(voice.name||"").toLowerCase();
+        const lang=(voice.lang||"").toLowerCase();
+        let score=scoreQuietVoice(voice,style);
+
+        if(targetLanguage.indexOf("hi")===0){
+            if(lang.indexOf("hi-in")===0)score+=120;
+            else if(lang.indexOf("hi")===0)score+=105;
+            else if(lang.indexOf("en")===0)score-=15;
+            if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=8;
+        }else{
+            if(targetLanguage && lang.indexOf(targetLanguage)===0)score+=22;
+            else if(lang.indexOf("en")===0)score+=12;
+        }
+
         if(score>bestScore){
             bestScore=score;
             best=voice;
@@ -5384,36 +5399,102 @@ function updateVoiceStyleButton(){
     if(select)select.value=getVoiceStyle();
 }
 
+function cleanScribeSpeechText(text){
+    return String(text||"")
+        .replace(/https?:\\/\\/\\S+/gi," ")
+        .replace(/[*_#~`]/g,"")
+        .replace(/[\\p{Extended_Pictographic}\\p{Emoji_Presentation}\\p{Emoji_Modifier}\\p{Regional_Indicator}\\uFE0F\\u200D\\u20E3]/gu," ")
+        .replace(/[\\u200B-\\u200D\\uFEFF]/g,"")
+        .replace(/\\n{2,}/g,". ")
+        .replace(/\\s+/g," ")
+        .trim();
+}
+
+function buildQuietSpeechSegments(text){
+    const words=String(text||"").split(/\\s+/).filter(Boolean);
+    if(!words.length)return [];
+
+    const segments=[];
+    let currentLanguage="";
+    let current=[];
+
+    function flush(){
+        if(!current.length)return;
+        const value=current.join(" ").trim();
+        if(value)segments.push({
+            text:value,
+            language:currentLanguage||"en-US"
+        });
+        current=[];
+    }
+
+    words.forEach(function(word){
+        const isHindi=/[\\u0900-\\u097F]/u.test(word);
+        const language=isHindi?"hi-IN":"en-US";
+
+        if(current.length&&language!==currentLanguage)flush();
+        if(!current.length)currentLanguage=language;
+        current.push(word);
+    });
+
+    flush();
+    return segments;
+}
+
 function speakScribeResponse(text){
     if(!("speechSynthesis" in window)||!text){
         if(quietVoiceMode) scheduleQuietVoiceRestart(350);
         return;
     }
+
     try{
         window.speechSynthesis.cancel();
+
         const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
-        const cleanText=String(text)
-            .replace(/[*_#]/g,"")
-            .replace(/\n{2,}/g,". ")
-            .trim();
-        const utterance=new SpeechSynthesisUtterance(cleanText);
-        const preferredVoice=getQuietSpeechVoice(style);
-        if(preferredVoice){
-            utterance.voice=preferredVoice;
-            utterance.lang=preferredVoice.lang||navigator.language||"en-US";
-        }else{
-            utterance.lang=navigator.language||"en-US";
-        }
-        utterance.rate=style.rate;
-        utterance.pitch=style.pitch;
-        utterance.volume=style.volume;
-        utterance.onend=function(){
+        const cleanText=cleanScribeSpeechText(text);
+        const segments=buildQuietSpeechSegments(cleanText);
+
+        if(!segments.length){
             if(quietVoiceMode) scheduleQuietVoiceRestart(350);
-        };
-        utterance.onerror=function(){
-            if(quietVoiceMode) scheduleQuietVoiceRestart(500);
-        };
-        window.speechSynthesis.speak(utterance);
+            return;
+        }
+
+        let index=0;
+
+        function speakNextSegment(){
+            if(index>=segments.length){
+                if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+                return;
+            }
+
+            const segment=segments[index++];
+            const utterance=new SpeechSynthesisUtterance(segment.text);
+            const preferredVoice=getQuietSpeechVoice(style,segment.language);
+
+            if(preferredVoice){
+                utterance.voice=preferredVoice;
+                utterance.lang=preferredVoice.lang||segment.language;
+            }else{
+                utterance.lang=segment.language;
+            }
+
+            utterance.rate=style.rate;
+            utterance.pitch=style.pitch;
+            utterance.volume=style.volume;
+
+            utterance.onend=speakNextSegment;
+            utterance.onerror=function(){
+                if(index<segments.length){
+                    window.setTimeout(speakNextSegment,120);
+                }else if(quietVoiceMode){
+                    scheduleQuietVoiceRestart(500);
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        speakNextSegment();
     }catch(error){
         console.warn("Quiet Scribe voice output unavailable.",error);
         if(quietVoiceMode) scheduleQuietVoiceRestart(350);

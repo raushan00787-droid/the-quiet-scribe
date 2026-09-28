@@ -2729,7 +2729,84 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 .voice-status{min-height:16px;margin-top:5px;color:#77747d;font-size:11px;text-align:center;opacity:.75}
 
 </style>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer>
+/* ============================= */
+/* CINEMATIC OPENING CONTROLS    */
+/* ============================= */
+(function initCinematicOpening(){
+    const scene=document.getElementById("qs-opening-scene");
+    const dayAction=document.getElementById("qs-day-action");
+    const nightGo=document.getElementById("qs-night-go");
+    const skip=document.getElementById("qs-opening-skip");
+    if(!scene) return;
+
+    let transitioning=false;
+    let nightReady=false;
+
+    function revealQuietScribe(skipFade){
+        if(transitioning) return;
+        transitioning=true;
+
+        document.body.classList.add("qs-ready","qs-entering");
+
+        if(skipFade){
+            scene.classList.add("qs-exiting");
+            scene.style.transition="none";
+            scene.style.opacity="0";
+            scene.remove();
+            document.body.classList.remove("qs-opening","qs-entering");
+            return;
+        }
+
+        scene.classList.add("qs-exiting");
+        window.setTimeout(function(){
+            scene.remove();
+            document.body.classList.remove("qs-opening","qs-entering");
+        },1900);
+    }
+
+    function enterNight(){
+        if(transitioning || nightReady) return;
+        nightReady=true;
+        scene.classList.add("qs-night");
+        if(dayAction){
+            dayAction.disabled=true;
+            dayAction.setAttribute("aria-hidden","true");
+        }
+        if(nightGo){
+            nightGo.disabled=false;
+            nightGo.removeAttribute("aria-hidden");
+        }
+    }
+
+    if(dayAction){
+        dayAction.addEventListener("click",enterNight);
+    }
+
+    if(nightGo){
+        nightGo.addEventListener("click",function(){
+            if(!nightReady || transitioning) return;
+            revealQuietScribe(false);
+        });
+    }
+
+    if(skip){
+        skip.addEventListener("click",function(){
+            revealQuietScribe(true);
+        });
+    }
+
+    document.addEventListener("keydown",function(event){
+        if(event.key==="Escape"){
+            revealQuietScribe(true);
+        }
+    });
+
+    window.setTimeout(function(){
+        document.body.classList.add("qs-opening");
+    },0);
+})();
+\n</script>
 </head>
 
 

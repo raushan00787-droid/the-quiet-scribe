@@ -5271,6 +5271,8 @@ let quietVoiceRecognition = null;
 let quietVoiceListening = false;
 let quietVoiceSupported = false;
 let quietVoiceReplyPending = false;
+let quietVoiceMode = false;
+let quietVoiceRestartTimer = null;
 
 function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
 function setVoiceStatus(text){ const status=document.getElementById("voiceStatus"); if(status) status.textContent=text||""; }
@@ -5309,7 +5311,10 @@ function updateVoiceStyleButton(){
     if(select)select.value=getVoiceStyle();
 }
 function speakScribeResponse(text){
-    if(!("speechSynthesis" in window)||!text)return;
+    if(!("speechSynthesis" in window)||!text){
+        if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+        return;
+    }
     try{
         window.speechSynthesis.cancel();
         const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
@@ -5322,15 +5327,57 @@ function speakScribeResponse(text){
         utterance.rate=style.rate;
         utterance.pitch=style.pitch;
         utterance.volume=style.volume;
-        utterance.onerror=function(){};
+        utterance.onend=function(){
+            if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+        };
+        utterance.onerror=function(){
+            if(quietVoiceMode) scheduleQuietVoiceRestart(500);
+        };
         window.speechSynthesis.speak(utterance);
-    }catch(error){console.warn("Quiet Scribe voice output unavailable.",error);}
+    }catch(error){
+        console.warn("Quiet Scribe voice output unavailable.",error);
+        if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+    }
 }
-function stopQuietVoice(){
+function stopQuietVoice(manual){
+    if(quietVoiceRestartTimer){
+        window.clearTimeout(quietVoiceRestartTimer);
+        quietVoiceRestartTimer=null;
+    }
     if(quietVoiceRecognition){ try{quietVoiceRecognition.stop()}catch(error){} }
     quietVoiceListening=false;
+    if(manual !== false){
+        quietVoiceMode=false;
+        if("speechSynthesis" in window) window.speechSynthesis.cancel();
+    }
     updateVoiceButton();
-    setVoiceStatus("");
+    setVoiceStatus(quietVoiceMode ? "Voice mode on." : "");
+}
+function scheduleQuietVoiceRestart(delay){
+    if(quietVoiceRestartTimer){
+        window.clearTimeout(quietVoiceRestartTimer);
+        quietVoiceRestartTimer=null;
+    }
+    if(!quietVoiceMode||!quietVoiceSupported||quietVoiceListening||sendMessage.pending)return;
+    quietVoiceRestartTimer=window.setTimeout(function(){
+        quietVoiceRestartTimer=null;
+        startQuietVoiceListening();
+    },Math.max(150,delay||350));
+}
+function startQuietVoiceListening(){
+    if(!quietVoiceMode||!quietVoiceSupported||quietVoiceListening||sendMessage.pending||!quietVoiceRecognition)return;
+    try{
+        quietVoiceRecognition.lang=navigator.language||"en-US";
+        quietVoiceRecognition.start();
+    }catch(error){
+        if(error&&error.name==="InvalidStateError"){
+            scheduleQuietVoiceRestart(400);
+            return;
+        }
+        console.warn("Could not start persistent voice input.",error);
+        setVoiceStatus("Couldn't start the microphone.");
+        scheduleQuietVoiceRestart(900);
+    }
 }
 function initQuietVoice(){
     try{
@@ -5364,30 +5411,65 @@ function initQuietVoice(){
         quietVoiceRecognition.continuous=false;
         quietVoiceRecognition.interimResults=true;
         quietVoiceRecognition.lang=navigator.language||"en-US";
-    quietVoiceRecognition.onstart=function(){quietVoiceListening=true;updateVoiceButton();setVoiceStatus("Listening…");};
-    quietVoiceRecognition.onresult=function(event){
-        let finalText="",interimText="";
-        for(let i=event.resultIndex;i<event.results.length;i++){
-            const transcript=event.results[i][0].transcript;
-            if(event.results[i].isFinal) finalText+=transcript; else interimText+=transcript;
-        }
-        setVoiceStatus(interimText?"Listening: "+interimText:"Listening…");
-        if(finalText.trim()){
-            const input=document.getElementById("chatInput");
-            if(input){input.value=finalText.trim();resizeChatInput(input);}
-            quietVoiceReplyPending = true;
-            stopQuietVoice();
-            sendMessage();
-        }
-    };
-    quietVoiceRecognition.onerror=function(event){
-        quietVoiceListening=false;updateVoiceButton();
-        const messages={"not-allowed":"Microphone permission was denied.","service-not-allowed":"Voice recognition is not available here.","no-speech":"I didn't hear anything.","audio-capture":"No microphone was available."};
-        setVoiceStatus(messages[event.error]||"Voice input stopped.");
-        window.setTimeout(function(){setVoiceStatus("")},2200);
-        console.warn("Quiet Scribe voice input:",event.error);
-    };
-    quietVoiceRecognition.onend=function(){quietVoiceListening=false;updateVoiceButton();setVoiceStatus("");};
+        quietVoiceRecognition.onstart=function(){
+            quietVoiceListening=true;
+            updateVoiceButton();
+            setVoiceStatus("Listening…");
+        };
+        quietVoiceRecognition.onresult=function(event){
+            let finalText="",interimText="";
+            for(let i=event.resultIndex;i<event.results.length;i++){
+                const transcript=event.results[i][0].transcript;
+                if(event.results[i].isFinal) finalText+=transcript; else interimText+=transcript;
+            }
+            setVoiceStatus(interimText?"Listening: "+interimText:"Listening…");
+            if(finalText.trim()){
+                const input=document.getElementById("chatInput");
+                if(input){input.value=finalText.trim();resizeChatInput(input);}
+                quietVoiceReplyPending=true;
+                stopQuietVoice(false);
+                sendMessage();
+            }
+        };
+        quietVoiceRecognition.onerror=function(event){
+            quietVoiceListening=false;
+            updateVoiceButton();
+            const messages={
+                "not-allowed":"Microphone permission was denied.",
+                "service-not-allowed":"Voice recognition is not available here.",
+                "no-speech":"I didn't hear anything.",
+                "audio-capture":"No microphone was available."
+            };
+            const fatalVoiceError=event.error==="not-allowed"||
+                event.error==="service-not-allowed"||
+                event.error==="audio-capture";
+            setVoiceStatus(messages[event.error]||"Voice input stopped.");
+            if(fatalVoiceError){
+                quietVoiceMode=false;
+                if(quietVoiceRestartTimer){
+                    window.clearTimeout(quietVoiceRestartTimer);
+                    quietVoiceRestartTimer=null;
+                }
+                updateVoiceButton();
+                if("speechSynthesis" in window) window.speechSynthesis.cancel();
+            }else if(quietVoiceMode){
+                scheduleQuietVoiceRestart(event.error==="no-speech"?350:600);
+            }
+            window.setTimeout(function(){
+                if(!quietVoiceMode)setVoiceStatus("");
+            },2200);
+            console.warn("Quiet Scribe voice input:",event.error);
+        };
+        quietVoiceRecognition.onend=function(){
+            quietVoiceListening=false;
+            updateVoiceButton();
+            if(quietVoiceMode){
+                setVoiceStatus("Voice mode on.");
+                scheduleQuietVoiceRestart(350);
+            }else{
+                setVoiceStatus("");
+            }
+        };
     }catch(error){
         quietVoiceSupported=false;
         quietVoiceRecognition=null;
@@ -5401,14 +5483,19 @@ function initQuietVoice(){
     }
 }
 function toggleVoiceInput(){
-    if(!quietVoiceSupported){setVoiceStatus("Voice input is not supported in this browser.");return;}
-    if(quietVoiceListening){stopQuietVoice();return;}
-    if(sendMessage.pending) return;
-    try{
-        if("speechSynthesis" in window) window.speechSynthesis.cancel();
-        quietVoiceRecognition.lang=navigator.language||"en-US";
-        quietVoiceRecognition.start();
-    }catch(error){console.warn("Could not start voice input.",error);setVoiceStatus("Couldn't start the microphone.");window.setTimeout(function(){setVoiceStatus("")},2200);}
+    if(!quietVoiceSupported){
+        setVoiceStatus("Voice input is not supported in this browser.");
+        return;
+    }
+    if(quietVoiceMode){
+        stopQuietVoice(true);
+        return;
+    }
+    quietVoiceMode=true;
+    setVoiceStatus(sendMessage.pending ? "Voice mode on. I'll listen after this reply." : "Voice mode on.");
+    if(!sendMessage.pending){
+        startQuietVoiceListening();
+    }
 }
 
 /* ============================= */

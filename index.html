@@ -5326,6 +5326,17 @@ function initQuietVoice(){
         console.warn("Quiet Scribe voice input:",event.error);
     };
     quietVoiceRecognition.onend=function(){quietVoiceListening=false;updateVoiceButton();setVoiceStatus("");};
+    }catch(error){
+        quietVoiceSupported=false;
+        quietVoiceRecognition=null;
+        console.warn("Quiet Scribe voice startup failed.",error);
+        const button=getVoiceButton();
+        if(button){
+            button.disabled=true;
+            button.title="Voice input could not be initialized";
+            button.setAttribute("aria-label","Voice input could not be initialized");
+        }
+    }
 }
 function toggleVoiceInput(){
     if(!quietVoiceSupported){setVoiceStatus("Voice input is not supported in this browser.");return;}

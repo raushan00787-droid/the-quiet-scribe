@@ -6746,6 +6746,11 @@ function sendMessage() {
         sendButton.setAttribute("aria-busy", "true");
     }
 
+    const requestController = new AbortController();
+    const requestTimeout = window.setTimeout(function () {
+        requestController.abort();
+    }, 25000);
+
     try {
 
     addMessage(text, "user");
@@ -6831,6 +6836,8 @@ End when the analysis is complete.`
             headers: {
                 "Content-Type": "application/json"
             },
+
+            signal: requestController.signal,
 
             body: JSON.stringify({
 
@@ -6987,6 +6994,8 @@ ${philosopherInstruction}`
 
     .then(function(data) {
 
+        window.clearTimeout(requestTimeout);
+
         document
             .getElementById("thinkingMessage")
             ?.remove();
@@ -7041,6 +7050,7 @@ saveCurrentChat();
     .catch(function(error) {
 
         window.clearTimeout(requestTimeout);
+        quietVoiceReplyPending = false;
 
         document
             .getElementById("thinkingMessage")

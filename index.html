@@ -2730,6 +2730,1591 @@ body.theme-paper #chat.active{background:radial-gradient(circle at 50% 12%,rgba(
 
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+
+<body class="qs-opening">
+
+<div id="qs-opening-scene" aria-label="The Quiet Scribe opening">
+
+    <svg id="qs-opening-art"
+         viewBox="0 0 1600 900"
+         preserveAspectRatio="xMidYMid slice"
+         role="presentation"
+         aria-hidden="true">
+
+        <defs>
+            <linearGradient id="qsDaySky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8eafb8"/>
+                <stop offset="45%" stop-color="#bfd0cb"/>
+                <stop offset="100%" stop-color="#e3d1b1"/>
+            </linearGradient>
+
+            <linearGradient id="qsNightSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#101a2d"/>
+                <stop offset="48%" stop-color="#23334a"/>
+                <stop offset="100%" stop-color="#435163"/>
+            </linearGradient>
+
+            <linearGradient id="qsField" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#87956b"/>
+                <stop offset="100%" stop-color="#3d5f45"/>
+            </linearGradient>
+
+            <linearGradient id="qsNightField" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#53644f"/>
+                <stop offset="100%" stop-color="#1e332a"/>
+            </linearGradient>
+
+            <radialGradient id="qsSun" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff9df"/>
+                <stop offset="65%" stop-color="#f7e8af"/>
+                <stop offset="100%" stop-color="#e4c985"/>
+            </radialGradient>
+        </defs>
+
+        <rect class="qs-day-sky" x="0" y="0" width="1600" height="900" fill="url(#qsDaySky)"/>
+        <rect class="qs-night-sky" x="0" y="0" width="1600" height="900" fill="url(#qsNightSky)"/>
+
+        <g class="qs-day-glow">
+            <circle cx="1240" cy="165" r="78" fill="url(#qsSun)" opacity="0.98"/>
+            <circle cx="1240" cy="165" r="120" fill="#fff1bd" opacity="0.16"/>
+        </g>
+
+        <g class="qs-night-haze">
+            <rect x="0" y="420" width="1600" height="280" fill="#0d1825" opacity="0.14"/>
+        </g>
+
+        <g class="qs-day-haze">
+            <path d="M0 470 C220 405 390 435 550 470 C740 512 900 455 1060 472 C1250 492 1420 446 1600 458 L1600 700 L0 700 Z"
+                  fill="#d7d0bb" opacity="0.28"/>
+        </g>
+
+        <g class="qs-stars" fill="#ffffff">
+            <circle cx="145" cy="120" r="2"/>
+            <circle cx="268" cy="175" r="1.8"/>
+            <circle cx="406" cy="92" r="1.5"/>
+            <circle cx="552" cy="165" r="2"/>
+            <circle cx="684" cy="112" r="1.5"/>
+            <circle cx="824" cy="190" r="2"/>
+            <circle cx="964" cy="102" r="1.6"/>
+            <circle cx="1096" cy="154" r="1.4"/>
+            <circle cx="1374" cy="102" r="1.8"/>
+            <circle cx="1495" cy="205" r="1.4"/>
+            <circle cx="1184" cy="250" r="1.4"/>
+            <circle cx="742" cy="250" r="1.4"/>
+        </g>
+
+        <g class="qs-moon">
+            <circle cx="1270" cy="155" r="51" fill="#e9edf7"/>
+            <circle cx="1250" cy="140" r="51" fill="#152139"/>
+        </g>
+
+        <g class="qs-cloud-move" opacity="0.55" fill="#f5f2e9">
+            <path d="M30 210 C55 182 94 184 112 208 C126 176 183 171 205 209 C235 199 270 217 280 247 L0 247 C5 231 16 218 30 210 Z"/>
+        </g>
+
+        <g class="qs-cloud-move-2" opacity="0.30" fill="#ffffff">
+            <path d="M70 300 C98 273 140 277 161 306 C182 272 244 270 267 308 C302 298 337 316 345 346 L32 346 C36 326 49 309 70 300 Z"/>
+        </g>
+
+        <path d="M0 505
+                 L0 560
+                 L170 487
+                 L310 548
+                 L470 455
+                 L620 540
+                 L790 430
+                 L960 525
+                 L1130 440
+                 L1290 525
+                 L1450 465
+                 L1600 535
+                 L1600 650 L0 650 Z"
+              fill="#708483" opacity="0.9"/>
+
+        <path d="M0 545
+                 L130 505
+                 L245 558
+                 L395 510
+                 L535 574
+                 L680 500
+                 L820 570
+                 L980 495
+                 L1115 560
+                 L1270 500
+                 L1410 570
+                 L1600 515
+                 L1600 670 L0 670 Z"
+              fill="#4e6768" opacity="0.84"/>
+
+        <path d="M0 610
+                 L185 552
+                 L320 620
+                 L495 555
+                 L650 635
+                 L810 565
+                 L1000 630
+                 L1160 560
+                 L1335 625
+                 L1490 565
+                 L1600 610
+                 L1600 900 L0 900 Z"
+              fill="#40585a" opacity="0.82"/>
+
+        <rect x="0" y="625" width="1600" height="275" fill="url(#qsField)"/>
+
+        <rect class="qs-night-haze" x="0" y="625" width="1600" height="275" fill="url(#qsNightField)" opacity="0.70"/>
+
+        <path d="M0 670 C260 610 470 645 690 690 C930 742 1180 680 1600 650"
+              fill="none" stroke="#b0ad7b" stroke-width="22" opacity="0.35"/>
+
+        <path d="M0 735 C280 688 480 735 720 770 C1010 812 1310 742 1600 710"
+              fill="none" stroke="#294837" stroke-width="22" opacity="0.36"/>
+
+        <g class="qs-grass-sway" stroke="#2d5239" stroke-width="5" stroke-linecap="round" opacity="0.62">
+            <path d="M220 820 l-10 -28 M235 824 l7 -35 M252 820 l18 -31"/>
+        </g>
+
+        <g class="qs-grass-sway-2" stroke="#365d40" stroke-width="4" stroke-linecap="round" opacity="0.58">
+            <path d="M1220 760 l-9 -28 M1235 764 l4 -32 M1250 760 l18 -28"/>
+        </g>
+
+        <!-- foreground tree, intentionally a framing element -->
+        <g>
+            <path d="M0 900
+                     L0 250
+                     C86 235 142 250 196 282
+                     C250 244 330 246 393 286
+                     C472 238 575 264 625 325
+                     C682 294 748 302 790 351
+                     C845 364 886 413 870 466
+                     C820 492 752 472 708 443
+                     C676 521 625 564 557 576
+                     C519 655 478 724 456 900 Z"
+                  fill="#1f3528"/>
+
+            <path d="M244 900
+                     C260 788 286 655 315 530
+                     C343 420 368 336 405 260
+                     C426 236 457 240 470 264
+                     C445 356 438 444 450 526
+                     C466 653 485 774 500 900 Z"
+                  fill="#4b3328"/>
+
+            <path d="M385 474 C272 416 190 350 112 278"
+                  fill="none" stroke="#36251f" stroke-width="30" stroke-linecap="round"/>
+
+            <path d="M414 430 C534 363 636 326 753 308"
+                  fill="none" stroke="#382720" stroke-width="28" stroke-linecap="round"/>
+
+            <path d="M330 556 C232 515 150 487 56 471"
+                  fill="none" stroke="#3b2921" stroke-width="22" stroke-linecap="round"/>
+
+            <g fill="#294636">
+                <ellipse cx="120" cy="330" rx="130" ry="92"/>
+                <ellipse cx="265" cy="270" rx="138" ry="104"/>
+                <ellipse cx="430" cy="304" rx="153" ry="110"/>
+                <ellipse cx="598" cy="357" rx="150" ry="105"/>
+                <ellipse cx="716" cy="415" rx="126" ry="92"/>
+                <ellipse cx="142" cy="445" rx="140" ry="100"/>
+            </g>
+
+            <g fill="#38563b" opacity="0.72">
+                <ellipse cx="188" cy="245" rx="82" ry="58"/>
+                <ellipse cx="382" cy="214" rx="92" ry="62"/>
+                <ellipse cx="557" cy="280" rx="89" ry="68"/>
+                <ellipse cx="683" cy="347" rx="74" ry="56"/>
+            </g>
+        </g>
+
+        <!-- notebook and pen -->
+        <g transform="translate(760 718) rotate(-5)">
+            <rect x="0" y="0" width="310" height="135" rx="6" fill="#e7ddc5"/>
+            <rect x="18" y="16" width="274" height="103" fill="#eee6d4"/>
+            <line x1="38" y1="45" x2="270" y2="45" stroke="#b0a38b" stroke-width="2" opacity="0.55"/>
+            <line x1="38" y1="68" x2="270" y2="68" stroke="#b0a38b" stroke-width="2" opacity="0.42"/>
+            <line x1="38" y1="91" x2="228" y2="91" stroke="#b0a38b" stroke-width="2" opacity="0.34"/>
+            <text x="38" y="36" fill="#40382f" font-size="18" font-family="Georgia, Times New Roman, serif" opacity="0.86">write what remains</text>
+
+            <g transform="translate(248 -2) rotate(38)">
+                <rect x="0" y="0" width="10" height="150" rx="4" fill="#20262b"/>
+                <polygon points="0,150 10,150 5,166" fill="#b8a98e"/>
+            </g>
+        </g>
+
+    </svg>
+
+    <div id="qs-opening-content">
+        <button id="qs-opening-skip" type="button" aria-label="Skip the cinematic opening">
+        Skip opening
+    </button>
+
+    <div id="qs-opening-actions">
+            <div id="qs-opening-caption">the day has gone quiet</div>
+
+            <button id="qs-day-action" type="button">Stay a Little</button>
+            <button id="qs-night-go" type="button">Let's Go</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ============================= -->
+<!-- WELCOME -->
+<!-- ============================= -->
+
+<section id="welcome" class="screen active">
+
+    <h1>The Quiet Scribe</h1>
+
+    <p class="subtitle">
+        A quiet place for thoughts that have nowhere else to go.
+    </p>
+
+    <p class="quote">
+        Write. Think. Remember.
+    </p>
+
+    <p class="subtitle">
+        A room for thoughts, stories, questions, and silence.
+    </p>
+
+    <button onclick="showScreen('oath')">
+        Enter the quiet
+    </button>
+<button onclick="showScreen('creator')">
+    🕯️ Connect with the Creator
+</button>
+  <button onclick="showScreen('marks')">
+     The Ones Who Left a Mark 🔥
+  </button>
+</section>
+
+<section id="dostoevsky" class="screen">
+
+    <h1>FYODOR DOSTOEVSKY</h1>
+
+    <p class="subtitle">
+        A writer who looked deep into the human mind.
+    </p>
+<p class="subtitle">
+    1821 — 1881
+</p>
+    <div class="person-card">
+
+        <img
+            src="scribe.jpg"
+            alt="Fyodor Dostoevsky">
+
+        <h2>Why he left a mark</h2>
+
+        <p>
+          Dostoevsky explored guilt, freedom, faith, and suffering, looking deep into the contradictions that live within human beings. His characters rarely stand on one side of a question. They doubt, desire, regret, and search for something they cannot easily name.
+          </p>
+      <p>
+          What makes his work enduring is the rawness of those inner conflicts. His questions remain unsettling because they do not belong to his characters alone. They belong to anyone who has ever looked within and found more than one self staring back.
+        </p>
+
+        <button onclick="showScreen('dostoevsky-read')">
+            📖 Read
+        </button>
+
+    </div>
+
+    <button class="back" onclick="showScreen('marks')">
+        ← Back
+    </button>
+
+</section>
+<section id="dostoevsky-read" class="screen">
+
+    <h1>FYODOR DOSTOEVSKY</h1>
+
+    <p class="subtitle">
+        The man behind the questions.
+    </p>
+
+    <div class="reading-content">
+
+        <p>
+            Dostoevsky's writing often enters the most complicated parts
+            of human nature. His characters question morality, freedom,
+            faith, guilt, suffering, and what it means to be human.
+        </p>
+
+        <p>
+            What makes his work remarkable is that he rarely gives simple
+            answers. Instead, he places people inside difficult choices
+            and lets their contradictions speak for themselves.
+        </p>
+
+        <p>
+            His novels continue to feel relevant because the questions
+            he explored are not limited to one era. They belong to anyone
+            who has ever struggled to understand themselves or the people
+            around them.
+        </p>
+
+        <p class="story-quote">
+            The deepest questions are often the ones we cannot answer for ourselves.
+        </p>
+
+    </div>
+
+    <button class="back" onclick="showScreen('dostoevsky')">
+        ← Back
+    </button>
+
+</section>
+  <section id="kafka" class="screen">
+
+    <h1>FRANZ KAFKA</h1>
+
+    <p class="subtitle">
+        1883 — 1924
+    </p>
+
+    <p class="subtitle">
+        A writer who turned ordinary life into something strange.
+    </p>
+
+    <div class="person-card">
+
+        <img
+    src="kafka.jpg.webp"
+    alt="Franz Kafka">
+  
+
+
+
+        <h2>Why he left a mark</h2>
+        <p>
+  Kafka explored the quiet unease of being human in a world that rarely explains itself. His writing turned alienation, anxiety, and ordinary uncertainty into something strangely familiar.
+</p>
+      <p>
+His characters often found themselves inside systems they could neither understand nor escape. Beneath the surrealism was a simple fear: that the world might continue moving, even when you no longer understand your place within it.
+        </p>
+    </div>
+      <button onclick="showScreen('kafka-read')">
+    READ
+      </button>
+    <button
+        class="back"
+        onclick="showScreen('marks')">
+        ← Back
+    </button>
+
+  </section>
+<section id="kafka-read" class="screen">
+
+    <h1>FRANZ KAFKA</h1>
+
+    <p class="subtitle">
+        The man who made the ordinary feel strange.
+    </p>
+
+    <div class="reading-content">
+
+        <p>
+            Kafka's writing often explores isolation, anxiety,
+            identity, and the feeling of being trapped inside
+            a world that does not quite make sense.
+        </p>
+
+        <p>
+            What makes his work remarkable is the way he turns
+            ordinary situations into something unsettling. His
+            characters often face strange systems and circumstances
+            that they cannot fully understand or escape.
+        </p>
+
+        <p>
+            His stories continue to feel relevant because they
+            capture feelings of confusion, loneliness, and
+            helplessness that can exist even in everyday life.
+        </p>
+
+        <p class="story-quote">
+            Sometimes the strangest prison is the world we have learned to call ordinary.
+        </p>
+
+    </div>
+
+    <button class="back" onclick="showScreen('kafka')">
+        ← Back
+    </button>
+
+</section>
+  <section id="camus" class="screen">
+
+    <h1>ALBERT CAMUS</h1>
+
+    <p class="subtitle">
+        1913 — 1960
+    </p>
+
+    <p class="subtitle">
+        A writer who questioned meaning in an indifferent world.
+    </p>
+
+    <div class="person-card">
+
+        <img
+            src="camus.jpg"
+            alt="Albert Camus">
+
+        <h2>Why he left a mark</h2>
+
+        <p>
+        Camus explored the silence between humanity's need for meaning and a universe that offered none. He faced that silence without comfort, asking what remains when certainty falls away.
+    </p>
+For him, the absurd was not an ending. It was the moment we begin to live without guarantees, choosing our own meaning in a world that refuses to provide one.
+
+        <button onclick="showScreen('camus-read')">
+            📖 Read
+        </button>
+
+    </div>
+
+    <button class="back" onclick="showScreen('marks')">
+        ← Back
+    </button>
+
+  </section>
+<section id="camus-read" class="screen">
+
+    <h1>ALBERT CAMUS</h1>
+
+    <p class="subtitle">
+        The man who faced the absurd.
+    </p>
+
+    <div class="reading-content">
+
+        <p>
+            Camus's writing often explores the tension between
+            humanity's search for meaning and a world that does
+            not provide clear answers.
+        </p>
+
+        <p>
+            What makes his work remarkable is that he did not
+            simply accept the absurd. He explored how people
+            could respond to it through freedom, awareness,
+            and rebellion.
+        </p>
+
+        <p>
+            His ideas continue to matter because they ask a
+            difficult question: how do we live meaningfully
+            when the universe does not give us a ready-made
+            meaning?
+        </p>
+
+        <p class="story-quote">
+            We must imagine ourselves creating meaning in a world that gives us none.
+        </p>
+
+    </div>
+
+    <button class="back" onclick="showScreen('camus')">
+        ← Back
+    </button>
+
+</section>
+<!-- ============================= -->
+
+<!-- ============================= -->
+<!-- QUIET ENTRY -->
+<!-- ============================= -->
+
+<section id="oath" class="screen">
+
+    <div class="oath-mark">🕯️</div>
+
+    <h1>The Oath</h1>
+
+    <p class="oath-text">
+        I enter the Quiet with respect.<br>
+        I will leave room for thoughts, words, and silence.<br>
+        What is written here, I will treat with care.
+    </p>
+
+    <button onclick="acceptOath()">
+        I Accept
+    </button>
+
+    <button class="back" onclick="showScreen('welcome')">
+        ← Back
+    </button>
+
+</section>
+
+<section id="quiet-auth" class="screen">
+
+    <div class="oath-mark">🕯️</div>
+
+    <h1>Enter the Quiet</h1>
+
+    <p class="subtitle">
+        Choose how you wish to enter.
+    </p>
+
+    <div class="entry-actions">
+        <div id="googleSignInButton"></div>
+
+        <button onclick="continueAsGuest()">
+            Continue as Guest
+        </button>
+
+        <p class="entry-note">
+            You can enter without creating an account.
+        </p>
+    </div>
+
+    <button class="back" onclick="showScreen('oath')">
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- PURPOSE -->
+<!-- ============================= -->
+
+
+<section id="quiet-setup" class="screen">
+    <div class="oath-mark">🕯️</div>
+    <h1>Make the Quiet Yours</h1>
+    <p class="subtitle">A few choices, so this room can feel a little more like yours.</p>
+    <div class="setup-card">
+        <label class="setup-label" for="quietDisplayName">What should the Scribe call you?</label>
+        <input id="quietDisplayName" class="setup-input" type="text" maxlength="40" placeholder="Your name or nickname">
+
+        <span class="setup-label">Choose your atmosphere</span>
+        <div class="theme-grid">
+            <button type="button" class="theme-choice" data-theme="midnight" onclick="selectQuietTheme('midnight')">🌌<br>Midnight</button>
+            <button type="button" class="theme-choice" data-theme="rain" onclick="selectQuietTheme('rain')">🌧️<br>Rain</button>
+            <button type="button" class="theme-choice" data-theme="paper" onclick="selectQuietTheme('paper')">📜<br>Paper</button>
+        </div>
+
+        <span class="setup-label">What will you mostly use the Quiet for?</span>
+        <div class="preference-grid">
+            <button type="button" class="preference-choice" data-use="writing" onclick="selectQuietUse('writing')">🖋️ Writing and creating</button>
+            <button type="button" class="preference-choice" data-use="thinking" onclick="selectQuietUse('thinking')">🌙 Thinking and philosophy</button>
+            <button type="button" class="preference-choice" data-use="reading" onclick="selectQuietUse('reading')">📖 Reading and discovering</button>
+            <button type="button" class="preference-choice" data-use="conversation" onclick="selectQuietUse('conversation')">🕯️ Quiet conversations</button>
+        </div>
+
+        <span class="setup-label">How should the Scribe usually feel?</span>
+        <div class="preference-grid">
+            <button type="button" class="preference-choice" data-tone="quiet" onclick="selectQuietTone('quiet')">Quiet and concise</button>
+            <button type="button" class="preference-choice" data-tone="deep" onclick="selectQuietTone('deep')">Deep and thoughtful</button>
+            <button type="button" class="preference-choice" data-tone="balanced" onclick="selectQuietTone('balanced')">A balance of both</button>
+        </div>
+
+        <p class="setup-note">You can change these choices later. Nothing here is permanent.</p>
+        <button onclick="finishQuietSetup()">Enter the Quiet</button>
+    </div>
+</section>
+
+<section id="quiet-profile" class="screen">
+    <div class="oath-mark">🕯️</div>
+    <h1>Your Quiet</h1>
+    <div class="profile-card">
+        <img id="quietProfileAvatar" class="profile-avatar" alt="">
+        <div id="quietProfileName" class="profile-name">Guest</div>
+        <div id="quietProfileMeta" class="profile-meta"></div>
+        <button onclick="showScreen('quiet-setup');loadQuietSetup()">Edit personalization</button>
+        <button class="back" onclick="showScreen('purpose')">← Back</button>
+    </div>
+</section>
+
+<section id="quiet-settings" class="screen">
+<div class="settings-shell">
+<div class="settings-top"><div><div class="settings-eyebrow">The Quiet · Settings</div><h1>Quiet Settings</h1><p class="subtitle">Shape the room. Decide what Scribe carries with you.</p></div><button class="settings-back" onclick="showScreen('purpose')">← Back</button></div>
+<div class="settings-card"><h2 class="settings-section-title"><span class="settings-icon">🧠</span>Scribe's Memory</h2><p class="settings-description">Things you leave behind for Scribe to remember across conversations on this device.</p><div class="memory-add-row"><textarea id="memoryInput" class="memory-input" placeholder="Example: Remember that I’m working on The Quiet Scribe and I prefer dark, rainy visuals."></textarea><button class="memory-save" onclick="saveMemoryFromSettings()">Save Memory</button></div><div id="memoryList" class="memory-list"></div><p class="settings-note">Memory is stored locally in this browser. Don’t save passwords, private keys, or sensitive secrets.</p></div>
+<div class="settings-card"><h2 class="settings-section-title"><span class="settings-icon">🎨</span>Appearance</h2><p class="settings-description">Choose the atmosphere you want when you enter the Quiet.</p><div class="settings-choice-grid"><button class="settings-choice" data-setting-theme="midnight" onclick="selectQuietTheme('midnight');loadQuietSettings()"><span>🌑 Midnight</span><small>Classic deep-night room.</small></button><button class="settings-choice" data-setting-theme="rain" onclick="selectQuietTheme('rain');loadQuietSettings()"><span>🌧️ Rain</span><small>Cool rainy evening mood.</small></button><button class="settings-choice" data-setting-theme="paper" onclick="selectQuietTheme('paper');loadQuietSettings()"><span>📜 Paper</span><small>Warmer literary room.</small></button></div></div>
+<div class="settings-card"><h2 class="settings-section-title"><span class="settings-icon">🕯️</span>Conversation</h2><p class="settings-description">These preferences shape how Scribe speaks with you.</p><div class="settings-choice-grid"><button class="settings-choice" data-setting-tone="quiet" onclick="selectQuietTone('quiet');loadQuietSettings()"><span>Quiet and concise</span><small>Simple unless depth is needed.</small></button><button class="settings-choice" data-setting-tone="deep" onclick="selectQuietTone('deep');loadQuietSettings()"><span>Deep and thoughtful</span><small>More space for ideas.</small></button><button class="settings-choice" data-setting-tone="balanced" onclick="selectQuietTone('balanced');loadQuietSettings()"><span>A balance of both</span><small>Adapts with the conversation.</small></button></div><div class="settings-row"><div><strong>🌙 DND Mode</strong><small>Dim the Quiet when you want less visual noise.</small></div><button id="settingsDndButton" class="settings-toggle" onclick="toggleDNDMode();loadQuietSettings()">DND: OFF</button></div><div class="settings-row"><div><strong>🧠 Philosopher Mode</strong><small>Pushes the conversation toward analysis and questioning.</small></div><button id="settingsPhilosopherButton" class="settings-toggle" onclick="togglePhilosopherMode();loadQuietSettings()">Philosopher: OFF</button></div></div>
+<div class="settings-card"><h2 class="settings-section-title"><span class="settings-icon">💾</span>Storage & Privacy</h2><p class="settings-description">Everything here currently lives in browser storage.</p><div class="settings-actions"><button onclick="exportQuietData()">↥ Export My Quiet Data</button><button onclick="clearQuietMemories()" class="settings-danger">Forget All Memories</button><button onclick="clearQuietConversations()" class="settings-danger">Clear Saved Conversations</button></div></div>
+<div class="settings-card"><h2 class="settings-section-title"><span class="settings-icon">👤</span>Your Profile</h2><p class="settings-description">Personalization stays separate from the memory vault.</p><button onclick="showScreen('quiet-profile');loadQuietProfile()">Open Your Quiet</button></div>
+</div></section>
+
+<section id="purpose" class="screen">
+
+    <h1>What brings you here?</h1>
+
+    <p class="subtitle">
+        There is no right reason to be here.
+    </p>
+
+    <p class="subtitle">
+        You don't have to know exactly why.
+    </p>
+
+    <button onclick="showScreen('writer')">
+        🖋️ I want to write
+    </button>
+
+    <button onclick="showScreen('think')">
+        🌙 I want to think
+    </button>
+
+    <button onclick="showScreen('read')">
+        📖 I want to read
+    </button>
+    <button onclick="openChat()">
+        🕯️ I want to talk
+    </button>
+
+    <button onclick="openChat()">
+        I don't know. I just came here.
+    </button>
+  <button onclick="newTonightQuestion(); showScreen('tonight')">
+    🌙 Tonight's Question
+  </button>
+    <div class="quiet-utility-dock" aria-label="Quiet tools">
+        <div class="quiet-utility-label">Quiet tools</div>
+        <button type="button" class="quiet-utility-button" onclick="showScreen('quiet-profile');loadQuietProfile()">
+            <span class="quiet-utility-icon">🕯️</span>
+            <span>Your Quiet</span>
+        </button>
+        <button type="button" class="quiet-utility-button" onclick="showScreen('quiet-settings');loadQuietSettings()">
+            <span class="quiet-utility-icon">⚙</span>
+            <span>Settings</span>
+        </button>
+    </div>
+
+    <button
+        class="back"
+        onclick="showScreen('welcome')">
+        ← Back
+    </button>
+
+    </section>
+<section id="marks" class="screen">
+
+    <h1>The Ones Who Left a Mark</h1>
+
+    <p class="subtitle">
+        People whose work left something behind.
+    </p>
+
+    <button onclick="showScreen('dostoevsky')">
+        FYODOR DOSTOEVSKY
+    </button>
+
+    <button onclick="showScreen('kafka')">
+        FRANZ KAFKA
+    </button>
+
+    <button onclick="showScreen('camus')">
+        ALBERT CAMUS
+    </button>
+
+    <button onclick="showScreen('miyazaki')">
+        HAYAO MIYAZAKI
+    </button>
+
+    <button onclick="showScreen('stanlee')">
+        STAN LEE
+    </button>
+
+    <button onclick="showScreen('oda')">
+        EIICHIRO ODA
+    </button>
+
+    <button onclick="showScreen('beethoven')">
+        LUDWIG VAN BEETHOVEN
+    </button>
+
+    <button onclick="showScreen('chopin')">
+        FRÉDÉRIC CHOPIN
+    </button>
+
+    <button class="back" onclick="showScreen('welcome')">
+        ← Back
+    </button>
+
+</section>
+<!-- ============================= -->
+<!-- COMPLETED MARKS: STAN LEE / ODA / BEETHOVEN / CHOPIN -->
+<!-- ============================= -->
+
+<section id="miyazaki" class="screen">
+
+  <h1>HAYAO MIYAZAKI</h1>
+
+  <p class="subtitle">
+      1941 —
+  </p>
+
+  <p class="subtitle">
+      A storyteller who turned imagination, nature, and quiet human moments into worlds of wonder.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Miyazaki.jpg"
+          alt="Hayao Miyazaki">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Hayao Miyazaki helped redefine Japanese animation through
+          stories that brought imagination, nature, and deeply human
+          experiences together.
+      </p>
+
+      <p>
+          His films created unforgettable worlds while exploring
+          childhood, loneliness, courage, friendship, and our
+          relationship with the natural world.
+      </p>
+
+      <button onclick="showScreen('miyazaki-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+  <section id="miyazaki-read" class="screen">
+
+  <h1>HAYAO MIYAZAKI</h1>
+
+  <p class="subtitle">
+      The storyteller who found wonder in the ordinary.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Hayao Miyazaki is one of the most influential figures in
+          Japanese animation and a co-founder of Studio Ghibli.
+          Through his films, he created worlds where imagination,
+          nature, and everyday human life could exist together.
+      </p>
+
+      <p>
+          His stories include unforgettable worlds and characters
+          from films such as My Neighbor Totoro, Princess Mononoke,
+          Spirited Away, Howl's Moving Castle, and many others.
+      </p>
+
+      <p>
+          What makes his work distinctive is the way fantasy is
+          connected with ordinary human experiences. Childhood,
+          loneliness, courage, friendship, responsibility, and
+          the wonder of simply being alive often sit at the heart
+          of his stories.
+      </p>
+
+      <p>
+          Nature also plays an important role in his storytelling.
+          Forests, oceans, spirits, animals, and landscapes are
+          often more than backgrounds. They become living parts
+          of the worlds his characters inhabit.
+      </p>
+
+      <p>
+          Miyazaki's legacy is therefore not only about animation.
+          It is about showing how quiet moments, imagination, and
+          human emotion can carry as much weight as spectacle.
+      </p>
+
+      <p class="story-quote">
+          Sometimes the most extraordinary worlds begin with an ordinary moment.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('miyazaki')">
+      ← Back
+  </button>
+
+  </section>
+   <section id="stanlee" class="screen">
+  <h1>STAN LEE</h1>
+
+  <p class="subtitle">
+      1922 — 2018
+  </p>
+
+  <p class="subtitle">
+      A creator who helped make superheroes feel human.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Stan.jpg"
+          alt="Stan Lee">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Stan Lee helped shape the voice of Marvel Comics and
+          helped create and develop some of the most recognizable
+          characters in comics.
+      </p>
+
+      <p>
+          His stories brought extraordinary powers together with
+          ordinary human problems, making superheroes feel more
+          relatable.
+      </p>
+
+      <button onclick="showScreen('stan-lee-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="stan-lee-read" class="screen">
+
+  <h1>STAN LEE</h1>
+
+  <p class="subtitle">
+      The man who helped make heroes feel human.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Stan Lee became one of the most recognizable figures in
+          American comics, helping shape Marvel's Silver Age alongside
+          artists and writers including Jack Kirby and Steve Ditko.
+      </p>
+
+      <p>
+          His work helped bring characters such as Spider-Man, the
+          Fantastic Four, the Hulk, Thor and the X-Men to a broad
+          audience. His stories often placed extraordinary characters
+          inside recognizable human problems.
+      </p>
+
+      <p>
+          That combination became an important part of Marvel's voice:
+          superheroes could be powerful while still being imperfect,
+          worried, funny, conflicted, and deeply human.
+      </p>
+
+      <p>
+          Lee's legacy is therefore not only about individual heroes.
+          It is also about helping establish a style of comic-book
+          storytelling in which the people behind the powers mattered.
+      </p>
+
+      <p class="story-quote">
+          The mask may be extraordinary. The person underneath still has to live.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('stanlee')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="oda" class="screen">
+
+  <h1>EIICHIRO ODA</h1>
+
+  <p class="subtitle">
+      The creator who turned a pirate adventure into a world.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Oda.jpg"
+          alt="Eiichiro Oda">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Eiichiro Oda created One Piece, building a vast world
+          filled with adventure, friendship, dreams and freedom.
+      </p>
+
+      <p>
+          His storytelling connects seemingly small moments
+          with a much larger world, giving his characters and
+          their journeys a lasting sense of wonder.
+      </p>
+
+      <button onclick="showScreen('oda-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="oda-read" class="screen">
+
+  <h1>EIICHIRO ODA</h1>
+
+  <p class="subtitle">
+      A storyteller who built an entire world around the idea of freedom.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Eiichiro Oda is the creator of One Piece,
+          one of the most influential manga series of its generation.
+      </p>
+
+      <p>
+          His world is enormous, but its heart remains simple:
+          people chasing their dreams, protecting the people
+          they care about, and refusing to give up their freedom.
+      </p>
+
+      <p>
+          What makes Oda's work remarkable is the way seemingly
+          separate stories and characters can become part of
+          something much larger.
+      </p>
+
+      <p>
+          Decades of storytelling have turned a fictional
+          world into something that feels almost alive.
+      </p>
+
+      <p class="story-quote">
+          A story becomes memorable when its world makes you
+          want to keep exploring it.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('oda')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="beethoven" class="screen">
+
+  <h1>LUDWIG VAN BEETHOVEN</h1>
+
+  <p class="subtitle">
+      1770 — 1827
+  </p>
+
+  <p class="subtitle">
+      A composer who transformed the language of music.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Beethoven.jpg"
+          alt="Ludwig van Beethoven">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Ludwig van Beethoven became one of the most influential
+          composers in Western classical music.
+      </p>
+
+      <p>
+          His music pushed beyond the traditions of his time,
+          combining powerful emotion, dramatic contrast and
+          remarkable musical imagination.
+      </p>
+
+      <button onclick="showScreen('beethoven-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="beethoven-read" class="screen">
+
+  <h1>LUDWIG VAN BEETHOVEN</h1>
+
+  <p class="subtitle">
+      Music that refused to remain ordinary.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Beethoven stands at a turning point in the history
+          of classical music.
+      </p>
+
+      <p>
+          His compositions carried enormous emotional force,
+          often moving between quiet reflection and overwhelming
+          intensity.
+      </p>
+
+      <p>
+          He expanded what audiences expected from a composer,
+          giving later generations a new idea of what music
+          could express.
+      </p>
+
+      <p>
+          His legacy is not simply about individual compositions.
+          It is about how boldly he expanded the possibilities
+          of musical expression.
+      </p>
+
+      <p class="story-quote">
+          He made music feel like an argument between silence,
+          struggle and triumph.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('beethoven')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="chopin" class="screen">
+
+  <h1>FRÉDÉRIC CHOPIN</h1>
+
+  <p class="subtitle">
+      1810 — 1849
+  </p>
+
+  <p class="subtitle">
+      A pianist-composer who made the piano deeply personal.
+  </p>
+
+  <div class="person-card">
+
+      <img
+          src="Chopin.jpg"
+          alt="Frédéric Chopin">
+
+      <h2>Why he left a mark</h2>
+
+      <p>
+          Frédéric Chopin became one of the defining composers
+          of the Romantic era, with much of his work centered
+          around the piano.
+      </p>
+
+      <p>
+          His music is known for its intimacy, expressive melodies
+          and delicate control of the instrument.
+      </p>
+
+      <button onclick="showScreen('chopin-read')">
+          📖 Read
+      </button>
+
+  </div>
+
+  <button class="back" onclick="showScreen('marks')">
+      ← Back
+  </button>
+
+</section>
+
+<section id="chopin-read" class="screen">
+
+  <h1>FRÉDÉRIC CHOPIN</h1>
+
+  <p class="subtitle">
+      The piano became his language.
+  </p>
+
+  <div class="reading-content">
+
+      <p>
+          Chopin devoted much of his creative life to the piano,
+          exploring how much emotion could be expressed through
+          a single instrument.
+      </p>
+
+      <p>
+          His compositions could be intimate and delicate,
+          yet they often carried extraordinary emotional depth.
+      </p>
+
+      <p>
+          He transformed familiar piano forms into something
+          intensely personal, influencing generations of pianists
+          and composers after him.
+      </p>
+
+      <p>
+          Even today, his music remains closely associated with
+          the expressive possibilities of the piano.
+      </p>
+
+      <p class="story-quote">
+          For Chopin, the piano was not merely an instrument;
+          it became a voice.
+      </p>
+
+  </div>
+
+  <button class="back" onclick="showScreen('chopin')">
+      ← Back
+  </button>
+
+</section>
+
+<!-- ============================= -->
+<!-- WRITER -->
+<!-- ============================= -->
+
+<section id="writer" class="screen">
+
+    <h1>Writer's Room</h1>
+
+    <p class="subtitle">
+        Put the words somewhere outside your head.
+    </p>
+<input
+    id="writerTitle"
+    class="chat-input"
+    type="text"
+    placeholder="Give your writing a name..."
+>
+    <textarea
+        id="writerInput"
+        class="writer-box"
+        placeholder="Write whatever needs to be written..."
+    ></textarea>
+
+    <button onclick="saveWriting()">
+        Save writing
+    </button>
+<button onclick="showScreen('saved'); loadSavedWritings()">
+    📚 My Saved Writings
+</button>
+  <button
+        class="back"
+        onclick="showScreen('purpose')">
+        ← Back
+    </button>
+
+</section>
+<section id="saved" class="screen">
+
+    <h1>My Saved Writings</h1>
+
+    <p class="subtitle">
+        Words you decided to keep.
+    </p>
+
+    <div id="savedEntries" class="entries"></div>
+
+    <button class="back" onclick="showScreen('writer')">
+        ← Back to Writer's Room
+    </button>
+
+</section>
+<!-- ============================= -->
+<!--  TONIGHT'S QUESTION -->       
+<!-- ============================= -->
+
+<section id="tonight" class="screen">
+
+    <h1>Tonight's Question</h1>
+
+    <p class="subtitle">
+        A question to carry with you into the night.
+    </p>
+
+    <div class="reading-content">
+
+        <p id="tonightQuestion">
+            Tonight has a question for you.
+        </p>
+
+    </div>
+  <div class="tonight-writing-box">
+
+    <textarea
+        id="tonightAnswer"
+        placeholder="Write whatever comes to mind..."
+        rows="8"></textarea>
+
+    <div class="writing-footer">
+        <span>Tonight's thought</span>
+
+        <button
+            class="scribe-read-button"
+            onclick="analyzeTonightAnswer()">
+            🕯️ Let the Scribe read this
+        </button>
+    </div>
+
+  </div>
+
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')">
+        ← Back
+    </button>
+
+</section>
+<!-- ============================= -->
+<!-- THINKER -->
+<!-- ============================= -->
+
+<section id="think" class="screen">
+
+    <h1>Thinker's Room</h1>
+
+    <p class="quote">
+        “Some thoughts need answers.
+        Others simply need somewhere to exist.”
+    </p>
+
+    <button onclick="newThought()">
+        🌙 Give me something to think about
+    </button>
+<div class="thought-box">
+
+    <input
+        id="thoughtTitle"
+        class="chat-input"
+        type="text"
+        placeholder="Give your thought a name..."
+    >
+
+    <textarea
+        id="thoughtInput"
+        class="writer-box"
+        placeholder="Leave a thought here..."
+    ></textarea>
+
+    <button onclick="leaveThought()">
+        🕯️ Leave a Thought
+    </button>
+
+</div>
+    <p id="thought" class="subtitle"></p>
+
+    <button onclick="toggleDNDMode()">
+        🌙 DND Mode: OFF
+    </button>
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')">
+        ← Back
+    </button>
+
+</section>
+
+
+<!-- ============================= -->
+<!-- READER -->
+<!-- ============================= -->
+
+<section id="read" class="screen">
+
+    <h1>Reader's Room</h1>
+
+    <p class="subtitle">
+        A small room for words.
+    </p>
+
+    <div class="reading-section">
+
+        <h2>Featured Reading</h2>
+
+        <div class="reading-card">
+
+            <h3>The Closest Stranger</h3>
+
+            <p>
+                A quiet story about a night, a stranger,
+                and the strange feeling of meeting someone
+                who somehow feels familiar.
+            </p>
+
+            <button onclick="openReading('closest-stranger')">
+                Read
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="reading-section">
+
+        <h2>Philosophy & Ideas</h2>
+
+        <div class="reading-card">
+
+            <h3>Thoughts on the Self</h3>
+
+            <p>
+                Small thoughts about identity, memory,
+                change, and the person we become.
+            </p>
+
+            <button onclick="openReading('self')">
+                Coming Soon
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="reading-section">
+
+        <h2>Poetry & Fragments</h2>
+
+        <div class="reading-card">
+
+            <h3>Coming Soon</h3>
+
+            <p>
+                A place for small pieces of writing.
+            </p>
+
+        </div>
+
+    </div>
+
+    <button
+        class="back"
+        onclick="showScreen('purpose')">
+        ← Back
+    </button>
+
+</section>
+
+<section id="creator" class="screen">
+
+    <h1>Connect with the Creator</h1>
+
+    <p class="subtitle">
+        The person behind The Quiet Scribe.
+    </p>
+
+<div class="creator-links">
+
+    <a
+        href="https://www.instagram.com/_thequietscribe_/"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        📖 The Quiet Scribe
+        <small>@thequietscribe</small>
+    </a>
+
+    <a
+        href="https://www.instagram.com/justtt_raushhannn/"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        🖋️ Creator's Instagram
+        <small>@justtt_raushhannn</small>
+    </a>
+
+    <a
+        href="https://github.com/raushan00787-droid"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        💻 GitHub
+        <small>@raushan00787-droid</small>
+    </a>
+
+</div>
+
+    <button class="back" onclick="showScreen('welcome')">
+        ← Back
+    </button>
+
+</section>
+<!-- ============================= -->
+<!-- READING -->
+<!-- ============================= -->
+
+<section id="reading" class="screen">
+
+    <h1 id="readingTitle">
+        The Closest Stranger
+    </h1>
+
+    <div id="readingContent" class="reading-content">
+
+        <p>
+            The story will be available here soon.
+        </p>
+
+        <p>
+            — The Quiet Scribe
+        </p>
+
+    </div>
+
+    <button
+        class="back"
+        onclick="showScreen('read')">
+        ← Back to Reader's Room
+    </button>
+
+</section>
+
+
+<!-- ============================= -->
+<!-- CHAT -->
+<!-- ============================= -->
+<section id="chat" class="screen" aria-label="Quiet Conversation">
+
+    <div class="chat-header">
+
+        <div class="chat-header-main">
+            <button class="chat-new-button" onclick="startNewChat()" aria-label="Start a new conversation" title="New conversation">＋</button>
+            <div>
+                <h1>Quiet Conversation</h1>
+
+                <p class="subtitle">
+                    You may speak freely here.
+                </p>
+            </div>
+        </div>
+
+        <div class="chat-header-actions">
+            <button class="chat-menu-button chat-settings-button" onclick="showScreen('quiet-settings');loadQuietSettings()" aria-label="Open Quiet Settings" title="Quiet Settings">⚙</button>
+            <span class="chat-header-divider" aria-hidden="true"></span>
+            <button class="chat-menu-button chat-history-button" onclick="toggleChatHistory()" aria-label="Open conversations" aria-expanded="false" title="Conversations">☰</button>
+        </div>
+
+    </div>
+
+    <!-- CHAT HISTORY -->
+
+    <div
+        id="chatHistoryPanel"
+        class="chat-history-panel">
+
+        <div class="chat-panel-header">
+
+            <span>Conversations</span>
+
+            <button
+                onclick="toggleChatHistory()"
+                aria-label="Close conversations">
+                ×
+            </button>
+
+        </div>
+
+        <div class="chat-sidebar-title">
+            Conversations
+        </div>
+
+        <div
+            id="chatList"
+            class="chat-list">
+        </div>
+
+    </div>
+
+    <!-- CONVERSATION -->
+
+    <div class="chat-main">
+
+        <div
+            id="chatBox"
+            class="chat-box">
+        </div>
+
+        <div class="chat-input-wrapper">
+
+            <div class="chat-input-area">
+
+                <textarea
+                    id="chatInput"
+                    class="chat-input"
+                    rows="1"
+                    placeholder="Say what's on your mind..."
+                    onkeydown="handleEnter(event)"
+                    oninput="resizeChatInput(this)"
+                    aria-label="Message Scribe"></textarea>
+
+                <button
+                    id="voiceInputButton"
+                    class="voice-button"
+                    type="button"
+                    onclick="toggleVoiceInput()"
+                    aria-label="Talk to Scribe"
+                    title="Talk to Scribe"
+                    style="display:flex !important;visibility:visible !important;opacity:1 !important;">
+                    🎙️
+                </button>
+
+                <button
+                    class="send-button"
+                    onclick="sendMessage()"
+                    aria-label="Send message">
+                    ↑
+                </button>
+
+            </div>
+
+            <div id="voiceStatus" class="voice-status" aria-live="polite"></div>
+
+            <div class="chat-controls">
+
+                <button
+                    class="philosopher-button"
+                    onclick="togglePhilosopherMode()">
+                    🧠 Philosopher Mode: OFF
+                </button>
+
+                <button
+                    class="leave-chat-button"
+                    onclick="leaveChat()">
+                    Leave
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+  
 
 <script>
 /* ============================= */
@@ -4551,81 +6136,113 @@ loadSavedWritings();
         }
 
 
+
         titleInput.value = "";
+        thoughtInput.value = "";
 
-/* ============================= */
-/* CINEMATIC OPENING CONTROLS    */
-/* ============================= */
-(function initCinematicOpening(){
-    const scene=document.getElementById("qs-opening-scene");
-    const dayAction=document.getElementById("qs-day-action");
-    const nightGo=document.getElementById("qs-night-go");
-    const skip=document.getElementById("qs-opening-skip");
-    if(!scene) return;
+        alert("Your thought has been left. 🕯️");
 
-    let transitioning=false;
-    let nightReady=false;
+    } catch (error) {
 
-    function revealQuietScribe(skipFade){
-        if(transitioning) return;
-        transitioning=true;
+        console.error(error);
 
-        document.body.classList.add("qs-ready","qs-entering");
+        alert(
+            "Something went wrong. Please try again."
+        );
+    }
+  }
+</script>
 
-        if(skipFade){
+<script>
+(function () {
+    var scene = document.getElementById("qs-opening-scene");
+    var dayAction = document.getElementById("qs-day-action");
+    var nightGo = document.getElementById("qs-night-go");
+    var skipButton = document.getElementById("qs-opening-skip");
+
+    if (!scene || !dayAction || !nightGo) return;
+
+    var transitioning = false;
+
+    function enterQuiet(skipAnimation) {
+        if (transitioning) return;
+
+        transitioning = true;
+
+        if (!skipAnimation) {
             scene.classList.add("qs-exiting");
-            scene.style.transition="none";
-            scene.style.opacity="0";
-            scene.remove();
-            document.body.classList.remove("qs-opening","qs-entering");
-            return;
-        }
 
-        scene.classList.add("qs-exiting");
+            window.setTimeout(function () {
+                finishOpening();
+            }, 1750);
+        } else {
+            scene.classList.add("qs-exiting");
+            scene.style.transition = "opacity .45s ease";
+            window.setTimeout(function () {
+                finishOpening();
+            }, 450);
+        }
+    }
+
+    function finishOpening() {
+        if (scene) scene.remove();
+
+        document.body.classList.remove("qs-opening");
+        document.body.classList.add("qs-ready","qs-entering");
         window.setTimeout(function(){
-            scene.remove();
-            document.body.classList.remove("qs-opening","qs-entering");
-        },1900);
+            document.body.classList.remove("qs-entering");
+        },520);
+
+        document.querySelectorAll(".screen").forEach(function (screen) {
+            screen.classList.remove("active");
+        });
+
+        var nextScreen = "oath";
+
+        if (getQuietMode()) {
+            nextScreen = isQuietSetupComplete() ? "purpose" : "quiet-setup";
+            applyQuietTheme(localStorage.getItem("quietScribeTheme") || "midnight");
+            if (nextScreen === "quiet-setup") loadQuietSetup();
+        }
+
+        var target = document.getElementById(nextScreen);
+
+        if (target) {
+            target.classList.add("active");
+        }
+
+        window.scrollTo(0, 0);
     }
 
-    function enterNight(){
-        if(transitioning || nightReady) return;
-        nightReady=true;
+    dayAction.addEventListener("click", function () {
+        if (transitioning || scene.classList.contains("qs-night")) return;
+
+        transitioning = true;
         scene.classList.add("qs-night");
-        if(dayAction){
-            dayAction.disabled=true;
-            dayAction.setAttribute("aria-hidden","true");
-        }
-        if(nightGo){
-            nightGo.disabled=false;
-            nightGo.removeAttribute("aria-hidden");
-        }
-    }
 
-    if(dayAction){
-        dayAction.addEventListener("click",enterNight);
-    }
+        window.setTimeout(function () {
+            transitioning = false;
+            nightGo.focus();
+        }, 5300);
+    });
 
-    if(nightGo){
-        nightGo.addEventListener("click",function(){
-            if(!nightReady || transitioning) return;
-            revealQuietScribe(false);
+    nightGo.addEventListener("click", function () {
+        if (transitioning || !scene.classList.contains("qs-night")) return;
+        enterQuiet(false);
+    });
+
+    if (skipButton) {
+        skipButton.addEventListener("click", function () {
+            enterQuiet(true);
         });
     }
 
-    if(skip){
-        skip.addEventListener("click",function(){
-            revealQuietScribe(true);
-        });
-    }
-
-    document.addEventListener("keydown",function(event){
-        if(event.key==="Escape"){
-            revealQuietScribe(true);
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && scene && document.body.classList.contains("qs-opening")) {
+            enterQuiet(true);
         }
     });
 })();
-
 </script>
 </body>
 </html>

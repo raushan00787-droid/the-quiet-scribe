@@ -4042,7 +4042,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 </div>
     <p id="thought" class="subtitle"></p>
 
-    <button onclick="toggleDNDMode()">
+    <button type="button" data-dnd-toggle onclick="toggleDNDMode()" aria-pressed="false">
         🌙 DND Mode: OFF
     </button>
 
@@ -4313,6 +4313,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                     <button
                         class="philosopher-button"
+                        data-philosopher-toggle
                         onclick="togglePhilosopherMode()">
                         🧠 Philosopher Mode: OFF
                     </button>
@@ -5124,29 +5125,15 @@ function newThought() {
 /* ============================= */
 
 function toggleDNDMode() {
-
     const enabled=!document.body.classList.contains("dnd-mode");
+
     document.body.classList.toggle("dnd-mode",enabled);
     localStorage.setItem("quietScribeDND",enabled?"true":"false");
 
-    const button =
-        document.querySelector(
-            'button[onclick="toggleDNDMode()"]'
-        );
-
-    if (
-        document.body.classList.contains("dnd-mode")
-    ) {
-
-        button.textContent =
-            "🌙 DND Mode: ON";
-
-    } else {
-
-        button.textContent =
-            "🌙 DND Mode: OFF";
-
-    }
+    document.querySelectorAll("[data-dnd-toggle]").forEach(function(button){
+        button.textContent="🌙 DND Mode: "+(enabled?"ON":"OFF");
+        button.setAttribute("aria-pressed",enabled?"true":"false");
+    });
 }
 
 
@@ -5158,26 +5145,13 @@ let philosopherMode = false;
 
 
 function togglePhilosopherMode() {
-
     philosopherMode=!philosopherMode;
     localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
 
-    const button =
-        document.querySelector(
-            'button[onclick="togglePhilosopherMode()"]'
-        );
-
-    if (philosopherMode) {
-
-        button.textContent =
-            "🧠 Philosopher Mode: ON";
-
-    } else {
-
-        button.textContent =
-            "🧠 Philosopher Mode: OFF";
-
-    }
+    document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
+        button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
+        button.setAttribute("aria-pressed",philosopherMode?"true":"false");
+    });
 }
 
 

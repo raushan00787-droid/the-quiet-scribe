@@ -4576,11 +4576,25 @@ Respond naturally in the same language and style as the user's answer.
     })
     .catch(function(error) {
 
+        window.clearTimeout(requestTimeout);
+
         document
             .getElementById("thinkingMessage")
             ?.remove();
 
         console.error(error);
+
+        const result = document.createElement("div");
+        result.id = "tonightAnalysis";
+        result.className = "reading-content";
+        result.textContent =
+            error && error.name === "AbortError"
+                ? "The Scribe took too long to respond. Please try again."
+                : "The Scribe could not read this thought right now. Please try again.";
+
+        document
+            .getElementById("tonight")
+            ?.appendChild(result);
     });
     }
 

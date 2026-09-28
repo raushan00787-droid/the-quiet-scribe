@@ -4812,6 +4812,10 @@ function showScreen(id) {
         screen.classList.remove("active");
     });
 
+    if(id!=="chat" && quietVoiceMode){
+        stopQuietVoice(true);
+    }
+
     const target=document.getElementById(id);
 
     if(target){
@@ -6253,6 +6257,7 @@ const QUIET_COMMON_ENGLISH_WORDS=new Set([
     "make","made","makes","want","need","help","change","changed","better",
     "different","same","first","last","again","now","here","there","inside",
     "outside","deep","quiet","calm","soft","warm","dark","light","open","close",
+    "scribe","kafka","camus","dostoevsky","miyazaki","beethoven","chopin",
     "stay","leave","go","come","keep","find","lost","found","look","see",
     "hear","heard","know","think","thought","believe"
 ]);
@@ -6392,19 +6397,68 @@ function splitQuietSpeechSentences(text){
         .filter(Boolean);
 }
 
+function isQuietStrongEnglishWord(word){
+    const value=String(word||"").trim();
+    const normalized=value.toLowerCase().replace(/[^a-z]/g,"");
+    if(!normalized)return false;
+    if(isLikelyQuietRomanHindiWord(value))return false;
+    return QUIET_COMMON_ENGLISH_WORDS.has(normalized);
+}
+
 function buildQuietSpeechSegments(text){
     const sentences=splitQuietSpeechSentences(text);
     if(!sentences.length)return [];
 
-    return sentences.map(function(sentence){
+    const segments=[];
+
+    sentences.forEach(function(sentence){
         const language=detectQuietSentenceLanguage(sentence);
-        return {
-            text:language==="hi-IN"
-                ? normalizeQuietHindiSpeech(sentence)
-                : sentence.trim(),
-            language:language
-        };
+
+        if(language!=="hi-IN"){
+            segments.push({text:sentence.trim(),language:"en-US"});
+            return;
+        }
+
+        const words=sentence.split(/\s+/).filter(Boolean);
+        let currentLanguage="";
+        let currentWords=[];
+
+        function flush(){
+            if(!currentWords.length)return;
+            const segmentText=currentWords.join(" ").trim();
+            if(!segmentText)return;
+
+            segments.push({
+                text:currentLanguage==="hi-IN"
+                    ? normalizeQuietHindiSpeech(segmentText)
+                    : segmentText,
+                language:currentLanguage
+            });
+
+            currentWords=[];
+        }
+
+        words.forEach(function(word){
+            const nextLanguage=
+                /[\u0900-\u097F]/u.test(word) ||
+                isLikelyQuietRomanHindiWord(word)
+                    ? "hi-IN"
+                    : isQuietStrongEnglishWord(word)
+                        ? "en-US"
+                        : "hi-IN";
+
+            if(currentLanguage && currentLanguage!==nextLanguage){
+                flush();
+            }
+
+            currentLanguage=nextLanguage;
+            currentWords.push(word);
+        });
+
+        flush();
     });
+
+    return segments;
 }
 
 function speakScribeResponse(text){

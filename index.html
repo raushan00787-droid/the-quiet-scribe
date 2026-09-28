@@ -5271,17 +5271,37 @@ function stopQuietVoice(){
     setVoiceStatus("");
 }
 function initQuietVoice(){
-    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    quietVoiceSupported=!!SpeechRecognition;
-    if(!quietVoiceSupported){
-        const button=getVoiceButton();
-        if(button){button.disabled=true;button.title="Voice input is not supported in this browser";button.setAttribute("aria-label","Voice input is not supported");}
-        return;
-    }
-    quietVoiceRecognition=new SpeechRecognition();
-    quietVoiceRecognition.continuous=false;
-    quietVoiceRecognition.interimResults=true;
-    quietVoiceRecognition.lang=navigator.language||"en-US";
+    try{
+        const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+        quietVoiceSupported=!!SpeechRecognition;
+        if(!quietVoiceSupported){
+            const button=getVoiceButton();
+            if(button){
+                button.disabled=true;
+                button.title="Voice input is not supported in this browser";
+                button.setAttribute("aria-label","Voice input is not supported");
+            }
+            return;
+        }
+
+        try{
+            quietVoiceRecognition=new SpeechRecognition();
+        }catch(error){
+            quietVoiceSupported=false;
+            quietVoiceRecognition=null;
+            const button=getVoiceButton();
+            if(button){
+                button.disabled=true;
+                button.title="Voice input could not be initialized";
+                button.setAttribute("aria-label","Voice input could not be initialized");
+            }
+            console.warn("Quiet Scribe voice initialization failed.",error);
+            return;
+        }
+
+        quietVoiceRecognition.continuous=false;
+        quietVoiceRecognition.interimResults=true;
+        quietVoiceRecognition.lang=navigator.language||"en-US";
     quietVoiceRecognition.onstart=function(){quietVoiceListening=true;updateVoiceButton();setVoiceStatus("Listening…");};
     quietVoiceRecognition.onresult=function(event){
         let finalText="",interimText="";
@@ -6064,8 +6084,12 @@ loadSavedWritings();
   renderChatList();
   resizeChatInput(document.getElementById("chatInput"));
   renderCurrentChat();
-  initQuietVoice();
   loadQuietSettings();
+  try{
+    initQuietVoice();
+  }catch(error){
+    console.warn("Quiet Scribe voice startup skipped.",error);
+  }
   async function leaveThought() {
 
     const titleInput =

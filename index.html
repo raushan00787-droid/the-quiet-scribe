@@ -4467,14 +4467,22 @@ Respond naturally in the same language and style as the user's answer.
 
     document.getElementById("tonight")?.appendChild(thinking);
 
+    const requestController = new AbortController();
+    const requestTimeout = window.setTimeout(function () {
+        requestController.abort();
+    }, 25000);
+
     fetch(
         "https://quiet-scribe-ai.thequietscribe.workers.dev",
         {
             method: "POST",
 
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             },
+
+            signal: requestController.signal,
 
             body: JSON.stringify({
                 messages: [
@@ -4498,6 +4506,8 @@ Respond naturally in the same language and style as the user's answer.
         return response.json();
     })
     .then(function(data) {
+
+        window.clearTimeout(requestTimeout);
 
         document
             .getElementById("thinkingMessage")
@@ -5588,17 +5598,14 @@ ${philosopherInstruction}`
     )
     .then(function(response) {
 
-        if (!response.ok) {
-            throw new Error(
-                "Worker returned an error"
-            );
-        }
-
         return response.text().then(function(raw) {
             let data;
             try {
                 data = raw ? JSON.parse(raw) : {};
             } catch (parseError) {
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status + ": " + (raw || response.statusText || "Worker error"));
+                }
                 throw new Error("Worker returned non-JSON data.");
             }
 
@@ -5608,6 +5615,7 @@ ${philosopherInstruction}`
                     data?.error ||
                     data?.message ||
                     raw ||
+                    response.statusText ||
                     ("HTTP " + response.status);
                 throw new Error(String(detail));
             }
@@ -5672,11 +5680,16 @@ saveCurrentChat();
     })
     .catch(function(error) {
 
+        window.clearTimeout(requestTimeout);
+
         document
             .getElementById("thinkingMessage")
             ?.remove();
 
-        const reason = error && error.message ? " " + error.message : "";
+        const timedOut = error && error.name === "AbortError";
+        const reason = timedOut
+            ? " The Scribe connection timed out after 25 seconds."
+            : (error && error.message ? " " + error.message : "");
         addMessage(
             "I couldn't get a reply from Scribe just now. Your message is saved locally, so you can try again." + reason,
             "scribe"
@@ -5691,6 +5704,7 @@ saveCurrentChat();
 
     });
     } catch (error) {
+        window.clearTimeout(requestTimeout);
         document.getElementById("thinkingMessage")?.remove();
         console.error("QUIET SCRIBE PRE-FETCH ERROR:", error);
         addMessage(
@@ -6227,13 +6241,11 @@ loadSavedWritings();
     dayAction.addEventListener("click", function () {
         if (transitioning || scene.classList.contains("qs-night")) return;
 
-        transitioning = true;
         scene.classList.add("qs-night");
 
-        window.setTimeout(function () {
-            transitioning = false;
-            nightGo.focus();
-        }, 5300);
+        window.requestAnimationFrame(function () {
+            if (nightGo) nightGo.focus();
+        });
     });
 
     nightGo.addEventListener("click", function () {

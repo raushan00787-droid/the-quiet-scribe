@@ -6322,8 +6322,6 @@ function speakScribeResponse(text,forceBrowser){
         function speakNextSegment(){
             if(index>=segments.length){
                 quietSpeechCurrentText="";
-                stopQuietBargeIn();
-                updateVoiceInterruptButton();
                 if(quietVoiceMode) scheduleQuietVoiceRestart(260);
                 return;
             }
@@ -6350,17 +6348,12 @@ function speakScribeResponse(text,forceBrowser){
             utterance.rate=Math.max(.72,Math.min(1.05,style.rate+microRateAdjust));
 
             utterance.onstart=function(){
-                updateVoiceInterruptButton();
-                if(quietBargeInEnabled&&!quietSpeechInterrupted){
-                    scheduleQuietBargeInRestart(650);
-                }
+                setVoiceStatus("");
             };
 
             utterance.onend=function(){
                 if(quietSpeechInterrupted)return;
                 quietSpeechCurrentText="";
-                stopQuietBargeIn();
-                updateVoiceInterruptButton();
 
                 window.setTimeout(function(){
                     if(!quietSpeechInterrupted)speakNextSegment();
@@ -6370,8 +6363,6 @@ function speakScribeResponse(text,forceBrowser){
             utterance.onerror=function(){
                 if(quietSpeechInterrupted)return;
                 quietSpeechCurrentText="";
-                stopQuietBargeIn();
-                updateVoiceInterruptButton();
 
                 if(index<segments.length){
                     window.setTimeout(speakNextSegment,90);
@@ -6386,8 +6377,6 @@ function speakScribeResponse(text,forceBrowser){
         speakNextSegment();
     }catch(error){
         console.warn("Quiet Scribe voice output unavailable.",error);
-        stopQuietBargeIn();
-        updateVoiceInterruptButton();
         if(quietVoiceMode) scheduleQuietVoiceRestart(260);
     }
 }
@@ -6396,8 +6385,6 @@ function stopQuietVoice(manual){
         window.clearTimeout(quietVoiceRestartTimer);
         quietVoiceRestartTimer=null;
     }
-
-    stopQuietBargeIn();
 
     if(quietVoiceRecognition){ try{quietVoiceRecognition.stop()}catch(error){} }
     quietVoiceListening=false;
@@ -6414,7 +6401,6 @@ function stopQuietVoice(manual){
     }
 
     updateVoiceButton();
-    updateVoiceInterruptButton();
     setVoiceStatus(quietVoiceMode ? "Voice mode on." : "");
 }
 function handleQuietScreenDoubleTap(){

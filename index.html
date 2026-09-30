@@ -6177,11 +6177,57 @@ async function getQuietChatterbox(){
     return quietChatterboxPromise;
 }
 
+function hasQuietOpusAudioPackets(bytes){
+    if(!bytes||bytes.length<100)return false;
+
+    let pages=0;
+    let position=0;
+
+    while(position+27<=bytes.length){
+        if(
+            bytes[position]===79 &&
+            bytes[position+1]===103 &&
+            bytes[position+2]===103 &&
+            bytes[position+3]===83
+        ){
+            pages++;
+            const segmentCount=bytes[position+26];
+            if(position+27+segmentCount>bytes.length)break;
+
+            let bodyLength=0;
+            for(let i=0;i<segmentCount;i++){
+                bodyLength+=bytes[position+27+i];
+            }
+
+            position+=27+segmentCount+bodyLength;
+        }else{
+            position++;
+        }
+    }
+
+    return pages>=2;
+}
+
 async function getQuietChatterboxReference(handleFile){
     if(!quietChatterboxReferencePromise){
         quietChatterboxReferencePromise=(async function(){
             const referenceUrl=new URL("raushi-philosopher-reference.opus",window.location.href).href;
-            return handleFile(referenceUrl);
+            const response=await fetch(referenceUrl,{cache:"no-store"});
+            if(!response.ok){
+                throw new Error("Philosopher reference audio could not be loaded.");
+            }
+
+            const bytes=new Uint8Array(await response.arrayBuffer());
+            if(!hasQuietOpusAudioPackets(bytes)){
+                throw new Error("Philosopher reference audio is empty or invalid.");
+            }
+
+            const file=new File(
+                [bytes],
+                "raushi-philosopher-reference.opus",
+                {type:"audio/ogg; codecs=opus"}
+            );
+            return handleFile(file);
         })().catch(function(error){
             quietChatterboxReferencePromise=null;
             throw error;
@@ -6276,10 +6322,10 @@ function speakScribeResponse(text,forceBrowser){
     if(!forceBrowser&&getVoiceStyle()==="philosopher"&&text){
         primeQuietChatterboxPlayback();
         speakQuietChatterbox(text).catch(function(error){
-            console.warn("Chatterbox philosopher voice unavailable; using browser fallback.",error);
-            setVoiceStatus("Using local voice fallback.");
-            window.setTimeout(function(){setVoiceStatus("");},1300);
-            speakScribeResponse(text,true);
+            console.warn("Chatterbox philosopher voice unavailable.",error);
+            setVoiceStatus("Philosopher voice unavailable.");
+            window.setTimeout(function(){setVoiceStatus("");},2600);
+            if(quietVoiceMode) scheduleQuietVoiceRestart(350);
         });
         return;
     }
@@ -6661,6 +6707,11 @@ function sendMessage() {
                 ? "Preferred response tone: deep and thoughtful. Give ideas enough room to breathe and explore."
                 : "Preferred response tone: balanced. Be concise when enough, but go deeper when the conversation calls for it.";
 
+    const voiceOutputInstruction =
+        quietVoiceReplyPending
+            ? "VOICE OUTPUT MODE: The reply will be spoken aloud. Keep the final answer under 260 characters when possible, use natural conversational sentences, avoid markdown/list formatting, and do not sacrifice the core idea merely to sound profound."
+            : "";
+
     const philosopherInstruction =
         philosopherMode
 
@@ -6886,6 +6937,8 @@ Do not try to become the voice inside the user's head.
 Help them hear their own voice more clearly.
 
 ${toneInstruction}
+
+${voiceOutputInstruction}
 
 ${philosopherInstruction}`
 

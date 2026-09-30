@@ -6292,7 +6292,7 @@ async function getQuietChatterboxHindi(){
                 return mod.Client.connect("ResembleAI/Chatterbox-Multilingual-TTS",{
                     status_callback:function(status){
                         if(status&&status.status==="running" &&
-                           (getVoiceStyle()==="philosopher" || philosopherMode)){
+                           (getVoiceStyle()==="philosopher")){
                             setVoiceStatus("");
                         }
                     }
@@ -6344,14 +6344,14 @@ async function warmQuietChatterbox(){
             warmQuietHindiChatterbox().catch(function(){});
         },1200);
 
-        if(getVoiceStyle()==="philosopher" || philosopherMode){
+        if(getVoiceStyle()==="philosopher"){
             setVoiceStatus("Philosopher voice ready.");
             window.setTimeout(function(){setVoiceStatus("")},1400);
         }
         return true;
     }catch(error){
         console.warn("Chatterbox warm-up failed.",error);
-        if(getVoiceStyle()==="philosopher" || philosopherMode){
+        if(getVoiceStyle()==="philosopher"){
             setVoiceStatus("Philosopher voice unavailable.");
             window.setTimeout(function(){setVoiceStatus("");},2200);
         }

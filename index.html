@@ -4315,22 +4315,13 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                         aria-label="Choose Scribe voice style"
                         title="Choose voice style">
                         <option value="scribe">🎙️ Scribe · Natural Male</option>
-                        <option value="philosopher">🕯️ Philosopher · Raushi Reference</option>
+                        <option value="philosopher">🕯️ Philosopher · Low & Measured</option>
                         <option value="poet">📜 Poet · Soft Male</option>
                         <option value="narrator">🎬 Narrator · Cinematic Male</option>
                         <option value="calm">🌙 Calm · Gentle Male</option>
                         <option value="mysterious">🌫️ Mysterious · Low Male</option>
                         <option value="warm">☕ Warm · Warm Male</option>
                     </select>
-
-                    <button
-                        class="voice-style-button"
-                        type="button"
-                        onclick="playRaushiVoiceReference()"
-                        aria-label="Play Raushi philosopher voice reference"
-                        title="Play the uploaded Raushi philosopher voice reference">
-                        ▶ Voice sample
-                    </button>
 
                     <button
                         id="interruptVoiceButton"
@@ -5373,7 +5364,7 @@ let quietVoiceReplyPending = false;
 let quietVoiceMode = false;
 let quietVoiceRestartTimer = null;
 
-let quietBargeInEnabled = localStorage.getItem("quietScribeInterruptOnVoice") !== "false";
+let quietBargeInEnabled = false;
 let quietBargeInActive = false;
 let quietBargeInRestartTimer = null;
 let quietBargeInRecognitionDelay = null;
@@ -5728,7 +5719,7 @@ async function startQuietBargeIn(){
 
 const VOICE_STYLES={
     scribe:{label:"Scribe · Natural",rate:.94,pitch:.97,volume:.96,voiceHint:"natural conversational"},
-    philosopher:{label:"Philosopher · Raushi Reference",rate:.84,pitch:.89,volume:.96,voiceHint:"deep warm natural",referenceUrl:"raushi-philosopher-reference.opus"},
+    philosopher:{label:"Philosopher · Low & Measured",rate:.88,pitch:.91,volume:.97,voiceHint:"deep warm natural"},
     poet:{label:"Poet · Soft & Close",rate:.91,pitch:1.02,volume:.92,voiceHint:"soft warm natural"},
     narrator:{label:"Narrator · Cinematic",rate:.92,pitch:.92,volume:.98,voiceHint:"narrator natural"},
     calm:{label:"Calm · Gentle",rate:.86,pitch:.99,volume:.90,voiceHint:"gentle natural"},
@@ -5855,32 +5846,6 @@ function getQuietSpeechVoice(style,language){
 function getVoiceStyle(){
     const saved=localStorage.getItem("quietScribeVoiceStyle")||"scribe";
     return VOICE_STYLES[saved]?saved:"scribe";
-}
-
-function playRaushiVoiceReference(){
-    try{
-        if(window.quietRaushiVoiceReference){
-            window.quietRaushiVoiceReference.pause();
-            window.quietRaushiVoiceReference.currentTime=0;
-        }
-        const audio=new Audio("raushi-philosopher-reference.opus");
-        audio.preload="auto";
-        audio.volume=.92;
-        window.quietRaushiVoiceReference=audio;
-        setVoiceStatus("Playing Raushi's philosopher voice reference.");
-        audio.onended=function(){setVoiceStatus("");};
-        audio.onerror=function(){
-            setVoiceStatus("Voice reference unavailable.");
-            window.setTimeout(function(){setVoiceStatus("");},1800);
-        };
-        audio.play().catch(function(){
-            setVoiceStatus("Tap again to play the voice sample.");
-            window.setTimeout(function(){setVoiceStatus("");},1800);
-        });
-    }catch(error){
-        setVoiceStatus("Voice reference unavailable.");
-        window.setTimeout(function(){setVoiceStatus("");},1800);
-    }
 }
 
 function setVoiceStyle(style){
@@ -6628,6 +6593,27 @@ function stopQuietVoice(manual){
     updateVoiceInterruptButton();
     setVoiceStatus(quietVoiceMode ? "Voice mode on." : "");
 }
+function handleQuietScreenDoubleTap(){
+    if(!isQuietScribeSpeaking())return;
+    quietSpeechInterrupted=true;
+    if("speechSynthesis" in window) window.speechSynthesis.cancel();
+    if(quietVoiceRestartTimer){
+        window.clearTimeout(quietVoiceRestartTimer);
+        quietVoiceRestartTimer=null;
+    }
+    setVoiceStatus("Scribe interrupted.");
+    window.setTimeout(function(){
+        quietSpeechInterrupted=false;
+        if(quietVoiceMode) scheduleQuietVoiceRestart(250);
+        else setVoiceStatus("");
+    },180);
+}
+
+document.addEventListener("dblclick",function(event){
+    if(event.target.closest("input, textarea, button, select, a, [contenteditable='true']"))return;
+    handleQuietScreenDoubleTap();
+},{passive:true});
+
 function scheduleQuietVoiceRestart(delay){
     if(quietVoiceRestartTimer){
         window.clearTimeout(quietVoiceRestartTimer);

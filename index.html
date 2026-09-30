@@ -5126,6 +5126,16 @@ function togglePhilosopherMode() {
         button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
         button.setAttribute("aria-pressed",philosopherMode?"true":"false");
     });
+
+    if(philosopherMode){
+        setVoiceStyle("philosopher");
+        warmQuietChatterbox();
+    }else{
+        updateVoiceStyleButton();
+        if(quietChatterboxAudioElement){
+            try{quietChatterboxAudioElement.pause();}catch(error){}
+        }
+    }
 }
 
 
@@ -5507,11 +5517,18 @@ function setVoiceStyle(style){
     const select=document.getElementById("voiceStyleSelect");
     if(select)select.value=style;
     if("speechSynthesis" in window)window.speechSynthesis.cancel();
+
+    if(style==="philosopher"){
+        warmQuietChatterbox();
+    }
+
     const voice=getQuietSpeechVoice(VOICE_STYLES[style]);
     setVoiceStatus(
-        voice
-            ? VOICE_STYLES[style].label+" · "+voice.name
-            : VOICE_STYLES[style].label+" enabled."
+        style==="philosopher"
+            ? "Philosopher voice readying…"
+            : (voice
+                ? VOICE_STYLES[style].label+" · "+voice.name
+                : VOICE_STYLES[style].label+" enabled.")
     );
     window.setTimeout(function(){setVoiceStatus("")},2200);
 }
@@ -6212,13 +6229,18 @@ function hasQuietOpusAudioPackets(bytes){
 async function getQuietChatterboxReference(handleFile){
     if(!quietChatterboxReferencePromise){
         quietChatterboxReferencePromise=(async function(){
-            const referenceUrl=new URL("raushi-philosopher-reference.opus",window.location.href).href;
-            const response=await fetch(referenceUrl,{cache:"no-store"});
+            const referenceUrl=new URL("raushi-philosopher-reference.opus",window.location.href);
+            referenceUrl.searchParams.set("v","2");
+
+            const response=await fetch(referenceUrl.href,{cache:"no-store"});
             if(!response.ok){
                 throw new Error("Philosopher reference audio could not be loaded.");
             }
 
             const bytes=new Uint8Array(await response.arrayBuffer());
+            if(bytes.length<20000){
+                throw new Error("Philosopher reference audio is still the old/incomplete asset.");
+            }
             if(!hasQuietOpusAudioPackets(bytes)){
                 throw new Error("Philosopher reference audio is empty or invalid.");
             }
@@ -6245,6 +6267,26 @@ function quietAudioSource(result){
         if(value.path&&/^https?:\/\//i.test(value.path))return value.path;
     }
     return null;
+}
+
+async function warmQuietChatterbox(){
+    try{
+        primeQuietChatterboxPlayback();
+        const loaded=await getQuietChatterbox();
+        await getQuietChatterboxReference(loaded.handleFile);
+        if(getVoiceStyle()==="philosopher" || philosopherMode){
+            setVoiceStatus("Philosopher voice ready.");
+            window.setTimeout(function(){setVoiceStatus("")},1400);
+        }
+        return true;
+    }catch(error){
+        console.warn("Chatterbox warm-up failed.",error);
+        if(getVoiceStyle()==="philosopher" || philosopherMode){
+            setVoiceStatus("Philosopher voice unavailable.");
+            window.setTimeout(function(){setVoiceStatus("")},2200);
+        }
+        return false;
+    }
 }
 
 async function speakQuietChatterbox(text){
@@ -6320,7 +6362,12 @@ async function speakQuietChatterbox(text){
 }
 
 function speakScribeResponse(text,forceBrowser){
-    if(!forceBrowser&&getVoiceStyle()==="philosopher"&&text){
+    const useClonedPhilosopherVoice=
+        !forceBrowser &&
+        !!text &&
+        (getVoiceStyle()==="philosopher" || philosopherMode);
+
+    if(useClonedPhilosopherVoice){
         primeQuietChatterboxPlayback();
         speakQuietChatterbox(text).catch(function(error){
             console.warn("Chatterbox philosopher voice unavailable.",error);
@@ -6710,7 +6757,7 @@ function sendMessage() {
 
     const voiceOutputInstruction =
         quietVoiceReplyPending
-            ? "VOICE OUTPUT MODE: The reply will be spoken aloud. Keep the final answer under 260 characters when possible, use natural conversational sentences, avoid markdown/list formatting, and do not sacrifice the core idea merely to sound profound."
+            ? "VOICE OUTPUT MODE: The reply will be spoken aloud. Write for the ear, not the page. Use natural conversational sentences, contractions, and ordinary spoken phrasing. Keep it to 1–3 sentences and under 260 characters when possible. No headings, bullets, markdown, quotations, essay-style openings, or formal lecture cadence. Do not restate the user's message. Do not try to sound profound. Sound like a real person thinking out loud, with natural punctuation and pauses."
             : "";
 
     const philosopherInstruction =

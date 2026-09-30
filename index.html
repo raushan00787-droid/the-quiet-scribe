@@ -5354,25 +5354,8 @@ let quietVoiceReplyPending = false;
 let quietVoiceMode = false;
 let quietVoiceRestartTimer = null;
 
-const quietBargeInEnabled = false;
-let quietBargeInActive = false;
-let quietBargeInRestartTimer = null;
-let quietBargeInRecognitionDelay = null;
 let quietSpeechInterrupted = false;
 let quietSpeechCurrentText = "";
-
-let quietBargeInStream = null;
-let quietBargeInAudioContext = null;
-let quietBargeInAnalyser = null;
-let quietBargeInSource = null;
-let quietBargeInMonitorId = null;
-let quietBargeInNoiseFloor = 0.012;
-let quietBargeInWarmupFrames = 0;
-let quietBargeInVoiceFrames = 0;
-let quietBargeInEchoFloor = 0.012;
-let quietBargeInCandidateFrames = 0;
-let quietBargeInStarting = false;
-let quietBargeInPermissionFailed = false;
 
 function getVoiceButton(){ return document.getElementById("voiceInputButton"); }
 function setVoiceStatus(text){ const status=document.getElementById("voiceStatus"); if(status) status.textContent=text||""; }
@@ -5391,306 +5374,6 @@ function isQuietScribeSpeaking(){
     const customSpeaking=!!(customAudio&&!customAudio.paused&&!customAudio.ended);
     const browserSpeaking=!!("speechSynthesis" in window&&window.speechSynthesis.speaking&&!quietSpeechInterrupted);
     return customSpeaking||browserSpeaking;
-}
-
-function updateVoiceInterruptButton(){
-    const button=document.getElementById("interruptVoiceButton");
-    if(!button)return;
-
-    const speaking=isQuietScribeSpeaking();
-    button.classList.toggle("is-visible",speaking);
-    button.classList.toggle("is-on",quietBargeInEnabled);
-    button.classList.toggle("is-off",!quietBargeInEnabled);
-    button.setAttribute("aria-pressed",quietBargeInEnabled?"true":"false");
-    button.textContent=quietBargeInEnabled?"🎙️ Auto-interrupt: ON":"🔇 Auto-interrupt: OFF";
-    button.title=quietBargeInEnabled
-        ?"Scribe will stop when your voice is detected"
-        :"Automatic voice interruption is off";
-}
-
-function toggleVoiceInterrupt(){
-    quietBargeInEnabled=false;
-    try{stopQuietBargeIn();}catch(error){}
-}
-
-function stopQuietBargeInDetector(){
-    if(quietBargeInMonitorId){
-        window.cancelAnimationFrame(quietBargeInMonitorId);
-        quietBargeInMonitorId=null;
-    }
-
-    if(quietBargeInStream){
-        quietBargeInStream.getTracks().forEach(function(track){
-            try{track.stop()}catch(error){}
-        });
-        quietBargeInStream=null;
-    }
-
-    if(quietBargeInAudioContext){
-        try{quietBargeInAudioContext.close()}catch(error){}
-        quietBargeInAudioContext=null;
-    }
-
-    quietBargeInAnalyser=null;
-    quietBargeInSource=null;
-    quietBargeInWarmupFrames=0;
-    quietBargeInVoiceFrames=0;
-    quietBargeInCandidateFrames=0;
-}
-
-function stopQuietBargeIn(){
-    quietBargeInStarting=false;
-
-    if(quietBargeInRestartTimer){
-        window.clearTimeout(quietBargeInRestartTimer);
-        quietBargeInRestartTimer=null;
-    }
-
-    if(quietBargeInRecognitionDelay){
-        window.clearTimeout(quietBargeInRecognitionDelay);
-        quietBargeInRecognitionDelay=null;
-    }
-
-    if(quietBargeInActive&&quietVoiceRecognition){
-        try{quietVoiceRecognition.abort()}catch(error){}
-    }
-
-    quietBargeInActive=false;
-    stopQuietBargeInDetector();
-    quietSpeechCurrentText="";
-}
-
-async function createQuietBargeInDetector(){
-    if(quietBargeInPermissionFailed)return false;
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;
-
-    try{
-        const stream=await navigator.mediaDevices.getUserMedia({
-            audio:{
-                echoCancellation:true,
-                noiseSuppression:true,
-                autoGainControl:true,
-                channelCount:1
-            },
-            video:false
-        });
-
-        if(!isQuietScribeSpeaking()||!quietBargeInEnabled||quietSpeechInterrupted){
-            stream.getTracks().forEach(function(track){
-                try{track.stop()}catch(error){}
-            });
-            return false;
-        }
-
-        const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-        if(!AudioContextClass){
-            stream.getTracks().forEach(function(track){
-                try{track.stop()}catch(error){}
-            });
-            return false;
-        }
-
-        const context=new AudioContextClass();
-        const analyser=context.createAnalyser();
-        analyser.fftSize=1024;
-        analyser.smoothingTimeConstant=0.82;
-        analyser.minDecibels=-90;
-        analyser.maxDecibels=-10;
-
-        const source=context.createMediaStreamSource(stream);
-        source.connect(analyser);
-
-        quietBargeInStream=stream;
-        quietBargeInAudioContext=context;
-        quietBargeInSource=source;
-        quietBargeInAnalyser=analyser;
-        quietBargeInNoiseFloor=0.012;
-        quietBargeInEchoFloor=0.012;
-        quietBargeInWarmupFrames=0;
-        quietBargeInVoiceFrames=0;
-        quietBargeInCandidateFrames=0;
-
-        try{await context.resume()}catch(error){}
-
-        return true;
-    }catch(error){
-        if(error&&(
-            error.name==="NotAllowedError"||
-            error.name==="PermissionDeniedError"||
-            error.name==="SecurityError"
-        )){
-            quietBargeInPermissionFailed=true;
-            console.warn("Quiet Scribe automatic interruption microphone permission was denied.",error);
-        }else{
-            console.warn("Quiet Scribe automatic interruption detector unavailable.",error);
-        }
-        return false;
-    }
-}
-
-function getQuietMicRms(){
-    if(!quietBargeInAnalyser)return 0;
-
-    const data=new Uint8Array(quietBargeInAnalyser.fftSize);
-    quietBargeInAnalyser.getByteTimeDomainData(data);
-
-    let sum=0;
-    for(let i=0;i<data.length;i++){
-        const value=(data[i]-128)/128;
-        sum+=value*value;
-    }
-
-    return Math.sqrt(sum/data.length);
-}
-
-function triggerQuietVoiceInterruption(){
-    if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking())return;
-
-    // Important: NEVER run SpeechRecognition while Scribe is speaking.
-    // First stop playback, then open the normal user-mic recognizer.
-    quietSpeechInterrupted=true;
-    quietBargeInActive=false;
-    quietBargeInCandidateFrames=0;
-
-    stopQuietBargeInDetector();
-
-    if(quietBargeInRestartTimer){
-        window.clearTimeout(quietBargeInRestartTimer);
-        quietBargeInRestartTimer=null;
-    }
-
-    if(quietBargeInRecognitionDelay){
-        window.clearTimeout(quietBargeInRecognitionDelay);
-        quietBargeInRecognitionDelay=null;
-    }
-
-    if(quietVoiceRecognition){
-        try{quietVoiceRecognition.abort()}catch(error){}
-    }
-
-    if("speechSynthesis" in window){
-        window.speechSynthesis.cancel();
-    }
-
-    updateVoiceInterruptButton();
-    setVoiceStatus("Interrupted. Listening for you…");
-
-    if(quietVoiceMode){
-        quietVoiceListening=false;
-        updateVoiceButton();
-
-        // Give the speaker/OS echo path a moment to settle before recognition starts.
-        window.setTimeout(function(){
-            quietSpeechInterrupted=false;
-            if(quietVoiceMode&&!sendMessage.pending){
-                startQuietVoiceListening();
-            }
-        },260);
-    }else{
-        window.setTimeout(function(){
-            quietSpeechInterrupted=false;
-            updateVoiceInterruptButton();
-            if(!isQuietScribeSpeaking())setVoiceStatus("");
-        },500);
-    }
-}
-
-function monitorQuietBargeIn(){
-    if(!quietBargeInEnabled||quietSpeechInterrupted||!isQuietScribeSpeaking()||
-       !quietBargeInAnalyser||sendMessage.pending){
-        stopQuietBargeInDetector();
-        return;
-    }
-
-    const rms=getQuietMicRms();
-
-    // The first few frames estimate how much of Scribe's own speaker output
-    // is still leaking back into the microphone after browser echo cancellation.
-    if(quietBargeInWarmupFrames<20){
-        quietBargeInWarmupFrames++;
-        quietBargeInEchoFloor=(quietBargeInEchoFloor*0.88)+(rms*0.12);
-        quietBargeInNoiseFloor=(quietBargeInNoiseFloor*0.88)+(rms*0.12);
-        quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
-        return;
-    }
-
-    const baseline=Math.max(quietBargeInNoiseFloor,quietBargeInEchoFloor);
-    const threshold=Math.max(0.045,(baseline*1.85)+0.008);
-
-    // Require a sustained energy rise above the current speaker-leakage baseline.
-    if(rms>threshold){
-        quietBargeInCandidateFrames++;
-    }else{
-        quietBargeInCandidateFrames=Math.max(0,quietBargeInCandidateFrames-3);
-    }
-
-    // ~180-220ms of sustained user-level audio before we react.
-    if(quietBargeInCandidateFrames>=12){
-        quietBargeInCandidateFrames=0;
-        triggerQuietVoiceInterruption();
-        return;
-    }
-
-    // Track the speaker leakage floor slowly. Do not let short loud speech
-    // instantly become the new baseline.
-    if(rms<baseline*1.35){
-        quietBargeInEchoFloor=Math.min(
-            0.10,
-            (quietBargeInEchoFloor*0.985)+(rms*0.015)
-        );
-        quietBargeInNoiseFloor=Math.min(
-            0.10,
-            (quietBargeInNoiseFloor*0.985)+(rms*0.015)
-        );
-    }
-
-    quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
-}
-
-function scheduleQuietBargeInRestart(delay){
-    if(quietBargeInRestartTimer){
-        window.clearTimeout(quietBargeInRestartTimer);
-        quietBargeInRestartTimer=null;
-    }
-
-    if(!quietBargeInEnabled||quietBargeInPermissionFailed||
-       !quietVoiceSupported||!quietVoiceRecognition||
-       !isQuietScribeSpeaking()||sendMessage.pending||
-       quietSpeechInterrupted||quietBargeInActive)return;
-
-    quietBargeInRestartTimer=window.setTimeout(function(){
-        quietBargeInRestartTimer=null;
-        startQuietBargeIn();
-    },Math.max(180,delay||300));
-}
-
-async function startQuietBargeIn(){
-    if(!quietBargeInEnabled||quietBargeInPermissionFailed||
-       !quietVoiceSupported||!quietVoiceRecognition||
-       sendMessage.pending||quietBargeInActive||quietBargeInStarting||
-       !isQuietScribeSpeaking()||quietSpeechInterrupted)return;
-
-    // Lock startup synchronously so multiple TTS callbacks cannot open
-    // multiple microphone streams at the same time.
-    quietBargeInStarting=true;
-
-    const ready=await createQuietBargeInDetector();
-    if(!ready){
-        quietBargeInStarting=false;
-        if(isQuietScribeSpeaking()&&quietBargeInEnabled&&!quietBargeInPermissionFailed){
-            setVoiceStatus("Voice interruption is unavailable on this browser.");
-        }
-        return;
-    }
-
-    if(!isQuietScribeSpeaking()||quietSpeechInterrupted){
-        quietBargeInStarting=false;
-        stopQuietBargeInDetector();
-        return;
-    }
-
-    quietBargeInStarting=false;
-    quietBargeInMonitorId=window.requestAnimationFrame(monitorQuietBargeIn);
 }
 
 const VOICE_STYLES={
@@ -6530,11 +6213,24 @@ async function speakQuietChatterbox(text){
     const loaded=await getQuietChatterbox();
     const reference=await getQuietChatterboxReference(loaded.handleFile);
 
-    const prompt=String(text)
-        .replace(/https?:\/\/\S+/g,"")
-        .replace(/\s{2,}/g," ")
-        .trim()
-        .slice(0,12000);
+    const cleanedPrompt=cleanScribeSpeechText(text);
+    if(!cleanedPrompt)return;
+
+    let prompt=cleanedPrompt;
+    if(prompt.length>300){
+        const boundaryCandidates=[
+            prompt.lastIndexOf(".",300),
+            prompt.lastIndexOf("!",300),
+            prompt.lastIndexOf("?",300),
+            prompt.lastIndexOf("।",300),
+            prompt.lastIndexOf(",",300),
+            prompt.lastIndexOf(" ",300)
+        ].filter(function(index){return index>=120;});
+        const boundary=boundaryCandidates.length
+            ? Math.max.apply(null,boundaryCandidates)
+            : 300;
+        prompt=prompt.slice(0,boundary).trim();
+    }
 
     if(!prompt)return;
 
@@ -6819,11 +6515,6 @@ function initQuietVoice(){
                 return;
             }
 
-            if(quietBargeInActive){
-                quietVoiceListening=false;
-                setVoiceStatus("Scribe is speaking · say something to interrupt.");
-                return;
-            }
             quietVoiceListening=true;
             updateVoiceButton();
             setVoiceStatus("Listening…");
@@ -6848,17 +6539,8 @@ function initQuietVoice(){
             }
         };
         quietVoiceRecognition.onerror=function(event){
-            const wasBargeIn=quietBargeInActive;
             quietVoiceListening=false;
             updateVoiceButton();
-
-            if(wasBargeIn){
-                quietBargeInActive=false;
-                if(event.error!=="not-allowed"&&event.error!=="service-not-allowed"&&event.error!=="audio-capture"){
-                    scheduleQuietBargeInRestart(event.error==="no-speech"?240:520);
-                }
-                return;
-            }
 
             const messages={
                 "not-allowed":"Microphone permission was denied.",
@@ -6891,17 +6573,7 @@ function initQuietVoice(){
             console.warn("Quiet Scribe voice input:",event.error);
         };
         quietVoiceRecognition.onend=function(){
-            const wasBargeIn=quietBargeInActive;
-            quietBargeInActive=false;
             quietVoiceListening=false;
-
-            if(wasBargeIn){
-                if(isQuietScribeSpeaking()&&!quietSpeechInterrupted){
-                    scheduleQuietBargeInRestart(220);
-                }
-                return;
-            }
-
             updateVoiceButton();
 
             if(quietVoiceMode){

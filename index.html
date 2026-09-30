@@ -5120,22 +5120,7 @@ let philosopherMode = false;
 
 function togglePhilosopherMode() {
     philosopherMode=!philosopherMode;
-    localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
-
-    document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
-        button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
-        button.setAttribute("aria-pressed",philosopherMode?"true":"false");
-    });
-
-    if(philosopherMode){
-        setVoiceStyle("philosopher");
-        warmQuietChatterbox();
-    }else{
-        updateVoiceStyleButton();
-        if(quietChatterboxAudioElement){
-            try{quietChatterboxAudioElement.pause();}catch(error){}
-        }
-    }
+    setVoiceStyle(philosopherMode?"philosopher":"scribe");
 }
 
 
@@ -5513,13 +5498,30 @@ function getVoiceStyle(){
 
 function setVoiceStyle(style){
     if(!VOICE_STYLES[style])style="scribe";
+
     localStorage.setItem("quietScribeVoiceStyle",style);
+
+    /* Philosopher is the ONLY style allowed to use the cloned Raushi voice.
+       Keep the legacy Philosopher Mode flag synced with the selected style so
+       an old/stale localStorage flag cannot leak the clone into other styles. */
+    philosopherMode=(style==="philosopher");
+    localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
+
     const select=document.getElementById("voiceStyleSelect");
     if(select)select.value=style;
+
+    document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
+        button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
+        button.setAttribute("aria-pressed",philosopherMode?"true":"false");
+    });
+
     if("speechSynthesis" in window)window.speechSynthesis.cancel();
 
     if(style==="philosopher"){
         warmQuietChatterbox();
+    }else if(window.quietScribeAudio){
+        try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(error){}
+        window.quietScribeAudio=null;
     }
 
     const voice=getQuietSpeechVoice(VOICE_STYLES[style]);
@@ -6438,7 +6440,7 @@ function speakScribeResponse(text,forceBrowser){
     const useClonedPhilosopherVoice=
         !forceBrowser &&
         !!text &&
-        (getVoiceStyle()==="philosopher" || philosopherMode);
+        getVoiceStyle()==="philosopher";
 
     if(useClonedPhilosopherVoice){
         primeQuietChatterboxPlayback();

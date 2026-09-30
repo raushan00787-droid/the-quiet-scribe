@@ -6448,6 +6448,32 @@ function buildQuietSpeechSegments(text){
 
 let quietChatterboxPromise=null;
 let quietChatterboxReferencePromise=null;
+let quietChatterboxPlaybackPrimed=false;
+let quietChatterboxAudioElement=null;
+const QUIET_SILENT_AUDIO="data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
+
+function primeQuietChatterboxPlayback(){
+    if(quietChatterboxPlaybackPrimed&&quietChatterboxAudioElement)return;
+
+    const audio=new Audio();
+    audio.preload="auto";
+    audio.playsInline=true;
+    audio.muted=true;
+    audio.volume=0;
+    audio.src=QUIET_SILENT_AUDIO;
+    quietChatterboxAudioElement=audio;
+    window.quietScribeAudio=audio;
+
+    const playback=audio.play();
+    if(playback&&typeof playback.then==="function"){
+        playback.then(function(){
+            quietChatterboxPlaybackPrimed=true;
+            try{audio.pause();audio.currentTime=0;}catch(error){}
+        }).catch(function(){
+            quietChatterboxPlaybackPrimed=false;
+        });
+    }
+}
 
 async function getQuietChatterbox(){
     if(!quietChatterboxPromise){
@@ -6479,10 +6505,7 @@ async function getQuietChatterboxReference(handleFile){
     if(!quietChatterboxReferencePromise){
         quietChatterboxReferencePromise=(async function(){
             const referenceUrl=new URL("raushi-philosopher-reference.opus",window.location.href).href;
-            const response=await fetch(referenceUrl,{cache:"force-cache"});
-            if(!response.ok)throw new Error("Reference voice unavailable");
-            const blob=await response.blob();
-            return handleFile(blob);
+            return handleFile(referenceUrl);
         })().catch(function(error){
             quietChatterboxReferencePromise=null;
             throw error;
@@ -6537,9 +6560,14 @@ async function speakQuietChatterbox(text){
         window.quietScribeAudio=null;
     }
 
-    const audio=new Audio(src);
+    const audio=quietChatterboxAudioElement||new Audio();
     audio.preload="auto";
+    audio.playsInline=true;
+    audio.muted=false;
     audio.volume=0.97;
+    audio.src=src;
+    audio.currentTime=0;
+    quietChatterboxAudioElement=audio;
     window.quietScribeAudio=audio;
 
     audio.onplay=function(){setVoiceStatus("");};
@@ -6557,6 +6585,7 @@ async function speakQuietChatterbox(text){
 
 function speakScribeResponse(text,forceBrowser){
     if(!forceBrowser&&getVoiceStyle()==="philosopher"&&text){
+        primeQuietChatterboxPlayback();
         speakQuietChatterbox(text).catch(function(error){
             console.warn("Chatterbox philosopher voice unavailable; using browser fallback.",error);
             setVoiceStatus("Using local voice fallback.");

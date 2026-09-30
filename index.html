@@ -5364,7 +5364,7 @@ let quietVoiceReplyPending = false;
 let quietVoiceMode = false;
 let quietVoiceRestartTimer = null;
 
-let quietBargeInEnabled = false;
+const quietBargeInEnabled = false;
 let quietBargeInActive = false;
 let quietBargeInRestartTimer = null;
 let quietBargeInRecognitionDelay = null;
@@ -5397,7 +5397,10 @@ function updateVoiceButton(){
 }
 
 function isQuietScribeSpeaking(){
-    return !!("speechSynthesis" in window && window.speechSynthesis.speaking && !quietSpeechInterrupted);
+    const customAudio=window.quietScribeAudio;
+    const customSpeaking=!!(customAudio&&!customAudio.paused&&!customAudio.ended);
+    const browserSpeaking=!!("speechSynthesis" in window&&window.speechSynthesis.speaking&&!quietSpeechInterrupted);
+    return customSpeaking||browserSpeaking;
 }
 
 function updateVoiceInterruptButton(){
@@ -6470,7 +6473,126 @@ function buildQuietSpeechSegments(text){
     return segments;
 }
 
-function speakScribeResponse(text){
+let quietChatterboxPromise=null;
+let quietChatterboxReferencePromise=null;
+
+async function getQuietChatterbox(){
+    if(!quietChatterboxPromise){
+        quietChatterboxPromise=import("https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js")
+            .then(function(mod){
+                setVoiceStatus("Connecting to philosopher voice…");
+                return mod.Client.connect("ResembleAI/chatterbox-turbo-demo",{
+                    status_callback:function(status){
+                        if(status&&status.status==="sleeping"){
+                            setVoiceStatus("Waking philosopher voice…");
+                        }else if(status&&status.status==="running"){
+                            setVoiceStatus("");
+                        }
+                    }
+                }).then(function(client){
+                    setVoiceStatus("");
+                    return {client:client,handleFile:mod.handle_file};
+                });
+            })
+            .catch(function(error){
+                quietChatterboxPromise=null;
+                throw error;
+            });
+    }
+    return quietChatterboxPromise;
+}
+
+async function getQuietChatterboxReference(handleFile){
+    if(!quietChatterboxReferencePromise){
+        quietChatterboxReferencePromise=(async function(){
+            const referenceUrl=new URL("raushi-philosopher-reference.opus",window.location.href).href;
+            const response=await fetch(referenceUrl,{cache:"force-cache"});
+            if(!response.ok)throw new Error("Reference voice unavailable");
+            const blob=await response.blob();
+            return handleFile(blob);
+        })().catch(function(error){
+            quietChatterboxReferencePromise=null;
+            throw error;
+        });
+    }
+    return quietChatterboxReferencePromise;
+}
+
+function quietAudioSource(result){
+    const value=result&&result.data?result.data[0]:null;
+    if(typeof value==="string")return value;
+    if(value&&typeof value==="object"){
+        if(value.url)return value.url;
+        if(value.path&&/^https?:\/\//i.test(value.path))return value.path;
+    }
+    return null;
+}
+
+async function speakQuietChatterbox(text){
+    if(!text)return;
+
+    const loaded=await getQuietChatterbox();
+    const reference=await getQuietChatterboxReference(loaded.handleFile);
+
+    const prompt=String(text)
+        .replace(/https?:\/\/\S+/g,"")
+        .replace(/\s{2,}/g," ")
+        .trim()
+        .slice(0,12000);
+
+    if(!prompt)return;
+
+    setVoiceStatus("Scribe is thinking aloud…");
+
+    const result=await loaded.client.predict("/generate",[
+        prompt,
+        reference,
+        0.8,
+        0,
+        0,
+        0.95,
+        1000,
+        1.2,
+        true
+    ]);
+
+    const src=quietAudioSource(result);
+    if(!src)throw new Error("Voice generation returned no audio");
+
+    if(window.quietScribeAudio){
+        try{window.quietScribeAudio.pause();}catch(error){}
+        window.quietScribeAudio=null;
+    }
+
+    const audio=new Audio(src);
+    audio.preload="auto";
+    audio.volume=0.97;
+    window.quietScribeAudio=audio;
+
+    audio.onplay=function(){setVoiceStatus("");};
+    audio.onended=function(){
+        if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
+        setVoiceStatus("");
+        if(quietVoiceMode)scheduleQuietVoiceRestart(260);
+    };
+    audio.onerror=function(){
+        if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
+    };
+
+    await audio.play();
+}
+
+function speakScribeResponse(text,forceBrowser){
+    if(!forceBrowser&&getVoiceStyle()==="philosopher"&&text){
+        speakQuietChatterbox(text).catch(function(error){
+            console.warn("Chatterbox philosopher voice unavailable; using browser fallback.",error);
+            setVoiceStatus("Using local voice fallback.");
+            window.setTimeout(function(){setVoiceStatus("");},1300);
+            speakScribeResponse(text,true);
+        });
+        return;
+    }
+
     if(!("speechSynthesis" in window)||!text){
         if(quietVoiceMode) scheduleQuietVoiceRestart(350);
         return;
@@ -6585,6 +6707,10 @@ function stopQuietVoice(manual){
     if(manual !== false){
         quietVoiceMode=false;
         quietSpeechInterrupted=true;
+        if(window.quietScribeAudio){
+            try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(error){}
+            window.quietScribeAudio=null;
+        }
         if("speechSynthesis" in window) window.speechSynthesis.cancel();
         window.setTimeout(function(){quietSpeechInterrupted=false},120);
     }
@@ -6596,6 +6722,10 @@ function stopQuietVoice(manual){
 function handleQuietScreenDoubleTap(){
     if(!isQuietScribeSpeaking())return;
     quietSpeechInterrupted=true;
+    if(window.quietScribeAudio){
+        try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(error){}
+        window.quietScribeAudio=null;
+    }
     if("speechSynthesis" in window) window.speechSynthesis.cancel();
     if(quietVoiceRestartTimer){
         window.clearTimeout(quietVoiceRestartTimer);
@@ -7639,7 +7769,6 @@ loadSavedWritings();
   loadQuietSettings();
   try{
     updateVoiceStyleButton();
-    updateVoiceInterruptButton();
     initQuietVoice();
   }catch(error){
     console.warn("Quiet Scribe voice startup skipped.",error);

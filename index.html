@@ -5532,9 +5532,6 @@ function setVoiceStyle(style){
 
     if(style==="philosopher"){
         warmQuietChatterbox();
-    }else if(window.quietScribeAudio){
-        try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(error){}
-        window.quietScribeAudio=null;
     }
 
     const voice=getQuietSpeechVoice(VOICE_STYLES[style]);
@@ -6160,6 +6157,7 @@ let quietChatterboxHindiPromise=null;
 let quietChatterboxReferencePromise=null;
 let quietChatterboxPlaybackPrimed=false;
 let quietChatterboxAudioElement=null;
+let quietChatterboxGenerationId=0;
 const QUIET_SILENT_AUDIO="data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
 
 function primeQuietChatterboxPlayback(){
@@ -6337,12 +6335,16 @@ function addQuietNaturalLaughCue(source,language){
 async function warmQuietChatterbox(){
     try{
         primeQuietChatterboxPlayback();
-        const loaded=await getQuietChatterbox();
-        await getQuietChatterboxReference(loaded.handleFile);
 
-        window.setTimeout(function(){
-            warmQuietHindiChatterbox().catch(function(){});
-        },1200);
+        const loadedPromise=getQuietChatterbox();
+        const hindiWarmPromise=warmQuietHindiChatterbox().catch(function(error){
+            console.warn("Hindi philosopher voice warm-up failed.",error);
+            return false;
+        });
+
+        const loaded=await loadedPromise;
+        await getQuietChatterboxReference(loaded.handleFile);
+        await hindiWarmPromise;
 
         if(getVoiceStyle()==="philosopher"){
             setVoiceStatus("Philosopher voice ready.");
@@ -6359,45 +6361,80 @@ async function warmQuietChatterbox(){
     }
 }
 
-async function speakQuietChatterbox(text){
-    if(!text)return;
+function splitQuietChatterboxChunks(source,maxChars){
+    const text=String(source||"").trim();
+    if(!text)return [];
 
-    const detectedLanguage=detectQuietSentenceLanguage(text);
-    const useHindi=detectedLanguage==="hi-IN";
+    const limit=Math.max(90,maxChars||170);
+    const sentences=text.match(/[^.!?।]+[.!?।]+|[^.!?।]+$/g)||[text];
+    const chunks=[];
+    let current="";
 
-    const loaded=useHindi
-        ? await getQuietChatterboxHindi()
-        : await getQuietChatterbox();
+    sentences.forEach(function(sentence){
+        const part=sentence.trim();
+        if(!part)return;
 
-    const reference=await getQuietChatterboxReference(loaded.handleFile);
+        if(!current){
+            if(part.length<=limit){
+                current=part;
+                return;
+            }
 
-    const cleanedPrompt=cleanScribeSpeechText(text);
-    if(!cleanedPrompt)return;
+            let remaining=part;
+            while(remaining.length>limit){
+                const cutCandidates=[
+                    remaining.lastIndexOf(",",limit),
+                    remaining.lastIndexOf(" ",limit)
+                ].filter(function(index){return index>=70;});
+                const cut=cutCandidates.length
+                    ? Math.max.apply(null,cutCandidates)
+                    : limit;
+                chunks.push(remaining.slice(0,cut).trim());
+                remaining=remaining.slice(cut).trim();
+            }
+            current=remaining;
+            return;
+        }
 
-    let prompt=useHindi
-        ? cleanedPrompt
-        : addQuietNaturalLaughCue(cleanedPrompt,"en-US");
-    if(prompt.length>300){
-        const boundaryCandidates=[
-            prompt.lastIndexOf(".",300),
-            prompt.lastIndexOf("!",300),
-            prompt.lastIndexOf("?",300),
-            prompt.lastIndexOf("।",300),
-            prompt.lastIndexOf(",",300),
-            prompt.lastIndexOf(" ",300)
-        ].filter(function(index){return index>=120;});
-        const boundary=boundaryCandidates.length
-            ? Math.max.apply(null,boundaryCandidates)
-            : 300;
-        prompt=prompt.slice(0,boundary).trim();
-    }
+        if((current+" "+part).length<=limit){
+            current=(current+" "+part).trim();
+            return;
+        }
 
-    if(!prompt)return;
+        chunks.push(current);
+        current="";
 
-    setVoiceStatus("Scribe is thinking aloud…");
+        if(part.length<=limit){
+            current=part;
+            return;
+        }
 
+        let remaining=part;
+        while(remaining.length>limit){
+            const cutCandidates=[
+                remaining.lastIndexOf(",",limit),
+                remaining.lastIndexOf(" ",limit)
+            ].filter(function(index){return index>=70;});
+            const cut=cutCandidates.length
+                ? Math.max.apply(null,cutCandidates)
+                : limit;
+            chunks.push(remaining.slice(0,cut).trim());
+            remaining=remaining.slice(cut).trim();
+        }
+        current=remaining;
+    });
+
+    if(current)chunks.push(current);
+
+    return chunks
+        .map(function(item){return item.trim();})
+        .filter(Boolean)
+        .slice(0,3);
+}
+
+async function generateQuietChatterboxChunk(client,reference,prompt,useHindi){
     const result=useHindi
-        ? await loaded.client.predict("/generate_tts_audio",[
+        ? await client.predict("/generate_tts_audio",[
             prompt,
             "hi",
             reference,
@@ -6406,7 +6443,7 @@ async function speakQuietChatterbox(text){
             0,
             0.0
         ])
-        : await loaded.client.predict("/generate",[
+        : await client.predict("/generate",[
             prompt,
             reference,
             0.8,
@@ -6420,34 +6457,144 @@ async function speakQuietChatterbox(text){
 
     const src=quietAudioSource(result);
     if(!src)throw new Error("Voice generation returned no audio");
+    return src;
+}
 
-    if(window.quietScribeAudio){
-        try{window.quietScribeAudio.pause();}catch(error){}
-        window.quietScribeAudio=null;
+async function speakQuietChatterbox(text){
+    if(!text)return;
+
+    const generationId=++quietChatterboxGenerationId;
+    const detectedLanguage=detectQuietSentenceLanguage(text);
+    const useHindi=detectedLanguage==="hi-IN";
+
+    const loaded=useHindi
+        ? await getQuietChatterboxHindi()
+        : await getQuietChatterbox();
+
+    if(generationId!==quietChatterboxGenerationId)return;
+
+    const reference=await getQuietChatterboxReference(loaded.handleFile);
+
+    if(generationId!==quietChatterboxGenerationId)return;
+
+    const cleanedPrompt=cleanScribeSpeechText(text);
+    if(!cleanedPrompt)return;
+
+    let prompt=useHindi
+        ? cleanedPrompt
+        : addQuietNaturalLaughCue(cleanedPrompt,"en-US");
+
+    if(prompt.length>420){
+        const boundaryCandidates=[
+            prompt.lastIndexOf(".",420),
+            prompt.lastIndexOf("!",420),
+            prompt.lastIndexOf("?",420),
+            prompt.lastIndexOf("।",420),
+            prompt.lastIndexOf(",",420),
+            prompt.lastIndexOf(" ",420)
+        ].filter(function(index){return index>=120;});
+        const boundary=boundaryCandidates.length
+            ? Math.max.apply(null,boundaryCandidates)
+            : 420;
+        prompt=prompt.slice(0,boundary).trim();
     }
 
-    const audio=quietChatterboxAudioElement||new Audio();
-    audio.preload="auto";
-    audio.playsInline=true;
-    audio.muted=false;
-    audio.volume=0.97;
-    audio.src=src;
-    audio.currentTime=0;
-    quietChatterboxAudioElement=audio;
-    window.quietScribeAudio=audio;
+    const chunks=splitQuietChatterboxChunks(prompt,170);
+    if(!chunks.length)return;
 
-    audio.onplay=function(){setVoiceStatus("");};
-    audio.onended=function(){
-        if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
-        setVoiceStatus("");
-        if(quietVoiceMode)scheduleQuietVoiceRestart(260);
-    };
-    audio.onerror=function(){
-        if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
-    };
+    setVoiceStatus("Scribe is thinking aloud…");
 
-    await audio.play();
+    let chunkIndex=0;
+    let nextChunkPromise=null;
+
+    function makeChunkPromise(index){
+        if(index>=chunks.length)return null;
+        return generateQuietChatterboxChunk(
+            loaded.client,
+            reference,
+            chunks[index],
+            useHindi
+        );
+    }
+
+    async function playChunk(index){
+        if(generationId!==quietChatterboxGenerationId)return;
+
+        let src;
+        try{
+            src=nextChunkPromise
+                ? await nextChunkPromise
+                : await makeChunkPromise(index);
+        }catch(error){
+            if(generationId!==quietChatterboxGenerationId)return;
+            throw error;
+        }
+
+        if(generationId!==quietChatterboxGenerationId)return;
+
+        if(window.quietScribeAudio){
+            try{window.quietScribeAudio.pause();}catch(error){}
+            window.quietScribeAudio=null;
+        }
+
+        const audio=quietChatterboxAudioElement||new Audio();
+        audio.preload="auto";
+        audio.playsInline=true;
+        audio.muted=false;
+        audio.volume=0.97;
+        audio.src=src;
+        audio.currentTime=0;
+        quietChatterboxAudioElement=audio;
+        window.quietScribeAudio=audio;
+        quietSpeechCurrentText=chunks[index];
+
+        const following=index+1<chunks.length;
+
+        if(following){
+            nextChunkPromise=makeChunkPromise(index+1);
+        }else{
+            nextChunkPromise=null;
+        }
+
+        audio.onplay=function(){
+            setVoiceStatus("");
+        };
+
+        audio.onended=function(){
+            if(generationId!==quietChatterboxGenerationId)return;
+
+            quietSpeechCurrentText="";
+
+            if(index+1<chunks.length){
+                chunkIndex=index+1;
+                playChunk(chunkIndex).catch(function(error){
+                    if(generationId!==quietChatterboxGenerationId)return;
+                    console.warn("Next philosopher voice chunk failed.",error);
+                    setVoiceStatus("Philosopher voice unavailable.");
+                    window.setTimeout(function(){setVoiceStatus("");},1800);
+                });
+            }else{
+                if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
+                setVoiceStatus("");
+                if(quietVoiceMode)scheduleQuietVoiceRestart(260);
+            }
+        };
+
+        audio.onerror=function(){
+            if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
+        };
+
+        await audio.play();
+    }
+
+    try{
+        await playChunk(chunkIndex);
+    }catch(error){
+        if(generationId!==quietChatterboxGenerationId)return;
+        throw error;
+    }
 }
+
 
 function speakScribeResponse(text,forceBrowser){
     const useClonedPhilosopherVoice=
@@ -6567,6 +6714,7 @@ function stopQuietVoice(manual){
     if(manual !== false){
         quietVoiceMode=false;
         quietSpeechInterrupted=true;
+        quietChatterboxGenerationId++;
         if(window.quietScribeAudio){
             try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(error){}
             window.quietScribeAudio=null;
@@ -6581,6 +6729,7 @@ function stopQuietVoice(manual){
 function handleQuietScreenDoubleTap(){
     if(!isQuietScribeSpeaking())return;
     quietSpeechInterrupted=true;
+    quietChatterboxGenerationId++;
     if(window.quietScribeAudio){
         try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(error){}
         window.quietScribeAudio=null;
@@ -7609,6 +7758,11 @@ loadSavedWritings();
   resizeChatInput(document.getElementById("chatInput"));
   renderCurrentChat();
   loadQuietSettings();
+  if(getVoiceStyle()==="philosopher"){
+    window.setTimeout(function(){
+      warmQuietChatterbox().catch(function(){});
+    },0);
+  }
   try{
     updateVoiceStyleButton();
     initQuietVoice();

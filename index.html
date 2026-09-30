@@ -5328,7 +5328,20 @@ function loadQuietSettings(){
  document.querySelectorAll("[data-setting-theme]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-theme")===theme));
  document.querySelectorAll("[data-setting-tone]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-tone")===tone));
  const dnd=localStorage.getItem("quietScribeDND")==="true";document.body.classList.toggle("dnd-mode",dnd);const db=document.getElementById("settingsDndButton");if(db)db.textContent="DND: "+(dnd?"ON":"OFF");
- philosopherMode=localStorage.getItem("quietScribePhilosopher")==="true";const pb=document.getElementById("settingsPhilosopherButton");if(pb)pb.textContent="Philosopher: "+(philosopherMode?"ON":"OFF");renderQuietMemory();
+
+ /* Voice style is the single source of truth. A stale legacy Philosopher flag
+    must never override the selected non-Philosopher voice. */
+ const savedVoiceStyle=localStorage.getItem("quietScribeVoiceStyle")||"scribe";
+ philosopherMode=savedVoiceStyle==="philosopher";
+ localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
+
+ const pb=document.getElementById("settingsPhilosopherButton");if(pb)pb.textContent="Philosopher: "+(philosopherMode?"ON":"OFF");
+ document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
+     button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
+     button.setAttribute("aria-pressed",philosopherMode?"true":"false");
+ });
+ const voiceSelect=document.getElementById("voiceStyleSelect");if(voiceSelect)voiceSelect.value=savedVoiceStyle;
+ renderQuietMemory();
 }
 
 

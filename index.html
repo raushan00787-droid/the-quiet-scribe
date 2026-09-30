@@ -4323,16 +4323,6 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                         <option value="warm">☕ Warm · Warm Male</option>
                     </select>
 
-                    <button
-                        id="interruptVoiceButton"
-                        class="interrupt-button"
-                        type="button"
-                        onclick="toggleVoiceInterrupt()"
-                        aria-pressed="true"
-                        aria-label="Interrupt Scribe when voice is detected"
-                        title="Interrupt Scribe while he is speaking">
-                        🔊 Interrupt: ON
-                    </button>
                 </div>
 
                 <button
@@ -5419,25 +5409,8 @@ function updateVoiceInterruptButton(){
 }
 
 function toggleVoiceInterrupt(){
-    quietBargeInEnabled=!quietBargeInEnabled;
-    localStorage.setItem("quietScribeInterruptOnVoice",quietBargeInEnabled?"true":"false");
-
-    if(!quietBargeInEnabled){
-        stopQuietBargeIn();
-        setVoiceStatus(isQuietScribeSpeaking()?"Auto-interrupt disabled.":"");
-    }else{
-        quietBargeInPermissionFailed=false;
-        setVoiceStatus("Auto-interrupt enabled.");
-        if(isQuietScribeSpeaking()&&!quietSpeechInterrupted){
-            scheduleQuietBargeInRestart(220);
-        }
-        window.setTimeout(function(){
-            if(isQuietScribeSpeaking())setVoiceStatus("Scribe is speaking.");
-            else setVoiceStatus("");
-        },1300);
-    }
-
-    updateVoiceInterruptButton();
+    quietBargeInEnabled=false;
+    try{stopQuietBargeIn();}catch(error){}
 }
 
 function stopQuietBargeInDetector(){

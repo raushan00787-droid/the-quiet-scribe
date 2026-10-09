@@ -7494,9 +7494,14 @@ function speakScribeResponse(text,forceBrowser){
 
         function getNaturalPause(segmentText){
             const value=String(segmentText||"").trim();
-            if(/[!?।]$/.test(value))return 190;
-            if(/[,:;]$/.test(value))return 110;
-            return 145;
+            const ending=value.slice(-1);
+
+            /* Keep the same spoken rhythm whether the clone or device voice is used. */
+            if(/[!?]$/.test(ending))return 330;
+            if(ending==="।")return 300;
+            if(ending===".")return 250;
+            if(/[,:;]$/.test(ending))return 120;
+            return 200;
         }
 
         function speakNextSegment(){

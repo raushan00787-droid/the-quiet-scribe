@@ -5975,7 +5975,7 @@ function isQuietScribeSpeaking(){
 }
 
 const VOICE_STYLES={
-    scribe:{label:"Scribe · Natural",rate:.94,pitch:.97,volume:.96,voiceHint:"natural conversational"},
+    scribe:{label:"Scribe · Natural",rate:.98,pitch:.97,volume:.96,voiceHint:"natural conversational"},
     philosopher:{label:"Philosopher · Low & Measured",rate:.88,pitch:.91,volume:.97,voiceHint:"deep warm natural"},
     poet:{label:"Poet · Soft & Close",rate:.91,pitch:1.02,volume:.92,voiceHint:"soft warm natural"},
     narrator:{label:"Narrator · Cinematic",rate:.92,pitch:.92,volume:.98,voiceHint:"narrator natural"},
@@ -6696,56 +6696,25 @@ function buildQuietSpeechSegments(text){
     const sentences=splitQuietSpeechSentences(text);
     if(!sentences.length)return [];
 
-    const segments=[];
-
-    sentences.forEach(function(sentence){
+    /*
+     * Keep each sentence in one utterance.
+     * Switching the speech engine between individual Hinglish words creates
+     * tiny queues, awkward pauses, and a stitched-together voice. Detect the
+     * dominant language once, then let that voice carry the sentence naturally.
+     */
+    return sentences.map(function(sentence){
         const language=detectQuietSentenceLanguage(sentence);
+        const cleanSentence=sentence.trim();
 
-        if(language!=="hi-IN"){
-            segments.push({text:sentence.trim(),language:"en-US"});
-            return;
-        }
-
-        const words=sentence.split(/\s+/).filter(Boolean);
-        let currentLanguage="";
-        let currentWords=[];
-
-        function flush(){
-            if(!currentWords.length)return;
-            const segmentText=currentWords.join(" ").trim();
-            if(!segmentText)return;
-
-            segments.push({
-                text:currentLanguage==="hi-IN"
-                    ? normalizeQuietHindiSpeech(segmentText)
-                    : segmentText,
-                language:currentLanguage
-            });
-
-            currentWords=[];
-        }
-
-        words.forEach(function(word){
-            const nextLanguage=
-                /[\u0900-\u097F]/u.test(word) ||
-                isLikelyQuietRomanHindiWord(word)
-                    ? "hi-IN"
-                    : isQuietStrongEnglishWord(word)
-                        ? "en-US"
-                        : "hi-IN";
-
-            if(currentLanguage && currentLanguage!==nextLanguage){
-                flush();
-            }
-
-            currentLanguage=nextLanguage;
-            currentWords.push(word);
-        });
-
-        flush();
+        return {
+            text:language==="hi-IN"
+                ? normalizeQuietHindiSpeech(cleanSentence)
+                : cleanSentence,
+            language:language
+        };
+    }).filter(function(segment){
+        return !!segment.text;
     });
-
-    return segments;
 }
 
 let quietChatterboxPromise=null;
@@ -7216,7 +7185,8 @@ function speakScribeResponse(text,forceBrowser){
 
     try{
         const synth=window.speechSynthesis;
-        synth.cancel();
+        const shouldWaitForCancel=synth.speaking||synth.pending;
+        if(shouldWaitForCancel)synth.cancel();
 
         const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
         const cleanText=cleanScribeSpeechText(text);
@@ -7292,7 +7262,11 @@ function speakScribeResponse(text,forceBrowser){
             synth.speak(utterance);
         }
 
-        speakNextSegment();
+        if(shouldWaitForCancel){
+            window.setTimeout(speakNextSegment,60);
+        }else{
+            speakNextSegment();
+        }
     }catch(error){
         console.warn("Quiet Scribe voice output unavailable.",error);
         if(quietVoiceMode) scheduleQuietVoiceRestart(260);

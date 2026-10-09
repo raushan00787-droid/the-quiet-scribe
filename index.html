@@ -3368,6 +3368,17 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
  .screen.active { animation:none!important; }
 }
 
+
+/* PHONE BUTTON NORMALIZATION
+   Match tablet button height while keeping the mobile UI understated. */
+@media (max-width: 600px) {
+    .screen:not(#chat) button:not(.back) {
+        min-height: 48px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    }
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>

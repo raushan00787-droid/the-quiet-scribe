@@ -6930,7 +6930,13 @@ function splitQuietChatterboxChunks(source,maxChars){
     const text=String(source||"").trim();
     if(!text)return [];
 
-    const limit=Math.max(90,maxChars||170);
+    /*
+     * Treat maxChars as a soft grouping target, not permission to cut a
+     * sentence in half. The response is already capped below the hosted
+     * models' 300-character input ceiling, so a single long sentence can stay
+     * intact while multiple shorter sentences can be spoken progressively.
+     */
+    const softLimit=Math.max(120,maxChars||180);
     const sentences=text.match(/[^.!?।]+[.!?।]+|[^.!?।]+$/g)||[text];
     const chunks=[];
     let current="";
@@ -6940,53 +6946,17 @@ function splitQuietChatterboxChunks(source,maxChars){
         if(!part)return;
 
         if(!current){
-            if(part.length<=limit){
-                current=part;
-                return;
-            }
-
-            let remaining=part;
-            while(remaining.length>limit){
-                const cutCandidates=[
-                    remaining.lastIndexOf(",",limit),
-                    remaining.lastIndexOf(" ",limit)
-                ].filter(function(index){return index>=70;});
-                const cut=cutCandidates.length
-                    ? Math.max.apply(null,cutCandidates)
-                    : limit;
-                chunks.push(remaining.slice(0,cut).trim());
-                remaining=remaining.slice(cut).trim();
-            }
-            current=remaining;
+            current=part;
             return;
         }
 
-        if((current+" "+part).length<=limit){
+        if((current+" "+part).length<=softLimit){
             current=(current+" "+part).trim();
             return;
         }
 
         chunks.push(current);
-        current="";
-
-        if(part.length<=limit){
-            current=part;
-            return;
-        }
-
-        let remaining=part;
-        while(remaining.length>limit){
-            const cutCandidates=[
-                remaining.lastIndexOf(",",limit),
-                remaining.lastIndexOf(" ",limit)
-            ].filter(function(index){return index>=70;});
-            const cut=cutCandidates.length
-                ? Math.max.apply(null,cutCandidates)
-                : limit;
-            chunks.push(remaining.slice(0,cut).trim());
-            remaining=remaining.slice(cut).trim();
-        }
-        current=remaining;
+        current=part;
     });
 
     if(current)chunks.push(current);
@@ -6996,6 +6966,7 @@ function splitQuietChatterboxChunks(source,maxChars){
         .filter(Boolean)
         .slice(0,3);
 }
+
 
 async function generateQuietChatterboxChunk(client,reference,prompt,useHindi){
     const result=useHindi
@@ -7072,7 +7043,7 @@ async function speakQuietChatterbox(text){
         prompt=prompt.slice(0,boundary).trim();
     }
 
-    const chunks=splitQuietChatterboxChunks(prompt,285);
+    const chunks=splitQuietChatterboxChunks(prompt,180);
     if(!chunks.length)return;
 
     let chunkIndex=0;
@@ -7138,12 +7109,18 @@ async function speakQuietChatterbox(text){
 
             if(index+1<chunks.length){
                 chunkIndex=index+1;
-                playChunk(chunkIndex).catch(function(error){
+
+                /* Add a small human pause between complete spoken thoughts. */
+                const naturalPause=/[!?।]$/.test(chunks[index])?280:210;
+                window.setTimeout(function(){
                     if(generationId!==quietChatterboxGenerationId)return;
-                    console.warn("Next philosopher voice chunk failed.",error);
-                    setVoiceStatus("Philosopher voice unavailable.");
-                    window.setTimeout(function(){setVoiceStatus("");},1800);
-                });
+                    playChunk(chunkIndex).catch(function(error){
+                        if(generationId!==quietChatterboxGenerationId)return;
+                        console.warn("Next philosopher voice chunk failed.",error);
+                        setVoiceStatus("Philosopher voice unavailable.");
+                        window.setTimeout(function(){setVoiceStatus("");},1800);
+                    });
+                },naturalPause);
             }else{
                 if(window.quietScribeAudio===audio)window.quietScribeAudio=null;
                 setVoiceStatus("");

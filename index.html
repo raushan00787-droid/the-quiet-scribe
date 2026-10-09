@@ -4804,6 +4804,7 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 
         <div class="chat-header-actions">
             <button class="chat-menu-button chat-settings-button" onclick="showScreen('quiet-settings');loadQuietSettings()" aria-label="Open Quiet Settings" title="Quiet Settings">⚙</button>
+            <button class="chat-menu-button chat-profile-button" onclick="openQuietProfile()" aria-label="Open your profile" title="Your profile">♙</button>
             <span class="chat-header-divider" aria-hidden="true"></span>
             <button class="chat-menu-button chat-history-button" onclick="toggleChatHistory()" aria-label="Open conversations" aria-expanded="false" title="Conversations">☰</button>
         </div>
@@ -5307,9 +5308,9 @@ function handleQuietGoogleCredential(response){
 
 function initQuietGoogle(targetId){
     targetId=targetId||"googleSignInButton";
+    quietGoogleReturnToProfile=targetId==="googleProfileSignInButton";
     const button=document.getElementById(targetId);
     if(!button||button.dataset.ready==="true")return;
-    quietGoogleReturnToProfile=targetId==="googleProfileSignInButton";
 
     if(QUIET_GOOGLE_CLIENT_ID.includes("PASTE_")){
         button.innerHTML="<button type=\"button\" onclick=\"alert('Google sign-in needs the Quiet Scribe Google Client ID first.')\">Continue with Google</button>";

@@ -7529,6 +7529,8 @@ function toggleVoiceInput(){
 function sendMessage(options) {
     options = options || {};
     const isRetry = options.retry === true;
+    const rateLimitAttempt = Number(options.rateLimitAttempt || 0);
+    const preserveVoiceReply = quietVoiceReplyPending;
 
     ensureCurrentChat();
 
@@ -7967,6 +7969,41 @@ saveCurrentChat();
     .catch(function(error) {
 
         window.clearTimeout(requestTimeout);
+
+        const errorText = String(error && error.message ? error.message : error || "");
+        const isRateLimit =
+            /rate.?limit|tokens per minute|\bTPM\b|too many requests/i.test(errorText);
+
+        /*
+         * Groq can return a short, explicit retry window when the shared
+         * token-per-minute budget is temporarily exhausted. Retry only once,
+         * honor the suggested wait, and reuse the already-saved user message.
+         */
+        if (isRateLimit && rateLimitAttempt < 1) {
+            const retryMatch = errorText.match(/try again in\s+([\d.]+)\s*s/i);
+            const suggestedSeconds = retryMatch ? Number(retryMatch[1]) : 5;
+            const waitMs = Math.max(1500, Math.min(15000, Math.ceil(suggestedSeconds * 1000) + 500));
+            const thinkingMessage = document.getElementById("thinkingMessage");
+
+            if (thinkingMessage) {
+                thinkingMessage.textContent =
+                    "Scribe is briefly waiting for model capacity, then retrying…";
+            }
+
+            quietVoiceReplyPending = preserveVoiceReply;
+            window.setTimeout(function () {
+                document.getElementById("thinkingMessage")?.remove();
+                sendMessage.pending = false;
+                sendMessage({
+                    retry: true,
+                    text: text,
+                    rateLimitAttempt: rateLimitAttempt + 1
+                });
+            }, waitMs);
+
+            return;
+        }
+
         quietVoiceReplyPending = false;
 
         document

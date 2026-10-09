@@ -3229,6 +3229,69 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (hover:none) {
     button.qs-room-card:hover { transform:none; }
 }
+
+/* FULL EVOLUTION · PHASE 2: THINK, READ, REMEMBER */
+.qs-thinker-screen,.qs-reader-screen,.qs-marks-screen { max-width:820px; margin-inline:auto; }
+.qs-thinker-screen > .qs-room-heading,.qs-reader-screen > .qs-room-heading,.qs-marks-screen > .qs-room-heading { margin-bottom:26px; }
+.qs-thinker-prompt { position:relative; padding:clamp(22px,4vw,34px); margin:0 0 17px; border:1px solid var(--qs-line); border-radius:20px; background:radial-gradient(ellipse at 100% 0%,rgba(117,127,183,.14),transparent 58%),linear-gradient(145deg,rgba(26,28,44,.85),rgba(12,14,22,.88)); }
+.qs-thinker-symbol { display:grid; place-items:center; width:43px; height:43px; margin-bottom:20px; border:1px solid var(--qs-line); border-radius:50%; color:#d2d0f0; font-size:22px; }
+.qs-thinker-prompt .quote { max-width:590px; margin:0 0 24px; color:#d7d5e6; font-family:var(--qs-serif,Georgia,serif); font-size:clamp(20px,3vw,28px); line-height:1.55; }
+button.qs-prompt-button { display:flex; align-items:center; justify-content:space-between; gap:18px; max-width:none; margin:0; padding:12px 15px; background:rgba(7,9,16,.34); font-size:13px; }
+.qs-thought-composer { display:grid; gap:10px; margin:0; padding:clamp(18px,3vw,26px); border:1px solid var(--qs-line); border-radius:18px; background:rgba(16,18,28,.58); }
+.qs-field-label { display:flex; align-items:center; justify-content:space-between; gap:12px; color:#c3c2d5; font-size:12px; letter-spacing:.025em; }
+.qs-field-label span { color:#777a91; font-family:Arial,sans-serif; font-size:9px; letter-spacing:.16em; }
+.qs-thought-composer input { width:100%; max-width:none; margin:0; }
+.qs-thought-composer textarea { min-height:220px; margin:0; }
+.qs-thought-composer button { max-width:none; margin:4px 0 0; }
+.qs-thinker-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin:17px 0 22px; padding:14px 16px; border:1px solid rgba(193,194,226,.1); border-radius:13px; color:#898ba1; font-size:12px; }
+button.qs-dnd-toggle { width:auto; max-width:none; margin:0; padding:9px 12px; font-size:11px; }
+.qs-thought-feedback:empty { display:none; }
+.qs-reader-intro { display:flex; align-items:flex-start; gap:15px; margin:0 0 30px; padding:19px 22px; border-left:1px solid rgba(188,187,224,.45); background:linear-gradient(90deg,rgba(91,94,135,.1),transparent); }
+.qs-reader-intro > span { color:#c4c2e6; font-family:Georgia,serif; font-size:42px; line-height:1; }
+.qs-reader-intro p { margin:3px 0 0; color:#b1b0c4; font-family:var(--qs-serif,Georgia,serif); font-size:17px; line-height:1.7; }
+.qs-reading-shelf { margin:0; }
+.qs-shelf-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 14px; }
+.qs-shelf-heading .qs-eyebrow { text-align:left; margin-bottom:5px; }
+.qs-shelf-heading h2 { margin:0; font-family:var(--qs-serif,Georgia,serif); font-size:24px; font-weight:400; }
+.qs-shelf-heading > span { color:#aaa8d1; }
+.qs-aurelis-card { display:flex; align-items:flex-start; gap:22px; padding:clamp(20px,4vw,32px); border-radius:19px; background:radial-gradient(ellipse at 100% 0%,rgba(100,124,133,.13),transparent 58%),linear-gradient(145deg,rgba(27,31,42,.9),rgba(12,15,22,.95)); }
+.qs-aurelis-mark { display:grid; flex:0 0 62px; place-items:center; width:62px; height:78px; border:1px solid rgba(189,200,199,.24); border-radius:4px 13px 4px 4px; color:#d6ded9; font-family:var(--qs-serif,Georgia,serif); font-size:36px; background:linear-gradient(145deg,rgba(130,151,143,.12),rgba(18,22,27,.1)); box-shadow:inset 4px 0 rgba(189,200,199,.06); }
+.qs-aurelis-copy { flex:1; min-width:0; }
+.qs-card-kicker { margin:0 0 7px; color:#8fa9a2; font-family:Arial,sans-serif; font-size:9px; letter-spacing:.16em; line-height:1.7; }
+.qs-aurelis-copy h3 { margin:0 0 10px; font-family:var(--qs-serif,Georgia,serif); font-size:27px; font-weight:400; }
+.qs-aurelis-copy p:not(.qs-card-kicker) { max-width:570px; margin:0 0 19px; color:#a4a8b4; font-size:13px; line-height:1.9; }
+.qs-aurelis-copy .reading-card-link { display:inline-flex; align-items:center; gap:12px; padding-bottom:5px; border-bottom:1px solid rgba(189,200,199,.25); color:#d1d9d5; text-decoration:none; font-size:12px; }
+.qs-reader-note { margin:24px 0 26px; color:#7d8093; font-family:var(--qs-serif,Georgia,serif); font-size:13px; font-style:italic; text-align:center; }
+.qs-mark-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin:27px 0 25px; }
+button.qs-mark-card { position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:7px; min-height:142px; max-width:none; margin:0; padding:20px; overflow:hidden; border:1px solid var(--qs-line); border-radius:15px; background:linear-gradient(145deg,rgba(24,26,41,.8),rgba(12,14,22,.92)); text-align:left; }
+button.qs-mark-card:hover { border-color:var(--qs-line-bright); background:linear-gradient(145deg,rgba(33,35,53,.9),rgba(13,15,24,.97)); transform:translateY(-2px); }
+.qs-mark-number { color:#8184a5; font-family:Arial,sans-serif; font-size:9px; letter-spacing:.16em; }
+.qs-mark-name { max-width:90%; color:#dedceb; font-family:var(--qs-serif,Georgia,serif); font-size:clamp(16px,2.4vw,21px); line-height:1.3; }
+.qs-mark-field { color:#9395a9; font-size:11px; line-height:1.6; }
+.qs-mark-arrow { position:absolute; top:18px; right:18px; color:#a7a8c9; }
+#tonight .reading-content { padding:clamp(18px,4vw,28px); border:1px solid var(--qs-line); border-radius:16px; background:linear-gradient(145deg,rgba(26,28,43,.65),rgba(13,15,23,.7)); }
+#tonightQuestion { font-family:var(--qs-serif,Georgia,serif); font-size:clamp(19px,3vw,25px); line-height:1.7; }
+#tonight .tonight-writing-box { padding:clamp(16px,3vw,24px); border:1px solid var(--qs-line); border-radius:17px; }
+#saved .entries { margin-top:25px; }
+#saved .saved-empty { padding:24px; border:1px dashed var(--qs-line); border-radius:14px; text-align:center; }
+#creator .creator-links { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:25px; }
+#creator .creator-links a { display:flex; flex-direction:column; gap:8px; min-width:0; padding:20px; border:1px solid var(--qs-line); border-radius:15px; background:linear-gradient(145deg,rgba(24,26,41,.75),rgba(12,14,22,.88)); color:#d0cfe2; text-decoration:none; transition:border-color .2s ease,transform .2s ease; }
+#creator .creator-links a:hover { border-color:var(--qs-line-bright); transform:translateY(-2px); }
+#creator .creator-links small { color:#9294aa; font-size:11px; }
+@media (max-width:600px) {
+ .qs-thinker-prompt { padding:20px; }
+ .qs-thought-composer textarea { min-height:190px; }
+ .qs-thinker-footer { align-items:flex-start; flex-direction:column; }
+ .qs-aurelis-card { gap:15px; padding:18px; }
+ .qs-aurelis-mark { flex-basis:48px; width:48px; height:62px; font-size:29px; }
+ .qs-mark-grid { grid-template-columns:1fr; gap:9px; }
+ button.qs-mark-card { min-height:118px; padding:17px; }
+ #creator .creator-links { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce) {
+ button.qs-mark-card,#creator .creator-links a { transition:none!important; }
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -3872,50 +3935,23 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
     </button>
 
     </section>
-<section id="marks" class="screen">
-
-    <h1>The Ones Who Left a Mark</h1>
-
-    <p class="subtitle">
-        People whose work left something behind.
-    </p>
-
-    <button onclick="showScreen('dostoevsky')">
-        FYODOR DOSTOEVSKY
-    </button>
-
-    <button onclick="showScreen('kafka')">
-        FRANZ KAFKA
-    </button>
-
-    <button onclick="showScreen('camus')">
-        ALBERT CAMUS
-    </button>
-
-    <button onclick="showScreen('miyazaki')">
-        HAYAO MIYAZAKI
-    </button>
-
-    <button onclick="showScreen('stanlee')">
-        STAN LEE
-    </button>
-
-    <button onclick="showScreen('oda')">
-        EIICHIRO ODA
-    </button>
-
-    <button onclick="showScreen('beethoven')">
-        LUDWIG VAN BEETHOVEN
-    </button>
-
-    <button onclick="showScreen('chopin')">
-        FRÉDÉRIC CHOPIN
-    </button>
-
-    <button class="back" onclick="showScreen('welcome')">
-        ← Back
-    </button>
-
+<section id="marks" class="screen qs-marks-screen">
+    <div class="qs-room-heading">
+        <p class="qs-eyebrow">THE PEOPLE WHO LEFT LIGHT BEHIND</p>
+        <h1>The Ones Who Left a Mark</h1>
+        <p class="subtitle">People whose work left something behind.</p>
+    </div>
+    <div class="qs-mark-grid" aria-label="Choose a person to discover">
+        <button class="qs-mark-card" onclick="showScreen('dostoevsky')"><span class="qs-mark-number">01</span><span class="qs-mark-name">Fyodor Dostoevsky</span><span class="qs-mark-field">Literature · The human mind</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('kafka')"><span class="qs-mark-number">02</span><span class="qs-mark-name">Franz Kafka</span><span class="qs-mark-field">Literature · The strange and familiar</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('camus')"><span class="qs-mark-number">03</span><span class="qs-mark-name">Albert Camus</span><span class="qs-mark-field">Philosophy · Meaning and freedom</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('miyazaki')"><span class="qs-mark-number">04</span><span class="qs-mark-name">Hayao Miyazaki</span><span class="qs-mark-field">Animation · Wonder and nature</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('stanlee')"><span class="qs-mark-number">05</span><span class="qs-mark-name">Stan Lee</span><span class="qs-mark-field">Comics · Heroes and humanity</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('oda')"><span class="qs-mark-number">06</span><span class="qs-mark-name">Eiichiro Oda</span><span class="qs-mark-field">Manga · Adventure and belonging</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('beethoven')"><span class="qs-mark-number">07</span><span class="qs-mark-name">Ludwig van Beethoven</span><span class="qs-mark-field">Music · Feeling in motion</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-mark-card" onclick="showScreen('chopin')"><span class="qs-mark-number">08</span><span class="qs-mark-name">Frédéric Chopin</span><span class="qs-mark-field">Music · The piano and poetry</span><span class="qs-mark-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <button class="back" onclick="showScreen('welcome')">← Back home</button>
 </section>
 <!-- ============================= -->
 <!-- COMPLETED MARKS: STAN LEE / ODA / BEETHOVEN / CHOPIN -->
@@ -4461,50 +4497,30 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 <!-- THINKER -->
 <!-- ============================= -->
 
-<section id="think" class="screen">
-
-    <h1>Thinker's Room</h1>
-
-    <p class="quote">
-        “Some thoughts need answers.
-        Others simply need somewhere to exist.”
-    </p>
-
-    <button onclick="newThought()">
-        🌙 Give me something to think about
-    </button>
-<div class="thought-box">
-
-    <input
-        id="thoughtTitle"
-        class="chat-input"
-        type="text"
-        placeholder="Give your thought a name..."
-    >
-
-    <textarea
-        id="thoughtInput"
-        class="writer-box"
-        placeholder="Leave a thought here..."
-    ></textarea>
-
-    <button onclick="leaveThought()">
-        🕯️ Leave a Thought
-    </button>
-
-</div>
-    <p id="thought" class="subtitle"></p>
-
-    <button type="button" data-dnd-toggle onclick="toggleDNDMode()" aria-pressed="false">
-        🌙 DND Mode: OFF
-    </button>
-
-    <button
-        class="back"
-        onclick="showScreen('purpose')">
-        ← Back
-    </button>
-
+<section id="think" class="screen qs-thinker-screen">
+    <div class="qs-room-heading">
+        <p class="qs-eyebrow">ROOM 02 · LET THE THOUGHT UNFOLD</p>
+        <h1>Thinker's Room</h1>
+        <p class="subtitle">A little space between the question and the answer.</p>
+    </div>
+    <div class="qs-thinker-prompt">
+        <span class="qs-thinker-symbol" aria-hidden="true">☾</span>
+        <p class="quote">“Some thoughts need answers. Others simply need somewhere to exist.”</p>
+        <button class="qs-prompt-button" onclick="newThought()">🌙 Give me something to think about <span aria-hidden="true">↗</span></button>
+    </div>
+    <div class="thought-box qs-thought-composer">
+        <label class="qs-field-label" for="thoughtTitle">Name this thought <span>OPTIONAL</span></label>
+        <input id="thoughtTitle" class="chat-input" type="text" placeholder="A thought to return to..." autocomplete="off">
+        <label class="qs-field-label" for="thoughtInput">Leave it here</label>
+        <textarea id="thoughtInput" class="writer-box" placeholder="You don't need to make it perfect. Just make it honest."></textarea>
+        <button class="qs-primary-action" onclick="leaveThought()">Leave a Thought <span aria-hidden="true">↗</span></button>
+    </div>
+    <p id="thought" class="subtitle qs-thought-feedback" aria-live="polite"></p>
+    <div class="qs-thinker-footer">
+        <span>Need fewer interruptions?</span>
+        <button type="button" class="qs-dnd-toggle" data-dnd-toggle onclick="toggleDNDMode()" aria-pressed="false">🌙 DND Mode: OFF</button>
+    </div>
+    <button class="back" onclick="showScreen('purpose')">← Back to your rooms</button>
 </section>
 
 
@@ -4512,48 +4528,33 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 <!-- READER -->
 <!-- ============================= -->
 
-<section id="read" class="screen">
-
-    <h1>Reader's Room</h1>
-
-    <p class="subtitle">
-        A quiet doorway into written worlds.
-    </p>
-
-    <div class="reading-section">
-
-        <h2>The Aurelis Shelf</h2>
-
-        <div class="reading-card">
-
-            <h3>🏛️ Aurelis</h3>
-
-            <p>
-                Some words belong to a room.
-                Others deserve a whole house.
-                Aurelis is an independent literary house
-                for stories, poetry, ideas, authors, and other written worlds.
-            </p>
-
-            <a
-                href="https://aurelis-lit.pages.dev/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="reading-card-link"
-            >
-                Enter the Library ↗
-            </a>
-
-        </div>
-
+<section id="read" class="screen qs-reader-screen">
+    <div class="qs-room-heading">
+        <p class="qs-eyebrow">ROOM 03 · TAKE YOUR TIME</p>
+        <h1>Reader's Room</h1>
+        <p class="subtitle">A quiet doorway into written worlds.</p>
     </div>
-
-    <button
-        class="back"
-        onclick="showScreen('purpose')">
-        ← Back
-    </button>
-
+    <div class="qs-reader-intro">
+        <span aria-hidden="true">“</span>
+        <p>Some words meet you where you are. Others quietly change where you stand.</p>
+    </div>
+    <div class="reading-section qs-reading-shelf">
+        <div class="qs-shelf-heading">
+            <div><p class="qs-eyebrow">THE FIRST SHELF</p><h2>The Aurelis Shelf</h2></div>
+            <span aria-hidden="true">✦</span>
+        </div>
+        <article class="reading-card qs-aurelis-card">
+            <div class="qs-aurelis-mark" aria-hidden="true">A</div>
+            <div class="qs-aurelis-copy">
+                <p class="qs-card-kicker">AN INDEPENDENT LITERARY HOUSE</p>
+                <h3>Aurelis</h3>
+                <p>Some words belong to a room. Others deserve a whole house. Discover stories, poetry, ideas, authors, and other written worlds.</p>
+                <a href="https://aurelis-lit.pages.dev/" target="_blank" rel="noopener noreferrer" class="reading-card-link">Enter the Library <span aria-hidden="true">↗</span></a>
+            </div>
+        </article>
+    </div>
+    <p class="qs-reader-note">Read slowly. Keep what stays with you.</p>
+    <button class="back" onclick="showScreen('purpose')">← Back to your rooms</button>
 </section>
 
 <section id="creator" class="screen">

@@ -4833,12 +4833,12 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
                         aria-label="Choose Scribe voice style"
                         title="Choose voice style">
                         <option value="scribe">🎙️ Scribe · Natural Male</option>
-                        <option value="philosopher">🕯️ Philosopher · Low & Measured</option>
-                        <option value="poet">📜 Poet · Soft Male</option>
-                        <option value="narrator">🎬 Narrator · Cinematic Male</option>
-                        <option value="calm">🌙 Calm · Gentle Male</option>
-                        <option value="mysterious">🌫️ Mysterious · Low Male</option>
-                        <option value="warm">☕ Warm · Warm Male</option>
+                        <option value="philosopher">🕯️ Philosopher · Your Voice</option>
+                        <option value="poet">📜 Poet · Soft</option>
+                        <option value="narrator">🎬 Narrator · Cinematic</option>
+                        <option value="calm">🌙 Calm · Gentle</option>
+                        <option value="mysterious">🌫️ Mysterious · Low</option>
+                        <option value="warm">☕ Warm · Bright</option>
                     </select>
 
                 </div>
@@ -5977,12 +5977,26 @@ function isQuietScribeSpeaking(){
 const VOICE_STYLES={
     scribe:{label:"Scribe · Natural",rate:.98,pitch:.97,volume:.96,voiceHint:"natural conversational"},
     philosopher:{label:"Philosopher · Low & Measured",rate:.88,pitch:.91,volume:.97,voiceHint:"deep warm natural"},
-    poet:{label:"Poet · Soft & Close",rate:.91,pitch:1.02,volume:.92,voiceHint:"soft warm natural"},
-    narrator:{label:"Narrator · Cinematic",rate:.92,pitch:.92,volume:.98,voiceHint:"narrator natural"},
-    calm:{label:"Calm · Gentle",rate:.86,pitch:.99,volume:.90,voiceHint:"gentle natural"},
-    mysterious:{label:"Mysterious · Quiet Low",rate:.89,pitch:.88,volume:.90,voiceHint:"low warm natural"},
-    warm:{label:"Warm · Conversational",rate:.95,pitch:1.03,volume:.97,voiceHint:"warm conversational natural"}
+    poet:{label:"Poet · Soft",rate:.93,pitch:1.04,volume:.92,voiceHint:"soft warm natural"},
+    narrator:{label:"Narrator · Cinematic",rate:.94,pitch:.94,volume:.98,voiceHint:"narrator natural"},
+    calm:{label:"Calm · Gentle",rate:.90,pitch:1.01,volume:.90,voiceHint:"gentle natural"},
+    mysterious:{label:"Mysterious · Low",rate:.91,pitch:.89,volume:.90,voiceHint:"low warm natural"},
+    warm:{label:"Warm · Bright",rate:.98,pitch:1.06,volume:.97,voiceHint:"warm conversational natural"}
 };
+
+const QUIET_STYLE_VOICE_PREFERENCES={
+    scribe:["guy","david","ryan"],
+    philosopher:["daniel","george","alex","david"],
+    poet:["samantha","susan","oliver","thomas"],
+    narrator:["brian","george","narrator","ryan"],
+    calm:["susan","heera","samantha","gentle"],
+    mysterious:["alex","fred","daniel"],
+    warm:["ryan","oliver","thomas","warm"]
+};
+
+function quietVoiceStyleKey(style){
+    return Object.keys(VOICE_STYLES).find(function(key){return VOICE_STYLES[key]===style;})||"scribe";
+}
 
 let quietSpeechVoices=[];
 let quietSpeechVoicesReady=false;
@@ -6027,8 +6041,13 @@ function scoreQuietVoice(voice,style){
     const lang=(voice.lang||"").toLowerCase();
     let score=0;
 
+    const styleKey=quietVoiceStyleKey(style);
+    const stylePreferences=QUIET_STYLE_VOICE_PREFERENCES[styleKey]||[];
     if(QUIET_MALE_VOICE_NAMES.some(function(keyword){return name.includes(keyword)}))score+=48;
-    if(QUIET_FEMALE_VOICE_MARKERS.some(function(keyword){return name.includes(keyword)}))score-=65;
+    if(QUIET_FEMALE_VOICE_MARKERS.some(function(keyword){return name.includes(keyword)})){
+        score+=["poet","calm"].includes(styleKey)?10:-65;
+    }
+    if(stylePreferences.some(function(keyword){return name.includes(keyword)}))score+=88;
     if(QUIET_ROBOTIC_VOICE_MARKERS.some(function(keyword){return name.includes(keyword)}))score-=120;
     if(QUIET_HIGH_QUALITY_VOICE_MARKERS.some(function(keyword){return name.includes(keyword)}))score+=42;
 
@@ -6070,7 +6089,12 @@ function getQuietSpeechVoice(style,language){
 
             let score=110;
             if(lang.indexOf("hi-in")===0)score+=35;
-            if(QUIET_FEMALE_VOICE_MARKERS.some(function(marker){return name.includes(marker)}))score-=150;
+            const styleKey=quietVoiceStyleKey(style);
+            const stylePreferences=QUIET_STYLE_VOICE_PREFERENCES[styleKey]||[];
+            if(QUIET_FEMALE_VOICE_MARKERS.some(function(marker){return name.includes(marker)})){
+                score+=["poet","calm"].includes(styleKey)?10:-150;
+            }
+            if(stylePreferences.some(function(keyword){return name.includes(keyword)}))score+=88;
             if(/male|man|david|guy|ravi|raj|amit|arjun|rahul|hindi/.test(name))score+=30;
             if(QUIET_HIGH_QUALITY_VOICE_MARKERS.some(function(marker){return name.includes(marker)}))score+=30;
 
@@ -6930,43 +6954,44 @@ function splitQuietChatterboxChunks(source,maxChars){
     const text=String(source||"").trim();
     if(!text)return [];
 
-    /*
-     * Treat maxChars as a soft grouping target, not permission to cut a
-     * sentence in half. The response is already capped below the hosted
-     * models' 300-character input ceiling, so a single long sentence can stay
-     * intact while multiple shorter sentences can be spoken progressively.
-     */
-    const softLimit=Math.max(120,maxChars||180);
+    const softLimit=Math.max(120,Math.min(220,maxChars||180));
+    const hardLimit=285;
     const sentences=text.match(/[^.!?।]+[.!?।]+|[^.!?।]+$/g)||[text];
     const chunks=[];
     let current="";
 
+    function splitLongSentence(sentence){
+        const pieces=[];
+        let remaining=sentence.trim();
+
+        while(remaining.length>hardLimit){
+            let cut=remaining.lastIndexOf(" ",hardLimit);
+            if(cut<Math.floor(hardLimit*0.55))cut=hardLimit;
+            pieces.push(remaining.slice(0,cut).trim());
+            remaining=remaining.slice(cut).trim();
+        }
+
+        if(remaining)pieces.push(remaining);
+        return pieces;
+    }
+
     sentences.forEach(function(sentence){
-        const part=sentence.trim();
-        if(!part)return;
+        splitLongSentence(sentence).forEach(function(part){
+            if(!part)return;
+            if(!current){current=part;return;}
 
-        if(!current){
-            current=part;
-            return;
-        }
-
-        if((current+" "+part).length<=softLimit){
-            current=(current+" "+part).trim();
-            return;
-        }
-
-        chunks.push(current);
-        current=part;
+            if((current+" "+part).length<=softLimit){
+                current=(current+" "+part).trim();
+            }else{
+                chunks.push(current);
+                current=part;
+            }
+        });
     });
 
     if(current)chunks.push(current);
-
-    return chunks
-        .map(function(item){return item.trim();})
-        .filter(Boolean)
-        .slice(0,3);
+    return chunks.map(function(item){return item.trim();}).filter(Boolean);
 }
-
 
 async function generateQuietChatterboxChunk(client,reference,prompt,useHindi){
     const result=useHindi
@@ -7024,25 +7049,9 @@ async function speakQuietChatterbox(text){
         : addQuietNaturalLaughCue(cleanedPrompt,"en-US");
 
     /*
-     * Both hosted demos accept up to 300 characters. Keep a spoken reply in a
-     * single synthesis pass whenever possible so cadence and pitch do not reset
-     * at an artificial chunk boundary.
+     * Preserve the full answer. Split it into safe requests instead of cutting
+     * the text off at the model's input limit.
      */
-    if(prompt.length>285){
-        const boundaryCandidates=[
-            prompt.lastIndexOf(".",285),
-            prompt.lastIndexOf("!",285),
-            prompt.lastIndexOf("?",285),
-            prompt.lastIndexOf("।",285),
-            prompt.lastIndexOf(",",285),
-            prompt.lastIndexOf(" ",285)
-        ].filter(function(index){return index>=120;});
-        const boundary=boundaryCandidates.length
-            ? Math.max.apply(null,boundaryCandidates)
-            : 285;
-        prompt=prompt.slice(0,boundary).trim();
-    }
-
     const chunks=splitQuietChatterboxChunks(prompt,180);
     if(!chunks.length)return;
 
@@ -7116,9 +7125,14 @@ async function speakQuietChatterbox(text){
                     if(generationId!==quietChatterboxGenerationId)return;
                     playChunk(chunkIndex).catch(function(error){
                         if(generationId!==quietChatterboxGenerationId)return;
-                        console.warn("Next philosopher voice chunk failed.",error);
-                        setVoiceStatus("Philosopher voice unavailable.");
-                        window.setTimeout(function(){setVoiceStatus("");},1800);
+                        console.warn("Next philosopher voice chunk failed; switching to device speech.",error);
+                        quietChatterboxGenerationId++;
+                        if(window.quietScribeAudio){
+                            try{window.quietScribeAudio.pause();window.quietScribeAudio.currentTime=0;}catch(stopError){}
+                            window.quietScribeAudio=null;
+                        }
+                        setVoiceStatus("Clone voice paused. Finishing with the quick voice…");
+                        speakScribeResponse(chunks.slice(chunkIndex).join(" "),true);
                     });
                 },naturalPause);
             }else{

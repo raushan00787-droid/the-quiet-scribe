@@ -5342,6 +5342,17 @@ function loadQuietProfile(){
 /* ============================= */
 
 function showScreen(id) {
+    const entryExemptScreens=["welcome","oath","quiet-auth"];
+    if(!entryExemptScreens.includes(id) && typeof hasQuietRememberedSession==="function" && !hasQuietRememberedSession()){
+        if(localStorage.getItem("quietScribeOathAccepted")==="true"){
+            showScreen("quiet-auth");
+            initQuietGoogle();
+        }else{
+            showScreen("oath");
+        }
+        return;
+    }
+
     const screens=document.querySelectorAll(".screen");
     const writerScreen=document.getElementById("writer");
     const focusButton=document.getElementById("writerFocusToggle");

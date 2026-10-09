@@ -345,6 +345,37 @@ button:active {
     padding: 14px 18px;
 }
 
+.retry-message-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0 0;
+    padding: 7px 11px;
+    border: 1px solid #454552;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.035);
+    color: #e8e3d8;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.retry-message-button:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: #777786;
+}
+
+.retry-message-button:focus-visible {
+    outline: 2px solid #aaa6c8;
+    outline-offset: 2px;
+}
+
+.retry-message-button:disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
 /* DND */
 
 .dnd-mode {
@@ -5232,8 +5263,47 @@ function addMessage(text, type) {
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
+
+    return message;
 }
 
+function addRetryAction(message, failedText) {
+    if (!message) return;
+
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "retry-message-button";
+    retry.textContent = "↻ Retry message";
+    retry.setAttribute("aria-label", "Retry sending your last message");
+    retry.addEventListener("click", function () {
+        retryFailedMessage(failedText, retry);
+    });
+    message.appendChild(retry);
+}
+
+function retryFailedMessage(failedText, button) {
+    if (sendMessage.pending) return;
+
+    const conversation = readStoredArray("scribeConversation");
+    const lastMessage = conversation[conversation.length - 1];
+
+    if (!lastMessage || lastMessage.role !== "user" || lastMessage.content !== failedText) {
+        const input = document.getElementById("chatInput");
+        if (input) {
+            input.value = failedText;
+            resizeChatInput(input);
+            input.focus();
+        }
+        button.textContent = "Restored to input";
+        button.disabled = true;
+        button.setAttribute("aria-label", "Failed message restored to the input");
+        return;
+    }
+
+    const input = document.getElementById("chatInput");
+    if (input) input.value = "";
+    sendMessage({ retry: true, text: failedText });
+}
 
 /* ============================= */
 /* NAME MEMORY */
@@ -6929,7 +6999,9 @@ function toggleVoiceInput(){
 /* SEND MESSAGE */
 /* ============================= */
 
-function sendMessage() {
+function sendMessage(options) {
+    options = options || {};
+    const isRetry = options.retry === true;
 
     ensureCurrentChat();
 
@@ -6939,7 +7011,7 @@ function sendMessage() {
     const chatBox =
         document.getElementById("chatBox");
 
-    const text = input.value.trim();
+    const text = isRetry ? String(options.text || "").trim() : input.value.trim();
 
     if (text === "" || sendMessage.pending) {
         return;
@@ -6959,25 +7031,28 @@ function sendMessage() {
 
     try {
 
-    addMessage(text, "user");
+    if (!isRetry) {
+        addMessage(text, "user");
+        rememberName(text);
+        rememberFromMessage(text);
+    }
 
     input.value = "";
     resizeChatInput(input);
 
-    rememberName(text);
-    rememberFromMessage(text);
-
     const conversation = readStoredArray("scribeConversation");
 
-    conversation.push({
-        role: "user",
-        content:text
-    });
+    if (!isRetry) {
+        conversation.push({
+            role: "user",
+            content: text
+        });
 
-    localStorage.setItem(
-        "scribeConversation",
-        JSON.stringify(conversation)
-    );
+        localStorage.setItem(
+            "scribeConversation",
+            JSON.stringify(conversation)
+        );
+    }
     saveCurrentChat();
 
     const tone = localStorage.getItem("quietScribeTone") || "balanced";
@@ -7329,10 +7404,11 @@ saveCurrentChat();
         const reason = timedOut
             ? " The Scribe connection timed out after 25 seconds."
             : (error && error.message ? " " + error.message : "");
-        addMessage(
+        const errorMessage = addMessage(
             "I couldn't get a reply from Scribe just now. Your message is saved locally, so you can try again." + reason,
             "scribe"
         );
+        addRetryAction(errorMessage, text);
 
         console.error(
             "QUIET SCRIBE ERROR:",
@@ -7346,11 +7422,12 @@ saveCurrentChat();
         window.clearTimeout(requestTimeout);
         document.getElementById("thinkingMessage")?.remove();
         console.error("QUIET SCRIBE PRE-FETCH ERROR:", error);
-        addMessage(
+        const errorMessage = addMessage(
             "Scribe hit a local error before the request could be sent. " +
             (error && error.message ? error.message : "Please try again."),
             "scribe"
         );
+        addRetryAction(errorMessage, text);
         finishSend();
     }
 }

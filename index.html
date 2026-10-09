@@ -5677,7 +5677,15 @@ let philosopherMode = false;
 
 function togglePhilosopherMode() {
     philosopherMode=!philosopherMode;
-    setVoiceStyle(philosopherMode?"philosopher":"scribe");
+    localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
+
+    const settingsButton=document.getElementById("settingsPhilosopherButton");
+    if(settingsButton)settingsButton.textContent="Philosopher: "+(philosopherMode?"ON":"OFF");
+
+    document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
+        button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
+        button.setAttribute("aria-pressed",philosopherMode?"true":"false");
+    });
 }
 
 
@@ -5925,11 +5933,9 @@ function loadQuietSettings(){
  document.querySelectorAll("[data-setting-tone]").forEach(b=>b.classList.toggle("selected",b.getAttribute("data-setting-tone")===tone));
  const dnd=localStorage.getItem("quietScribeDND")==="true";document.body.classList.toggle("dnd-mode",dnd);const db=document.getElementById("settingsDndButton");if(db)db.textContent="DND: "+(dnd?"ON":"OFF");
 
- /* Voice style is the single source of truth. A stale legacy Philosopher flag
-    must never override the selected non-Philosopher voice. */
+ /* Personality mode and speaking voice are independent settings. */
  const savedVoiceStyle=localStorage.getItem("quietScribeVoiceStyle")||"scribe";
- philosopherMode=savedVoiceStyle==="philosopher";
- localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
+ philosopherMode=localStorage.getItem("quietScribePhilosopher")==="true";
 
  const pb=document.getElementById("settingsPhilosopherButton");if(pb)pb.textContent="Philosopher: "+(philosopherMode?"ON":"OFF");
  document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
@@ -6134,19 +6140,9 @@ function setVoiceStyle(style){
 
     localStorage.setItem("quietScribeVoiceStyle",style);
 
-    /* Philosopher is the ONLY style allowed to use the cloned Raushi voice.
-       Keep the legacy Philosopher Mode flag synced with the selected style so
-       an old/stale localStorage flag cannot leak the clone into other styles. */
-    philosopherMode=(style==="philosopher");
-    localStorage.setItem("quietScribePhilosopher",philosopherMode?"true":"false");
-
+    /* Voice selection changes speech only; it must not overwrite Philosopher Mode. */
     const select=document.getElementById("voiceStyleSelect");
     if(select)select.value=style;
-
-    document.querySelectorAll("[data-philosopher-toggle]").forEach(function(button){
-        button.textContent="🧠 Philosopher Mode: "+(philosopherMode?"ON":"OFF");
-        button.setAttribute("aria-pressed",philosopherMode?"true":"false");
-    });
 
     if("speechSynthesis" in window)window.speechSynthesis.cancel();
 
@@ -7021,8 +7017,15 @@ async function generateQuietChatterboxChunk(client,reference,prompt,useHindi){
     return src;
 }
 
-async function speakQuietChatterbox(text){
+async function speakQuietChatterbox(text,onPlaybackStarted){
     if(!text)return;
+
+    let playbackStartNotified=false;
+    function notifyPlaybackStarted(){
+        if(playbackStartNotified)return;
+        playbackStartNotified=true;
+        if(typeof onPlaybackStarted==="function")onPlaybackStarted();
+    }
 
     /* Show immediate feedback while the hosted voice model prepares audio. */
     setVoiceStatus("Scribe is thinking aloud…");
@@ -7109,6 +7112,7 @@ async function speakQuietChatterbox(text){
 
         audio.onplay=function(){
             setVoiceStatus("");
+            notifyPlaybackStarted();
         };
 
         audio.onended=function(){
@@ -7147,6 +7151,7 @@ async function speakQuietChatterbox(text){
         };
 
         await audio.play();
+        notifyPlaybackStarted();
     }
 
     try{
@@ -7199,11 +7204,18 @@ function speakScribeResponse(text,forceBrowser){
          * Keep the personal voice when it starts promptly; otherwise speak
          * with the device's voice instead of leaving the conversation silent.
          */
+        /* Allow a cold hosted model time to wake. Clear this only when audio
+           actually starts, not when the entire answer finishes playing. */
         voiceStartupTimer=window.setTimeout(function(){
-            useFastVoiceFallback("Clone voice is taking too long. Switching to the quick voice…");
-        },5200);
+            useFastVoiceFallback("Philosopher voice is taking too long to start. Switching to the quick voice…");
+        },18000);
 
-        speakQuietChatterbox(text).then(function(){
+        speakQuietChatterbox(text,function(){
+            if(voiceStartupTimer){
+                window.clearTimeout(voiceStartupTimer);
+                voiceStartupTimer=null;
+            }
+        }).then(function(){
             if(voiceStartupTimer){
                 window.clearTimeout(voiceStartupTimer);
                 voiceStartupTimer=null;

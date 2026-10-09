@@ -6719,7 +6719,8 @@ function buildQuietSpeechSegments(text){
 
 let quietChatterboxPromise=null;
 let quietChatterboxHindiPromise=null;
-let quietChatterboxReferencePromise=null;
+let quietChatterboxEnglishReferencePromise=null;
+let quietChatterboxHindiReferencePromise=null;
 let quietChatterboxPlaybackPrimed=false;
 let quietChatterboxAudioElement=null;
 let quietChatterboxGenerationId=0;
@@ -6805,37 +6806,36 @@ function hasQuietOpusAudioPackets(bytes){
     return pages>=2;
 }
 
-async function getQuietChatterboxReference(handleFile){
-    if(!quietChatterboxReferencePromise){
-        quietChatterboxReferencePromise=(async function(){
+async function getQuietChatterboxReference(handleFile,useHindi){
+    let referencePromise=useHindi
+        ? quietChatterboxHindiReferencePromise
+        : quietChatterboxEnglishReferencePromise;
+
+    if(!referencePromise){
+        referencePromise=(async function(){
             const referenceUrl=new URL("raushi-philosopher-reference.opus",window.location.href);
             referenceUrl.searchParams.set("v","2");
 
             const response=await fetch(referenceUrl.href,{cache:"no-store"});
-            if(!response.ok){
-                throw new Error("Philosopher reference audio could not be loaded.");
-            }
+            if(!response.ok)throw new Error("Philosopher reference audio could not be loaded.");
 
             const bytes=new Uint8Array(await response.arrayBuffer());
-            if(bytes.length<20000){
-                throw new Error("Philosopher reference audio is still the old/incomplete asset.");
-            }
-            if(!hasQuietOpusAudioPackets(bytes)){
-                throw new Error("Philosopher reference audio is empty or invalid.");
-            }
+            if(bytes.length<20000)throw new Error("Philosopher reference audio is still the old/incomplete asset.");
+            if(!hasQuietOpusAudioPackets(bytes))throw new Error("Philosopher reference audio is empty or invalid.");
 
-            const file=new File(
-                [bytes],
-                "raushi-philosopher-reference.opus",
-                {type:"audio/ogg; codecs=opus"}
-            );
+            const file=new File([bytes],"raushi-philosopher-reference.opus",{type:"audio/ogg; codecs=opus"});
             return handleFile(file);
         })().catch(function(error){
-            quietChatterboxReferencePromise=null;
+            if(useHindi)quietChatterboxHindiReferencePromise=null;
+            else quietChatterboxEnglishReferencePromise=null;
             throw error;
         });
+
+        if(useHindi)quietChatterboxHindiReferencePromise=referencePromise;
+        else quietChatterboxEnglishReferencePromise=referencePromise;
     }
-    return quietChatterboxReferencePromise;
+
+    return referencePromise;
 }
 
 function quietAudioSource(result){
@@ -6874,7 +6874,7 @@ async function getQuietChatterboxHindi(){
 async function warmQuietHindiChatterbox(){
     try{
         const loaded=await getQuietChatterboxHindi();
-        await getQuietChatterboxReference(loaded.handleFile);
+        await getQuietChatterboxReference(loaded.handleFile,true);
         return true;
     }catch(error){
         console.warn("Hindi philosopher voice warm-up failed.",error);
@@ -6908,7 +6908,7 @@ async function warmQuietChatterbox(){
         });
 
         const loaded=await loadedPromise;
-        await getQuietChatterboxReference(loaded.handleFile);
+        await getQuietChatterboxReference(loaded.handleFile,false);
         await hindiWarmPromise;
 
         if(getVoiceStyle()==="philosopher"){
@@ -7012,7 +7012,7 @@ async function speakQuietChatterbox(text){
 
     if(generationId!==quietChatterboxGenerationId)return;
 
-    const reference=await getQuietChatterboxReference(loaded.handleFile);
+    const reference=await getQuietChatterboxReference(loaded.handleFile,useHindi);
 
     if(generationId!==quietChatterboxGenerationId)return;
 
@@ -7157,7 +7157,7 @@ function speakScribeResponse(text,forceBrowser){
         let voiceStartupTimer=null;
 
         function useFastVoiceFallback(statusMessage){
-            if(fastVoiceFallbackStarted||quietSpeechInterrupted||!quietVoiceMode)return;
+            if(fastVoiceFallbackStarted||quietSpeechInterrupted)return;
             fastVoiceFallbackStarted=true;
 
             if(voiceStartupTimer){
@@ -7211,7 +7211,7 @@ function speakScribeResponse(text,forceBrowser){
         const shouldWaitForCancel=synth.speaking||synth.pending;
         if(shouldWaitForCancel)synth.cancel();
 
-        const style=VOICE_STYLES[forceBrowser?"scribe":getVoiceStyle()]||VOICE_STYLES.scribe;
+        const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
         const cleanText=cleanScribeSpeechText(text);
         const segments=buildQuietSpeechSegments(cleanText);
 

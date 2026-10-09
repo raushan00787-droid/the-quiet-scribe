@@ -3166,6 +3166,69 @@ input,textarea,select { accent-color:var(--qs-lilac); }
     #qs-opening-scene,#qs-opening-scene.qs-exiting #qs-opening-art { transition-duration:.01ms !important; }
 }
 
+
+/* FULL EVOLUTION · PHASE 1: THE WORLD + WRITING SANCTUARY */
+:root { --qs-line:rgba(193,194,226,.17); --qs-line-bright:rgba(193,194,226,.34); --qs-panel:rgba(19,21,33,.82); --qs-serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif; }
+body { background:radial-gradient(ellipse at 50% -12%,rgba(115,123,174,.16),transparent 34rem),radial-gradient(ellipse at 2% 80%,rgba(53,89,109,.09),transparent 27rem),#090b12; }
+.container { max-width:880px; }
+#purpose,#welcome { position:relative; }
+#purpose > h1,#purpose > .subtitle { text-align:center; }
+#purpose > h1 { margin-top:8px; }
+.qs-eyebrow { margin:0 0 13px; color:#aaa9c7; font-family:Arial,sans-serif; font-size:10px; font-weight:600; letter-spacing:.24em; line-height:1.8; text-align:center; text-transform:uppercase; }
+.qs-home-orbit { position:relative; width:74px; height:74px; margin:0 auto 24px; border:1px solid rgba(199,196,231,.25); border-radius:50%; box-shadow:0 0 48px rgba(138,147,199,.09),inset 0 0 30px rgba(138,147,199,.05); }
+.qs-home-orbit::before,.qs-home-orbit::after { content:""; position:absolute; inset:10px; border:1px solid rgba(199,196,231,.18); border-radius:50%; }
+.qs-home-orbit::after { inset:22px; background:radial-gradient(circle,rgba(221,222,255,.85),rgba(160,164,220,.14) 56%,transparent 72%); border:0; }
+.qs-home-orbit span { position:absolute; width:3px; height:3px; border-radius:50%; background:#e0def8; }
+.qs-home-orbit span:nth-child(1) { top:8px; left:35px; } .qs-home-orbit span:nth-child(2) { bottom:13px; left:13px; opacity:.6; } .qs-home-orbit span:nth-child(3) { right:8px; top:39px; opacity:.7; }
+#welcome { max-width:680px; margin:0 auto; padding:clamp(22px,5vh,56px) 0 28px; text-align:center; }
+#welcome h1 { font-family:var(--qs-serif); font-size:clamp(42px,8vw,68px); letter-spacing:-.045em; line-height:1.04; margin:0 auto 20px; }
+.qs-home-lede { max-width:430px; margin:0 auto; font-size:clamp(15px,2.4vw,18px); line-height:1.85; }
+.qs-home-rule { display:flex; align-items:center; gap:18px; max-width:200px; margin:29px auto 20px; color:#bdbde2; font-size:12px; }
+.qs-home-rule::before,.qs-home-rule::after { content:""; height:1px; flex:1; background:linear-gradient(90deg,transparent,rgba(189,189,226,.42)); }
+.qs-home-rule::after { transform:scaleX(-1); }
+.qs-home-mantra { margin:0 auto 10px; font-size:15px; letter-spacing:.14em; }
+.qs-home-note { max-width:410px; margin:0 auto 28px; font-size:13px; }
+.qs-home-actions { display:grid; gap:10px; width:min(100%,440px); margin:0 auto; }
+.qs-home-actions button { max-width:none; margin:0; }
+button.qs-primary-action { color:#f2f0ff; border-color:rgba(193,194,226,.34); background:linear-gradient(120deg,rgba(79,84,124,.48),rgba(31,34,53,.94)); box-shadow:0 12px 34px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.04); }
+.qs-primary-action span { float:right; color:#c7c4e7; }
+button.qs-secondary-action { background:rgba(14,16,25,.48); color:#c8c6d2; font-size:14px; }
+.qs-home-footnote { margin:25px 0 0; color:#77798d; font-size:11px; letter-spacing:.045em; }
+.qs-room-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; margin:28px 0 15px; }
+button.qs-room-card { position:relative; display:flex; flex-direction:column; align-items:flex-start; min-height:174px; max-width:none; margin:0; padding:22px; overflow:hidden; text-align:left; border-radius:17px; border:1px solid var(--qs-line); background:linear-gradient(145deg,rgba(27,30,46,.82),rgba(12,14,23,.92)); box-shadow:inset 0 1px rgba(255,255,255,.025),0 14px 32px rgba(0,0,0,.12); }
+button.qs-room-card::after { content:""; position:absolute; width:110px; height:110px; right:-45px; bottom:-56px; border-radius:50%; background:var(--room-glow,rgba(162,166,224,.11)); filter:blur(2px); transition:transform .3s ease; }
+button.qs-room-card:hover { transform:translateY(-3px); border-color:var(--qs-line-bright); background:linear-gradient(145deg,rgba(33,36,54,.95),rgba(13,15,24,.97)); }
+button.qs-room-card:hover::after { transform:scale(1.45); }
+.qs-room-write { --room-glow:rgba(177,157,218,.17); } .qs-room-think { --room-glow:rgba(127,150,213,.17); } .qs-room-read { --room-glow:rgba(119,166,172,.17); } .qs-room-talk { --room-glow:rgba(182,170,143,.14); }
+.qs-room-icon { display:grid; place-items:center; width:36px; height:36px; margin-bottom:22px; border:1px solid var(--qs-line); border-radius:11px; color:#d1d0ed; font-size:20px; }
+.qs-room-title { font-size:18px; font-weight:400; line-height:1.35; } .qs-room-description { max-width:220px; margin-top:7px; color:#9999ad; font-size:12px; font-weight:400; line-height:1.65; } .qs-room-arrow { position:absolute; right:19px; top:19px; color:#a5a7c7; font-size:16px; }
+button.qs-room-unsure { max-width:none; margin:0 0 12px; padding:14px 17px; color:#a9a8b8; background:rgba(12,14,22,.4); border-style:dashed; font-size:13px; }
+button.qs-tonight-card { display:flex; align-items:center; gap:14px; max-width:none; margin:0; padding:16px 19px; text-align:left; border-radius:14px; background:linear-gradient(100deg,rgba(49,51,77,.38),rgba(18,20,31,.72)); }
+.qs-tonight-card > span:first-child { font-size:23px; color:#c8c6e7; } .qs-tonight-card > span:nth-child(2) { display:flex; flex:1; flex-direction:column; gap:4px; } .qs-tonight-card strong { font-size:14px; font-weight:400; } .qs-tonight-card small { color:#9696aa; font-size:11px; } .qs-tonight-card > span:last-child { color:#bcbbe0; }
+.writer-focus-shell { max-width:780px; margin:0 auto; transition:max-width .25s ease; } .qs-room-heading { margin-bottom:24px; } .qs-room-heading .qs-eyebrow { text-align:left; } .qs-room-heading h1 { margin:0 0 12px; } .qs-room-heading .subtitle { margin:0; } .writer-title-input { margin:0 auto 10px; }
+.writer-editor-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:9px 15px; margin:0 0 10px; padding:0 2px; color:#9294ab; font-family:Arial,sans-serif; font-size:11px; }
+.writer-stat { color:#b8b8ce; font-variant-numeric:tabular-nums; } .writer-draft-status { flex:1; min-width:130px; color:#81869a; text-align:right; }
+button.writer-focus-toggle { width:auto; max-width:none; margin:0; padding:7px 11px; border-radius:8px; background:rgba(25,27,42,.68); font-size:12px; }
+.writer-box { min-height:52vh; border-radius:13px; background:linear-gradient(160deg,rgba(13,15,24,.97),rgba(15,16,26,.96)); line-height:1.9; font-size:17px; padding:clamp(20px,4vw,32px); }
+.writer-action-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; } .writer-action-row button { max-width:none; margin:0; }
+#writer.qs-writing-focus { position:fixed; z-index:1000; inset:0; overflow-y:auto; padding:max(24px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left)); background:radial-gradient(ellipse at 50% 0%,rgba(87,93,145,.18),transparent 35rem),#090b12; }
+#writer.qs-writing-focus .writer-focus-shell { max-width:920px; } #writer.qs-writing-focus .writer-box { min-height:65vh; } #writer.qs-writing-focus > .back { max-width:920px; }
+@media (max-width:600px) {
+ #welcome { padding-top:24px; } .qs-home-orbit { width:60px; height:60px; margin-bottom:21px; } .qs-home-orbit::after { inset:18px; }
+ .qs-room-grid { grid-template-columns:1fr; gap:10px; margin-top:22px; } button.qs-room-card { min-height:130px; padding:18px; } .qs-room-icon { margin-bottom:15px; } .qs-room-title { font-size:17px; } .qs-room-description { max-width:260px; }
+ .writer-editor-toolbar { gap:8px 10px; } .writer-draft-status { text-align:left; } .writer-action-row { grid-template-columns:1fr; } .writer-box { min-height:48vh; } #writer.qs-writing-focus { padding:max(16px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion:reduce) { .qs-room-card,.qs-room-card::after { animation:none!important; transition:none!important; } }
+
+
+/* Keyboard clarity and safe interactive states */
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid rgba(190,190,232,.82);
+    outline-offset: 3px;
+}
+@media (hover:none) {
+    button.qs-room-card:hover { transform:none; }
+}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -3404,30 +3467,19 @@ input,textarea,select { accent-color:var(--qs-lilac); }
 <!-- ============================= -->
 
 <section id="welcome" class="screen active">
-
+    <div class="qs-home-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+    <p class="qs-eyebrow">A PLACE TO RETURN TO</p>
     <h1>The Quiet Scribe</h1>
-
-    <p class="subtitle">
-        A quiet place for thoughts that have nowhere else to go.
-    </p>
-
-    <p class="quote">
-        Write. Think. Remember.
-    </p>
-
-    <p class="subtitle">
-        A room for thoughts, stories, questions, and silence.
-    </p>
-
-    <button onclick="showScreen('oath')">
-        Enter the quiet
-    </button>
-<button onclick="showScreen('creator')">
-    🕯️ Connect with the Creator
-</button>
-  <button onclick="showScreen('marks')">
-     The Ones Who Left a Mark 🔥
-  </button>
+    <p class="subtitle qs-home-lede">A quiet place for thoughts that have nowhere else to go.</p>
+    <div class="qs-home-rule" aria-hidden="true"><span>✦</span></div>
+    <p class="quote qs-home-mantra">Write. Think. Remember.</p>
+    <p class="subtitle qs-home-note">A room for thoughts, stories, questions, and silence.</p>
+    <div class="qs-home-actions">
+        <button class="qs-primary-action" onclick="showScreen('oath')">Enter the quiet <span aria-hidden="true">↗</span></button>
+        <button class="qs-secondary-action" onclick="showScreen('creator')">🕯️ Connect with the Creator</button>
+        <button class="qs-secondary-action" onclick="showScreen('marks')">The Ones Who Left a Mark <span aria-hidden="true">✦</span></button>
+    </div>
+    <p class="qs-home-footnote">No rush. Nothing to prove. Just a little room to be.</p>
 </section>
 
 <section id="dostoevsky" class="screen">
@@ -3793,27 +3845,14 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
         You don't have to know exactly why.
     </p>
 
-    <button onclick="showScreen('writer')">
-        🖋️ I want to write
-    </button>
-
-    <button onclick="showScreen('think')">
-        🌙 I want to think
-    </button>
-
-    <button onclick="showScreen('read')">
-        📖 I want to read
-    </button>
-    <button onclick="openChat()">
-        🕯️ I want to talk
-    </button>
-
-    <button onclick="openChat()">
-        I don't know. I just came here.
-    </button>
-  <button onclick="newTonightQuestion(); showScreen('tonight')">
-    🌙 Tonight's Question
-  </button>
+    <div class="qs-room-grid" aria-label="Choose a room">
+        <button class="qs-room-card qs-room-write" onclick="showScreen('writer')"><span class="qs-room-icon" aria-hidden="true">✍</span><span class="qs-room-title">Writer's Room</span><span class="qs-room-description">Give the words somewhere to land.</span><span class="qs-room-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-room-card qs-room-think" onclick="showScreen('think')"><span class="qs-room-icon" aria-hidden="true">☾</span><span class="qs-room-title">Thinker's Room</span><span class="qs-room-description">Follow a thought without rushing it.</span><span class="qs-room-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-room-card qs-room-read" onclick="showScreen('read')"><span class="qs-room-icon" aria-hidden="true">⌘</span><span class="qs-room-title">Reader's Room</span><span class="qs-room-description">Step into stories and other minds.</span><span class="qs-room-arrow" aria-hidden="true">↗</span></button>
+        <button class="qs-room-card qs-room-talk" onclick="openChat()"><span class="qs-room-icon" aria-hidden="true">☼</span><span class="qs-room-title">Quiet Conversation</span><span class="qs-room-description">Talk it out, or simply begin.</span><span class="qs-room-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <button class="qs-room-unsure" onclick="openChat()">I don't know. I just came here.</button>
+    <button class="qs-tonight-card" onclick="newTonightQuestion(); showScreen('tonight')"><span>☾</span><span><strong>Tonight's Question</strong><small>A small question to carry with you.</small></span><span aria-hidden="true">↗</span></button>
     <div class="quiet-utility-dock" aria-label="Quiet tools">
         <div class="quiet-utility-label">Quiet tools</div>
         <button type="button" class="quiet-utility-button" onclick="showScreen('quiet-profile');loadQuietProfile()">
@@ -4336,36 +4375,25 @@ For him, the absurd was not an ending. It was the moment we begin to live withou
 <!-- ============================= -->
 
 <section id="writer" class="screen">
-
-    <h1>Writer's Room</h1>
-
-    <p class="subtitle">
-        Put the words somewhere outside your head.
-    </p>
-<input
-    id="writerTitle"
-    class="chat-input"
-    type="text"
-    placeholder="Give your writing a name..."
->
-    <textarea
-        id="writerInput"
-        class="writer-box"
-        placeholder="Write whatever needs to be written..."
-    ></textarea>
-
-    <button onclick="saveWriting()">
-        Save writing
-    </button>
-<button onclick="showScreen('saved'); loadSavedWritings()">
-    📚 My Saved Writings
-</button>
-  <button
-        class="back"
-        onclick="showScreen('purpose')">
-        ← Back
-    </button>
-
+    <div class="writer-focus-shell">
+        <div class="qs-room-heading">
+            <p class="qs-eyebrow">ROOM 01 · THE PAGE IS YOURS</p>
+            <h1>Writer's Room</h1>
+            <p class="subtitle">Put the words somewhere outside your head.</p>
+        </div>
+        <input id="writerTitle" class="chat-input writer-title-input" type="text" placeholder="Give your writing a name..." aria-label="Writing title" autocomplete="off">
+        <div class="writer-editor-toolbar">
+            <span id="writerStats" class="writer-stat">0 words · 0 characters</span>
+            <span id="writerDraftStatus" class="writer-draft-status" role="status" aria-live="polite">Drafts stay on this device</span>
+            <button type="button" id="writerFocusToggle" class="writer-focus-toggle" onclick="toggleWriterFocusMode()" aria-pressed="false">⛶ Focus</button>
+        </div>
+        <textarea id="writerInput" class="writer-box" placeholder="Start anywhere. You can make sense of it later..." aria-label="Your writing" spellcheck="true"></textarea>
+        <div class="writer-action-row">
+            <button class="qs-primary-action" onclick="saveWriting()">Save writing <span aria-hidden="true">↗</span></button>
+            <button onclick="showScreen('saved'); loadSavedWritings()">📚 My Saved Writings</button>
+        </div>
+    </div>
+    <button class="back" onclick="showScreen('purpose')">← Back to your rooms</button>
 </section>
 <section id="saved" class="screen">
 
@@ -5229,6 +5257,15 @@ function loadQuietProfile(){
 
 function showScreen(id) {
     const screens=document.querySelectorAll(".screen");
+    const writerScreen=document.getElementById("writer");
+    const focusButton=document.getElementById("writerFocusToggle");
+    if(id!=="writer" && writerScreen && writerScreen.classList.contains("qs-writing-focus")){
+        writerScreen.classList.remove("qs-writing-focus");
+        if(focusButton){
+            focusButton.setAttribute("aria-pressed","false");
+            focusButton.textContent="⛶ Focus";
+        }
+    }
 
     screens.forEach(function(screen){
         screen.classList.remove("active");
@@ -5345,6 +5382,9 @@ function saveWriting(){
     input.value="";
     titleInput.value="";
     localStorage.removeItem("scribeWriterDraft");
+    updateWriterStats();
+    const draftStatus=document.getElementById("writerDraftStatus");
+    if(draftStatus)draftStatus.textContent="Saved writing · draft cleared";
     loadSavedWritings();
 }
 function formatWritingDate(value){
@@ -5404,25 +5444,48 @@ function deleteWriting(entryToDelete){
 function saveWriterDraft(){
     const title=document.getElementById("writerTitle");
     const input=document.getElementById("writerInput");
+    const status=document.getElementById("writerDraftStatus");
     if(!title||!input)return;
-
     if(!title.value&&!input.value){
         localStorage.removeItem("scribeWriterDraft");
+        if(status)status.textContent="Drafts stay on this device";
         return;
     }
-
-    localStorage.setItem("scribeWriterDraft",JSON.stringify({title:title.value,text:input.value}));
+    try{
+        localStorage.setItem("scribeWriterDraft",JSON.stringify({title:title.value,text:input.value}));
+        if(status)status.textContent="Saved on this device · just now";
+    }catch(error){
+        if(status)status.textContent="Local saving is unavailable in this browser";
+    }
+}
+function updateWriterStats(){
+    const input=document.getElementById("writerInput");
+    const stats=document.getElementById("writerStats");
+    if(!input||!stats)return;
+    const value=input.value;
+    const trimmed=value.trim();
+    const words=trimmed?trimmed.split(/\s+/).length:0;
+    stats.textContent=words+" "+(words===1?"word":"words")+" · "+value.length+" "+(value.length===1?"character":"characters");
+}
+function toggleWriterFocusMode(){
+    const writer=document.getElementById("writer");
+    const button=document.getElementById("writerFocusToggle");
+    if(!writer||!button)return;
+    const enabled=writer.classList.toggle("qs-writing-focus");
+    button.setAttribute("aria-pressed",enabled?"true":"false");
+    button.textContent=enabled?"⤢ Exit focus":"⛶ Focus";
+    if(enabled)document.getElementById("writerInput")?.focus();
 }
 function loadWriterDraft(){
     const title=document.getElementById("writerTitle");
     const input=document.getElementById("writerInput");
     if(!title||!input)return;
-
     const draft=safeParseJSON(localStorage.getItem("scribeWriterDraft")||"null",null);
-    if(!draft||typeof draft!=="object")return;
-
-    title.value=draft.title||"";
-    input.value=draft.text||"";
+    if(draft&&typeof draft==="object"){
+        title.value=draft.title||"";
+        input.value=draft.text||"";
+    }
+    updateWriterStats();
 }
 
 /* ============================= */
@@ -8218,7 +8281,7 @@ if("speechSynthesis" in window){
 loadSavedWritings();
   loadWriterDraft();
   document.getElementById("writerTitle")?.addEventListener("input", saveWriterDraft);
-  document.getElementById("writerInput")?.addEventListener("input", saveWriterDraft);
+  document.getElementById("writerInput")?.addEventListener("input", function(){saveWriterDraft();updateWriterStats()});
   renderChatList();
   resizeChatInput(document.getElementById("chatInput"));
   renderCurrentChat();

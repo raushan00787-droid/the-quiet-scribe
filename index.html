@@ -7169,11 +7169,51 @@ function speakScribeResponse(text,forceBrowser){
 
     if(useClonedPhilosopherVoice){
         primeQuietChatterboxPlayback();
-        speakQuietChatterbox(text).catch(function(error){
+
+        let fastVoiceFallbackStarted=false;
+        let voiceStartupTimer=null;
+
+        function useFastVoiceFallback(statusMessage){
+            if(fastVoiceFallbackStarted||quietSpeechInterrupted||!quietVoiceMode)return;
+            fastVoiceFallbackStarted=true;
+
+            if(voiceStartupTimer){
+                window.clearTimeout(voiceStartupTimer);
+                voiceStartupTimer=null;
+            }
+
+            /* Invalidate any clone generation still waiting on the remote model. */
+            quietChatterboxGenerationId++;
+
+            if(window.quietScribeAudio){
+                try{
+                    window.quietScribeAudio.pause();
+                    window.quietScribeAudio.currentTime=0;
+                }catch(error){}
+                window.quietScribeAudio=null;
+            }
+
+            setVoiceStatus(statusMessage||"Switching to the quick voice…");
+            speakScribeResponse(text,true);
+        }
+
+        /*
+         * The hosted clone can take longer when its model is waking up.
+         * Keep the personal voice when it starts promptly; otherwise speak
+         * with the device's voice instead of leaving the conversation silent.
+         */
+        voiceStartupTimer=window.setTimeout(function(){
+            useFastVoiceFallback("Clone voice is taking too long. Switching to the quick voice…");
+        },2200);
+
+        speakQuietChatterbox(text).then(function(){
+            if(voiceStartupTimer){
+                window.clearTimeout(voiceStartupTimer);
+                voiceStartupTimer=null;
+            }
+        }).catch(function(error){
             console.warn("Chatterbox philosopher voice unavailable.",error);
-            setVoiceStatus("Philosopher voice unavailable.");
-            window.setTimeout(function(){setVoiceStatus("");},2600);
-            if(quietVoiceMode) scheduleQuietVoiceRestart(350);
+            useFastVoiceFallback("Clone voice unavailable. Switching to the quick voice…");
         });
         return;
     }
@@ -7188,7 +7228,7 @@ function speakScribeResponse(text,forceBrowser){
         const shouldWaitForCancel=synth.speaking||synth.pending;
         if(shouldWaitForCancel)synth.cancel();
 
-        const style=VOICE_STYLES[getVoiceStyle()]||VOICE_STYLES.scribe;
+        const style=VOICE_STYLES[forceBrowser?"scribe":getVoiceStyle()]||VOICE_STYLES.scribe;
         const cleanText=cleanScribeSpeechText(text);
         const segments=buildQuietSpeechSegments(cleanText);
 

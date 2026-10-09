@@ -7178,14 +7178,14 @@ async function warmQuietChatterbox(){
 }
 
 function splitQuietChatterboxChunks(source,maxChars){
-    const text=String(source||"").trim();
+    const text=String(source||"").replace(/\s+/g," ").trim();
     if(!text)return [];
 
     const softLimit=Math.max(120,Math.min(220,maxChars||180));
     const hardLimit=285;
     const sentences=text.match(/[^.!?।]+[.!?।]+|[^.!?।]+$/g)||[text];
     const chunks=[];
-    let current="";
+    let shortThought="";
 
     function splitLongSentence(sentence){
         const pieces=[];
@@ -7202,21 +7202,31 @@ function splitQuietChatterboxChunks(source,maxChars){
         return pieces;
     }
 
+    /*
+     * Keep complete thoughts as separate audio segments so playback can add
+     * an actual pause at sentence boundaries. Only attach a very short
+     * acknowledgement to the next sentence, avoiding tiny clips like "Haan."
+     * without flattening a full reply into one long, even-paced recording.
+     */
     sentences.forEach(function(sentence){
         splitLongSentence(sentence).forEach(function(part){
             if(!part)return;
-            if(!current){current=part;return;}
-
-            if((current+" "+part).length<=softLimit){
-                current=(current+" "+part).trim();
-            }else{
-                chunks.push(current);
-                current=part;
+            if(shortThought){
+                chunks.push((shortThought+" "+part).trim());
+                shortThought="";
+                return;
             }
+
+            if(part.length<26 && /[.!?।]$/.test(part)){
+                shortThought=part;
+                return;
+            }
+
+            chunks.push(part);
         });
     });
 
-    if(current)chunks.push(current);
+    if(shortThought)chunks.push(shortThought);
     return chunks.map(function(item){return item.trim();}).filter(Boolean);
 }
 
@@ -7354,8 +7364,10 @@ async function speakQuietChatterbox(text,onPlaybackStarted){
             if(index+1<chunks.length){
                 chunkIndex=index+1;
 
-                /* Add a small human pause between complete spoken thoughts. */
-                const naturalPause=/[!?।]$/.test(chunks[index])?280:210;
+                /* Pause at thought boundaries: longer after a question/exclamation,
+                   a measured beat after a period, without making every gap identical. */
+                const ending=chunks[index].trim().slice(-1);
+                const naturalPause=/[!?]$/.test(ending)?340:(ending==="।"?300:260);
                 window.setTimeout(function(){
                     if(generationId!==quietChatterboxGenerationId)return;
                     playChunk(chunkIndex).catch(function(error){
@@ -7852,8 +7864,8 @@ function sendMessage(options) {
     const voiceOutputInstruction =
         quietVoiceReplyPending
             ? (philosopherMode
-                ? "SPOKEN PHILOSOPHY MODE: Sound like a thoughtful person working through an idea with someone, not an audiobook narrator performing wisdom. Respond directly to the actual point, then let the thought unfold. Use varied sentence lengths and natural spoken contractions. Let commas create brief breaths and full stops create real pauses; use at most one ellipsis, and only when a genuine thought-turn calls for it. Allow a small conversational bridge such as 'I think' or 'well' only when it genuinely fits. Never sprinkle filler, fake stutters, stage directions, or [pause] tags as decoration. Keep the idea precise and philosophically honest, but make it sound spoken rather than written. Usually 2–4 short sentences and around 220–280 characters when possible. No headings, bullets, markdown, or essay-style openings. For Hindi/Hinglish, use natural everyday phrasing and pronunciation-friendly wording, not textbook Hindi."
-                : "VOICE OUTPUT MODE: Write for the ear, not the page. Use natural conversational phrasing, contractions, ordinary spoken rhythm, and human pauses. Usually keep it to 1–3 short sentences and under 260 characters when possible. No headings, bullets, markdown, quotations, essay-style openings, or formal lecture cadence. Do not restate the user's message. Do not add filler or pretend hesitation. For Hindi/Hinglish, prefer natural everyday wording and pronunciation-friendly phrasing rather than Sanskritized or textbook Hindi. Keep common English terms only where a real speaker would naturally use them.")
+                ? "SPOKEN PHILOSOPHY MODE: Speak to one person, not to an audience. Keep the Quiet Scribe's thoughtful depth, but let it sound like a live conversation rather than a performance of wisdom. First meet the user's actual point and emotional tone; don't turn every casual remark into an analysis. Then offer one clear thought, distinction, or useful complication when it fits. Vary the cadence: a brief direct opening, a fuller sentence when the thought needs room, and a clean natural finish. Use commas for light breaths and full stops for genuine pauses. Let questions sound curious, not theatrical. A small bridge like 'I think' or 'dekho' is fine only when it naturally belongs there; never add stock openings, repeated filler, fake stutters, stage directions, or [pause] tags. Stay precise and philosophically honest without sounding stiff, cold, preachy, or like an audiobook narrator. Usually use 2–4 spoken sentences and roughly 180–320 characters when the idea allows; don't force a short answer when the user genuinely needs depth. No headings, bullets, markdown, or essay-style openings. In Hindi/Hinglish, use everyday spoken phrasing and the user's natural register, not textbook Hindi."
+                : "VOICE OUTPUT MODE: Talk as if you're replying to one person in a real conversation, not reading a polished paragraph aloud. Match the user's language, script, and energy without mechanically copying slang. Casual chat should feel relaxed and responsive; serious questions can be thoughtful; emotional moments should feel kind without forced reassurance. Answer the point directly, and don't turn every message into a lecture or analysis. Use varied sentence lengths so the voice has a natural rise and settle: commas for a light breath, full stops for a real pause, and questions that sound genuinely curious. Avoid repetitive openings, restating the user's message, stiff transitions, excessive explanation, fake hesitation, stock filler, or [pause] tags. Usually use 1–3 natural spoken sentences and roughly 100–260 characters when enough; go longer when the thought deserves it. No headings, bullets, markdown, quotations, or formal lecture cadence. For Hindi/Hinglish, use the user's natural everyday register and pronunciation-friendly wording, not Sanskritized or textbook Hindi. Keep English terms only where a real speaker would naturally use them.")
             : "";
 
     const philosopherInstruction =

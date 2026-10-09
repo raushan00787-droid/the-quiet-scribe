@@ -7230,6 +7230,18 @@ function splitQuietChatterboxChunks(source,maxChars){
     return chunks.map(function(item){return item.trim();}).filter(Boolean);
 }
 
+/* One punctuation-led rhythm shared by the cloned and device voices. */
+function getQuietNaturalPauseMs(segmentText){
+    const value=String(segmentText||"").trim();
+    const ending=value.slice(-1);
+
+    if(/[!?]$/.test(ending))return 380;
+    if(ending==="।")return 320;
+    if(ending===".")return 280;
+    if(/[,:;]$/.test(ending))return 140;
+    return 210;
+}
+
 async function generateQuietChatterboxChunk(client,reference,prompt,useHindi){
     const result=useHindi
         ? await client.predict("/generate_tts_audio",[
@@ -7364,10 +7376,8 @@ async function speakQuietChatterbox(text,onPlaybackStarted){
             if(index+1<chunks.length){
                 chunkIndex=index+1;
 
-                /* Pause at thought boundaries: longer after a question/exclamation,
-                   a measured beat after a period, without making every gap identical. */
-                const ending=chunks[index].trim().slice(-1);
-                const naturalPause=/[!?]$/.test(ending)?340:(ending==="।"?300:260);
+                /* Let punctuation shape the silence between complete thoughts. */
+                const naturalPause=getQuietNaturalPauseMs(chunks[index]);
                 window.setTimeout(function(){
                     if(generationId!==quietChatterboxGenerationId)return;
                     playChunk(chunkIndex).catch(function(error){
@@ -7492,18 +7502,6 @@ function speakScribeResponse(text,forceBrowser){
         quietSpeechInterrupted=false;
         let index=0;
 
-        function getNaturalPause(segmentText){
-            const value=String(segmentText||"").trim();
-            const ending=value.slice(-1);
-
-            /* Keep the same spoken rhythm whether the clone or device voice is used. */
-            if(/[!?]$/.test(ending))return 330;
-            if(ending==="।")return 300;
-            if(ending===".")return 250;
-            if(/[,:;]$/.test(ending))return 120;
-            return 200;
-        }
-
         function speakNextSegment(){
             if(index>=segments.length){
                 quietSpeechCurrentText="";
@@ -7542,7 +7540,7 @@ function speakScribeResponse(text,forceBrowser){
 
                 window.setTimeout(function(){
                     if(!quietSpeechInterrupted)speakNextSegment();
-                },getNaturalPause(segment.text));
+                },getQuietNaturalPauseMs(segment.text));
             };
 
             utterance.onerror=function(){
@@ -8081,6 +8079,12 @@ Use memorable formulations when they arise naturally, but never stack metaphors 
 You may say 'I disagree', 'That does not follow', 'I am not convinced', or 'There is a hidden assumption here' when justified.
 You may admit uncertainty without weakening your identity.
 You do not need to sound ancient, mysterious, or overly poetic.
+
+VOICE-INDEPENDENT CONVERSATION
+The conversational manner is the Scribe's identity, not a property of any one voice model. Keep the same natural, attentive, person-to-person delivery whether the reply is read on screen, spoken by the cloned voice, or spoken by a device voice.
+Shape the answer before it reaches speech: one clear thought at a time, varied sentence lengths, punctuation that reflects real phrasing, and clean stopping points. Use commas for light breaths and full stops for complete thoughts. Questions should sound curious, not staged.
+Never write awkward fragments just to force pauses. Never add [pause], stage directions, fake hesitation, or filler for the speech engine to perform. Keep the wording natural first; let the voice engine express it as well as it can.
+When the available voice changes, preserve the same warmth, pacing intention, language choice, and conversational character. A different timbre is acceptable; a different personality or robotic script-reading style is not.
 
 RELATION TO OTHER PHILOSOPHERS
 Do not impersonate historical or living philosophers.

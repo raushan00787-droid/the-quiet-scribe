@@ -3220,6 +3220,15 @@ button.writer-focus-toggle { width:auto; max-width:none; margin:0; padding:7px 1
 }
 @media (prefers-reduced-motion:reduce) { .qs-room-card,.qs-room-card::after { animation:none!important; transition:none!important; } }
 
+
+/* Keyboard clarity and safe interactive states */
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid rgba(190,190,232,.82);
+    outline-offset: 3px;
+}
+@media (hover:none) {
+    button.qs-room-card:hover { transform:none; }
+}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -5248,6 +5257,15 @@ function loadQuietProfile(){
 
 function showScreen(id) {
     const screens=document.querySelectorAll(".screen");
+    const writerScreen=document.getElementById("writer");
+    const focusButton=document.getElementById("writerFocusToggle");
+    if(id!=="writer" && writerScreen && writerScreen.classList.contains("qs-writing-focus")){
+        writerScreen.classList.remove("qs-writing-focus");
+        if(focusButton){
+            focusButton.setAttribute("aria-pressed","false");
+            focusButton.textContent="⛶ Focus";
+        }
+    }
 
     screens.forEach(function(screen){
         screen.classList.remove("active");
@@ -5364,6 +5382,9 @@ function saveWriting(){
     input.value="";
     titleInput.value="";
     localStorage.removeItem("scribeWriterDraft");
+    updateWriterStats();
+    const draftStatus=document.getElementById("writerDraftStatus");
+    if(draftStatus)draftStatus.textContent="Saved writing · draft cleared";
     loadSavedWritings();
 }
 function formatWritingDate(value){

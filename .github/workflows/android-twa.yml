@@ -159,6 +159,65 @@ jobs:
             git push
           fi
 
+      - name: Generate Digital Asset Links for test key
+        if: env.BUILD_MODE == 'test'
+        working-directory: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          fingerprint="$(keytool -list -v -keystore ./android-keystore -alias android -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" | awk '/SHA256:/{print $2; exit}')"
+          if [[ -z "$fingerprint" ]]; then
+            echo "::error::Could not read SHA-256 fingerprint from the temporary test signing key."
+            exit 1
+          fi
+          cd ..
+          python3 - "$fingerprint" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          fingerprint = sys.argv[1].strip()
+          path = Path(".well-known/assetlinks.json")
+          statements = json.loads(path.read_text(encoding="utf-8"))
+          if not isinstance(statements, list):
+              raise SystemExit("assetlinks.json must contain a JSON array")
+
+          statement = next(
+              (
+                  item for item in statements
+                  if item.get("target", {}).get("namespace") == "android_app"
+                  and item.get("target", {}).get("package_name") == "studio.quietscribe.app"
+                  and "delegate_permission/common.handle_all_urls" in item.get("relation", [])
+              ),
+              None,
+          )
+          if statement is None:
+              statement = {
+                  "relation": ["delegate_permission/common.handle_all_urls"],
+                  "target": {
+                      "namespace": "android_app",
+                      "package_name": "studio.quietscribe.app",
+                      "sha256_cert_fingerprints": [],
+                  },
+              }
+              statements.append(statement)
+
+          fingerprints = statement.setdefault("target", {}).setdefault("sha256_cert_fingerprints", [])
+          if not isinstance(fingerprints, list):
+              raise SystemExit("sha256_cert_fingerprints must be a JSON array")
+          if fingerprint not in fingerprints:
+              fingerprints.append(fingerprint)
+          path.write_text(json.dumps(statements, indent=2) + "\\n", encoding="utf-8")
+          print(f"Published the test signing fingerprint for studio.quietscribe.app: {fingerprint}")
+          PY
+          git add .well-known/assetlinks.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Publish Android test signing fingerprint for Quiet Scribe"
+            git push
+          fi
+
       - name: Upload test APK
         if: env.BUILD_MODE == 'test'
         uses: actions/upload-artifact@v4

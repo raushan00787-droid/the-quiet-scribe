@@ -1,0 +1,19 @@
+{
+  "name": "The Quiet Scribe",
+  "short_name": "Quiet Scribe",
+  "description": "A quiet place for thoughts that have nowhere else to go.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#11110f",
+  "theme_color": "#11110f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

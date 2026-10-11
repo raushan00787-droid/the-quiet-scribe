@@ -207,7 +207,7 @@ jobs:
               raise SystemExit("sha256_cert_fingerprints must be a JSON array")
           if fingerprint not in fingerprints:
               fingerprints.append(fingerprint)
-          path.write_text(json.dumps(statements, indent=2) + "\\n", encoding="utf-8")
+          path.write_text(json.dumps(statements, indent=2) + "\n", encoding="utf-8")
           print(f"Published the test signing fingerprint for studio.quietscribe.app: {fingerprint}")
           PY
           git add .well-known/assetlinks.json

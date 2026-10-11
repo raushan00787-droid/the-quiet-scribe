@@ -6999,23 +6999,22 @@ function isQuietStrongEnglishWord(word){
 }
 
 function buildQuietSpeechSegments(text){
-    const sentences=splitQuietSpeechSentences(text);
-    if(!sentences.length)return [];
+    const thoughts=buildQuietSpeechRhythmSegments(text,285);
+    if(!thoughts.length)return [];
 
     /*
-     * Keep each sentence in one utterance.
-     * Switching the speech engine between individual Hinglish words creates
-     * tiny queues, awkward pauses, and a stitched-together voice. Detect the
-     * dominant language once, then let that voice carry the sentence naturally.
+     * Both voice engines use the same thought boundaries. Language selection
+     * happens after grouping, so Hinglish does not trigger a voice switch for
+     * every individual word and short acknowledgements do not become tiny clips.
      */
-    return sentences.map(function(sentence){
-        const language=detectQuietSentenceLanguage(sentence);
-        const cleanSentence=sentence.trim();
+    return thoughts.map(function(thought){
+        const language=detectQuietSentenceLanguage(thought);
+        const cleanThought=thought.trim();
 
         return {
             text:language==="hi-IN"
-                ? normalizeQuietHindiSpeech(cleanSentence)
-                : cleanSentence,
+                ? normalizeQuietHindiSpeech(cleanThought)
+                : cleanThought,
             language:language
         };
     }).filter(function(segment){
@@ -7232,15 +7231,19 @@ async function warmQuietChatterbox(){
     }
 }
 
-function splitQuietChatterboxChunks(source,maxChars){
+/*
+ * Canonical thought segmentation shared by cloned audio and device speech.
+ * Sentence boundaries remain intact; only exceptionally long thoughts split
+ * at a nearby word boundary. Short acknowledgements join the next thought so
+ * neither engine emits a lonely one-word clip.
+ */
+function buildQuietSpeechRhythmSegments(source,maxChars){
     const text=String(source||"").replace(/\s+/g," ").trim();
     if(!text)return [];
 
-    const softLimit=Math.max(120,Math.min(220,maxChars||180));
-    const hardLimit=285;
-    const sentences=text.match(/[^.!?।]+[.!?।]+|[^.!?।]+$/g)||[text];
-    const chunks=[];
-    let shortThought="";
+    const hardLimit=Math.max(160,Math.min(285,maxChars||285));
+    const sentences=splitQuietSpeechSentences(text);
+    const parts=[];
 
     function splitLongSentence(sentence){
         const pieces=[];
@@ -7257,34 +7260,36 @@ function splitQuietChatterboxChunks(source,maxChars){
         return pieces;
     }
 
-    /*
-     * Keep complete thoughts as separate audio segments so playback can add
-     * an actual pause at sentence boundaries. Only attach a very short
-     * acknowledgement to the next sentence, avoiding tiny clips like "Haan."
-     * without flattening a full reply into one long, even-paced recording.
-     */
     sentences.forEach(function(sentence){
         splitLongSentence(sentence).forEach(function(part){
-            if(!part)return;
-            if(shortThought){
-                chunks.push((shortThought+" "+part).trim());
-                shortThought="";
-                return;
-            }
-
-            if(part.length<26 && /[.!?।]$/.test(part)){
-                shortThought=part;
-                return;
-            }
-
-            chunks.push(part);
+            if(part)parts.push(part);
         });
     });
 
-    if(shortThought)chunks.push(shortThought);
-    return chunks.map(function(item){return item.trim();}).filter(Boolean);
+    const grouped=[];
+    let shortThought="";
+    parts.forEach(function(part){
+        if(shortThought){
+            grouped.push((shortThought+" "+part).trim());
+            shortThought="";
+            return;
+        }
+
+        if(part.length<26 && /[.!?।]$/.test(part)){
+            shortThought=part;
+            return;
+        }
+
+        grouped.push(part);
+    });
+
+    if(shortThought)grouped.push(shortThought);
+    return grouped.map(function(item){return item.trim();}).filter(Boolean);
 }
 
+function splitQuietChatterboxChunks(source,maxChars){
+    return buildQuietSpeechRhythmSegments(source,maxChars||285);
+}
 /* One punctuation-led rhythm shared by the cloned and device voices. */
 function getQuietNaturalPauseMs(segmentText){
     const value=String(segmentText||"").trim();
@@ -7363,7 +7368,7 @@ async function speakQuietChatterbox(text,onPlaybackStarted){
      * Preserve the full answer. Split it into safe requests instead of cutting
      * the text off at the model's input limit.
      */
-    const chunks=splitQuietChatterboxChunks(prompt,180);
+    const chunks=splitQuietChatterboxChunks(prompt,285);
     if(!chunks.length)return;
 
     let chunkIndex=0;

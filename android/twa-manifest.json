@@ -1,0 +1,42 @@
+{
+  "packageId": "studio.quietscribe.app",
+  "host": "the-quiet-scribe.pages.dev",
+  "name": "The Quiet Scribe",
+  "launcherName": "Quiet Scribe",
+  "display": "standalone",
+  "themeColor": "#0a0a0f",
+  "themeColorDark": "#0a0a0f",
+  "navigationColor": "#0a0a0f",
+  "navigationColorDark": "#0a0a0f",
+  "navigationDividerColor": "#00000000",
+  "navigationDividerColorDark": "#00000000",
+  "backgroundColor": "#0a0a0f",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://the-quiet-scribe.pages.dev/icon-512.png",
+  "maskableIconUrl": "https://the-quiet-scribe.pages.dev/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android-keystore",
+    "alias": "android"
+  },
+  "appVersionCode": 1,
+  "appVersion": "1.0.0",
+  "shortcuts": [],
+  "generatorApp": "Bubblewrap CLI",
+  "webManifestUrl": "https://the-quiet-scribe.pages.dev/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://the-quiet-scribe.pages.dev/",
+  "minSdkVersion": 21,
+  "orientation": "any",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}

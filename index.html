@@ -1104,24 +1104,76 @@ body.qs-opening.qs-ready > .container {
 .qs-stars,
 .qs-moon,
 .qs-day-glow {
-    transition: opacity 5.2s ease;
+    transition: opacity 6.4s cubic-bezier(.22,.61,.36,1);
 }
 
 .qs-day-sky { opacity: 1; }
 .qs-day-haze { opacity: 1; }
-.qs-day-glow { opacity: 1; }
+.qs-day-glow {
+    opacity: 1;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+        opacity 6.4s cubic-bezier(.22,.61,.36,1),
+        transform 8s cubic-bezier(.22,.61,.36,1);
+}
 .qs-night-sky { opacity: 0; }
 .qs-night-haze { opacity: 0; }
 .qs-stars { opacity: 0; }
-.qs-moon { opacity: 0; }
+.qs-stars circle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: qsStarTwinkle 3.8s ease-in-out infinite;
+}
+.qs-stars circle:nth-child(3n) { animation-delay: -1.2s; }
+.qs-stars circle:nth-child(3n + 1) { animation-delay: -2.4s; }
+.qs-moon {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: translate(24px, 18px) scale(.88);
+    transition:
+        opacity 6.4s cubic-bezier(.22,.61,.36,1),
+        transform 7.2s cubic-bezier(.22,.61,.36,1);
+}
 
 #qs-opening-scene.qs-night .qs-day-sky { opacity: 0; }
 #qs-opening-scene.qs-night .qs-day-haze { opacity: 0; }
-#qs-opening-scene.qs-night .qs-day-glow { opacity: 0; }
+#qs-opening-scene.qs-night .qs-day-glow {
+    opacity: 0;
+    transform: translate(-24px, 28px) scale(.82);
+}
 #qs-opening-scene.qs-night .qs-night-sky { opacity: 1; }
 #qs-opening-scene.qs-night .qs-night-haze { opacity: 1; }
 #qs-opening-scene.qs-night .qs-stars { opacity: 1; }
-#qs-opening-scene.qs-night .qs-moon { opacity: 1; }
+#qs-opening-scene.qs-night .qs-moon {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+}
+
+@keyframes qsStarTwinkle {
+    0%, 100% { opacity: .45; }
+    50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qs-day-sky,
+    .qs-day-haze,
+    .qs-night-sky,
+    .qs-night-haze,
+    .qs-stars,
+    .qs-moon,
+    .qs-day-glow {
+        transition-duration: .01ms !important;
+    }
+    .qs-stars circle,
+    .qs-cloud-move,
+    .qs-cloud-move-2,
+    .qs-grass-sway,
+    .qs-grass-sway-2 {
+        animation: none !important;
+    }
+}
 
 .qs-cloud-move {
     animation: qsCloudMove 42s linear infinite;
@@ -3465,6 +3517,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
         <g class="qs-day-glow">
             <circle cx="1240" cy="165" r="78" fill="url(#qsSun)" opacity="0.98"/>
             <circle cx="1240" cy="165" r="120" fill="#fff1bd" opacity="0.16"/>
+            <circle cx="1240" cy="165" r="158" fill="#fff1bd" opacity="0.055"/>
         </g>
 
         <g class="qs-night-haze">
@@ -3494,6 +3547,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
         <g class="qs-moon">
             <circle cx="1270" cy="155" r="51" fill="#e9edf7"/>
             <circle cx="1250" cy="140" r="51" fill="#152139"/>
+            <circle cx="1270" cy="155" r="68" fill="#dce6ff" opacity=".075"/>
         </g>
 
         <g class="qs-cloud-move" opacity="0.55" fill="#f5f2e9">

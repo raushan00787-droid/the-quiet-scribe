@@ -603,7 +603,7 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
 }
 
 
-/* FINAL FORM III · illustrated sky layers, leaf grain, and living light */
+/* Hotfix: keep SVG scene motion composited safely on mobile GPUs. */
 .qs-day-clouds,
 .qs-night-clouds,
 .qs-day-birds,
@@ -615,126 +615,28 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
 .qs-day-clouds,
 .qs-night-clouds,
 .qs-day-birds,
-.qs-night-beams {
-  transition: opacity 6.4s cubic-bezier(.22,.61,.36,1);
+.qs-night-beams,
+.qs-leaf-veins path,
+.qs-leaf-glints,
+#qs-opening-scene .qs-fireflies {
+  transition: opacity 6.4s ease;
 }
-.qs-day-clouds {
-  opacity: .76;
-  transform-box: view-box;
-  animation: qs-cloud-drift 52s ease-in-out infinite alternate;
-}
-.qs-night-clouds {
-  opacity: 0;
-  transform-box: view-box;
-  animation: qs-cloud-drift 68s ease-in-out infinite alternate-reverse;
-}
-.qs-day-birds {
-  opacity: .48;
-  transform-box: view-box;
-  transform-origin: center;
-  animation: qs-birds-glide 18s ease-in-out infinite;
-}
-.qs-night-beams {
-  opacity: 0;
-  mix-blend-mode: screen;
-}
+.qs-day-clouds { opacity: .76; }
+.qs-night-clouds { opacity: 0; }
+.qs-day-birds { opacity: .48; }
+.qs-night-beams { opacity: 0; }
 #qs-opening-scene.qs-night .qs-day-clouds,
-#qs-opening-scene.qs-night .qs-day-birds {
-  opacity: 0;
-}
-#qs-opening-scene.qs-night .qs-night-clouds {
-  opacity: .88;
-}
-#qs-opening-scene.qs-night .qs-night-beams {
-  opacity: .74;
-}
-@keyframes qs-cloud-drift {
-  0% { transform: translate3d(-14px, 0, 0); }
-  100% { transform: translate3d(20px, -5px, 0); }
-}
-@keyframes qs-birds-glide {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(14px, -5px, 0); }
-}
-
-/* Tiny vein lines catch daylight, then cool into blue-green moonlit detail. */
-.qs-leaf-veins path {
-  transition: stroke 6.4s ease, opacity 6.4s ease;
-}
-.qs-leaf-glints {
-  filter: drop-shadow(0 0 3px rgba(228, 225, 160, .18));
-  transition: opacity 6.4s ease, filter 6.4s ease;
-}
+#qs-opening-scene.qs-night .qs-day-birds { opacity: 0; }
+#qs-opening-scene.qs-night .qs-night-clouds { opacity: .88; }
+#qs-opening-scene.qs-night .qs-night-beams { opacity: .74; }
 #qs-opening-scene.qs-night .qs-leaf-veins path {
   stroke: #9bb6bd;
   opacity: .2;
 }
-#qs-opening-scene.qs-night .qs-leaf-glints {
-  opacity: .18;
-  filter: drop-shadow(0 0 4px rgba(155, 188, 230, .16));
-}
-
-/* Fireflies breathe at different tempos so the meadow feels alive, not busy. */
-.qs-fireflies circle:nth-child(2),
-.qs-fireflies circle:nth-child(4),
-.qs-fireflies circle:nth-child(6),
-.qs-fireflies circle:nth-child(8) {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: qs-firefly-pulse 3.8s ease-in-out infinite;
-}
-.qs-fireflies circle:nth-child(4) { animation-delay: -1.7s; }
-.qs-fireflies circle:nth-child(6) { animation-delay: -2.4s; }
-.qs-fireflies circle:nth-child(8) { animation-delay: -0.9s; }
-.qs-fireflies circle:nth-child(odd) {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: qs-firefly-halo 4.6s ease-in-out infinite;
-}
-#qs-opening-scene:not(.qs-night) .qs-fireflies {
-  opacity: .22;
-  transition: opacity 6.4s ease;
-}
-#qs-opening-scene.qs-night .qs-fireflies {
-  opacity: 1;
-  transition: opacity 6.4s ease;
-}
-@keyframes qs-firefly-pulse {
-  0%, 100% { opacity: .48; transform: scale(.8); }
-  50% { opacity: 1; transform: scale(1.22); }
-}
-@keyframes qs-firefly-halo {
-  0%, 100% { opacity: .28; }
-  50% { opacity: .82; }
-}
-
-/* The distant hills cool down gradually with the sky instead of flipping flat. */
-#qs-opening-scene .qs-night-haze {
-  transition: opacity 6.4s ease;
-}
-#qs-opening-scene.qs-night .qs-tree-world {
-  filter: brightness(.62) saturate(.72) drop-shadow(12px 7px 18px rgba(5, 12, 24, .36));
-}
-#qs-opening-scene.qs-night .qs-tree-crown-rim {
-  stroke: #9eb9e0;
-  opacity: .32;
-}
-
+#qs-opening-scene.qs-night .qs-leaf-glints { opacity: .18; }
+#qs-opening-scene:not(.qs-night) .qs-fireflies { opacity: .22; }
+#qs-opening-scene.qs-night .qs-fireflies { opacity: .9; }
 @media (max-width: 700px) {
-  .qs-day-clouds { animation-duration: 70s; }
-  .qs-night-clouds { animation-duration: 84s; }
-  .qs-day-birds { animation-duration: 24s; }
   .qs-night-beams { mix-blend-mode: normal; }
   .qs-leaf-glints { filter: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .qs-day-clouds,
-  .qs-night-clouds,
-  .qs-day-birds,
-  .qs-fireflies circle,
-  .qs-leaf-veins path,
-  .qs-leaf-glints {
-    animation: none !important;
-    transition: none !important;
-  }
 }

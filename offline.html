@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Quiet Scribe · Offline</title>
+  <style>
+    :root{color-scheme:dark}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;min-height:100dvh;padding:24px;display:grid;place-items:center;background:radial-gradient(circle at top,#1b1b26,#0d0d12 65%);color:#e8e3d8;font-family:Georgia,"Times New Roman",serif}
+    main{width:min(100%,520px);padding:clamp(24px,6vw,42px);border:1px solid #292932;border-radius:18px;background:rgba(17,17,24,.88);text-align:center;box-shadow:0 18px 48px rgba(0,0,0,.25)}
+    .mark{font-size:30px;color:#c8c0d2;opacity:.9}
+    h1{font-weight:normal;letter-spacing:1px;font-size:clamp(28px,7vw,38px);margin:18px 0 12px}
+    p{color:#aaa5ad;line-height:1.8;margin:0 auto 24px}
+    button{min-height:46px;padding:12px 20px;border:1px solid #454552;border-radius:10px;background:#24242e;color:#e8e3d8;font:inherit;cursor:pointer}
+    button:focus-visible{outline:2px solid #c8c0d2;outline-offset:3px}
+    .note{font-size:13px;margin-top:20px;margin-bottom:0}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true">✦</div>
+    <h1>A quiet moment offline.</h1>
+    <p>The Quiet Scribe couldn't reach this page. Reconnect to the internet and try again. Your saved writing on this device is not cleared by this screen.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+    <p class="note">A quiet place for thoughts that have nowhere else to go.</p>
+  </main>
+</body>
+</html>

@@ -297,6 +297,7 @@
       if (node.querySelectorAll) node.querySelectorAll(selector).forEach(registerReveal);
     }
 
+    body.classList.add("qs-reveal-enhanced");
     document.querySelectorAll(selector).forEach(registerReveal);
 
     /* Catch cards/entries created later by the app, without replaying revealed items. */

@@ -7183,7 +7183,7 @@ async function warmQuietChatterbox(){
  * neither engine emits a lonely one-word clip.
  */
 function buildQuietSpeechRhythmSegments(source,maxChars){
-    const text=String(source||"").replace(/\\s+/g," ").trim();
+    const text=String(source||"").replace(/\s+/g," ").trim();
     if(!text)return [];
 
     const hardLimit=Math.max(160,Math.min(285,maxChars||285));

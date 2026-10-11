@@ -3589,11 +3589,30 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <stop offset="55%" stop-color="#6b6380" stop-opacity=".12"/>
                 <stop offset="100%" stop-color="#111e2b" stop-opacity=".48"/>
             </linearGradient>
+
+            <radialGradient id="qsDayAtmosphere" cx="76%" cy="20%" r="74%">
+                <stop offset="0%" stop-color="#fff3d2" stop-opacity=".46"/>
+                <stop offset="42%" stop-color="#e8d9bd" stop-opacity=".16"/>
+                <stop offset="100%" stop-color="#c4d6d4" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="qsNightNebula" cx="70%" cy="24%" r="76%">
+                <stop offset="0%" stop-color="#94a9d7" stop-opacity=".30"/>
+                <stop offset="38%" stop-color="#697fb3" stop-opacity=".15"/>
+                <stop offset="72%" stop-color="#435780" stop-opacity=".06"/>
+                <stop offset="100%" stop-color="#101a2d" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="qsMoonHalo" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#e7efff" stop-opacity=".30"/>
+                <stop offset="48%" stop-color="#c0d5ff" stop-opacity=".12"/>
+                <stop offset="100%" stop-color="#c0d5ff" stop-opacity="0"/>
+            </radialGradient>
         </defs>
 
         <rect class="qs-day-sky" x="0" y="0" width="1600" height="900" fill="url(#qsDaySky)"/>
         <rect class="qs-night-sky" x="0" y="0" width="1600" height="900" fill="url(#qsNightSky)"/>
         <rect class="qs-night-grade" x="0" y="0" width="1600" height="900" fill="url(#qsTwilightGrade)"/>
+        <rect class="qs-day-atmosphere" x="0" y="0" width="1600" height="700" fill="url(#qsDayAtmosphere)"/>
+        <rect class="qs-night-nebula" x="0" y="0" width="1600" height="700" fill="url(#qsNightNebula)"/>
 
         <g class="qs-day-glow">
             <circle cx="1240" cy="165" r="176" fill="#fff1bd" opacity=".045"/>
@@ -3628,12 +3647,44 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             <circle cx="1495" cy="205" r="1.4"/>
             <circle cx="1184" cy="250" r="1.4"/>
             <circle cx="742" cy="250" r="1.4"/>
+            <circle cx="83" cy="246" r="1.2"/>
+            <circle cx="338" cy="218" r="1.3"/>
+            <circle cx="615" cy="58" r="1.1"/>
+            <circle cx="755" cy="72" r="1.4"/>
+            <circle cx="885" cy="56" r="1.1"/>
+            <circle cx="1014" cy="224" r="1.2"/>
+            <circle cx="1160" cy="78" r="1.5"/>
+            <circle cx="1290" cy="286" r="1.1"/>
+            <circle cx="1435" cy="310" r="1.25"/>
+            <circle cx="1535" cy="115" r="1.15"/>
+            <circle cx="930" cy="292" r="1.0"/>
+            <circle cx="490" cy="285" r="1.0"/>
+            <circle cx="350" cy="94" r="1.05"/>
+            <circle cx="105" cy="66" r="1.3"/>
+            <circle cx="1320" cy="48" r="1.0"/>
+            <circle cx="1540" cy="382" r="1.05"/>
+            <circle cx="890" cy="370" r="1.1"/>
+        </g>
+
+        <g class="qs-night-constellation" fill="none" stroke="#c8d8f5" stroke-width="1.2" stroke-linecap="round">
+            <path d="M210 115 L270 151 L326 119 L382 163"/>
+            <path d="M870 115 L914 153 L964 102 L1007 139"/>
+            <path d="M1370 102 L1435 145 L1495 205"/>
+        </g>
+
+        <g class="qs-shooting-star">
+            <path d="M0 0 L-105 28" fill="none" stroke="#f2f5ff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M-4 1 L-72 20" fill="none" stroke="#a9c5f5" stroke-width="8" stroke-linecap="round" opacity=".12"/>
         </g>
 
         <g class="qs-moon">
+            <circle cx="1270" cy="155" r="120" fill="url(#qsMoonHalo)"/>
             <circle cx="1270" cy="155" r="51" fill="#e9edf7"/>
             <circle cx="1250" cy="140" r="51" fill="#152139"/>
             <circle cx="1270" cy="155" r="68" fill="#dce6ff" opacity=".075"/>
+            <circle cx="1280" cy="133" r="5" fill="#cbd7ed" opacity=".20"/>
+            <circle cx="1291" cy="166" r="7" fill="#cbd7ed" opacity=".16"/>
+            <circle cx="1274" cy="176" r="3" fill="#cbd7ed" opacity=".20"/>
         </g>
 
         <g class="qs-cloud-move" opacity="0.55" fill="#f5f2e9">
@@ -3721,7 +3772,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
         </g>
 
         <!-- Foreground tree, now with layered foliage and hand-drawn bark detail. -->
-        <g>
+        <g class="qs-tree-world">
             <path d="M0 900
                      L0 250
                      C86 235 142 250 196 282
@@ -3760,7 +3811,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="142" cy="445" rx="140" ry="100"/>
             </g>
 
-            <g fill="url(#qsCanopyLight)" opacity=".92">
+            <g class="qs-canopy-layer qs-canopy-layer-a" fill="url(#qsCanopyLight)" opacity=".92">
                 <ellipse cx="70" cy="293" rx="106" ry="78"/>
                 <ellipse cx="205" cy="232" rx="122" ry="84"/>
                 <ellipse cx="345" cy="250" rx="113" ry="83"/>
@@ -3769,7 +3820,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="731" cy="405" rx="82" ry="60"/>
             </g>
 
-            <g fill="url(#qsLeafSunlit)" opacity=".9">
+            <g class="qs-canopy-layer qs-canopy-layer-b" fill="url(#qsLeafSunlit)" opacity=".9">
                 <ellipse cx="40" cy="265" rx="60" ry="48"/>
                 <ellipse cx="122" cy="230" rx="70" ry="50"/>
                 <ellipse cx="210" cy="197" rx="78" ry="55"/>
@@ -3781,7 +3832,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             </g>
 
             <!-- Leaf clusters catch a little of the late-afternoon light. -->
-            <g fill="#82905a" opacity=".55">
+            <g class="qs-canopy-detail qs-canopy-detail-a" fill="#82905a" opacity=".55">
                 <ellipse cx="75" cy="207" rx="22" ry="12" transform="rotate(-28 75 207)"/>
                 <ellipse cx="154" cy="181" rx="26" ry="13" transform="rotate(19 154 181)"/>
                 <ellipse cx="250" cy="168" rx="25" ry="12" transform="rotate(-16 250 168)"/>
@@ -3805,7 +3856,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             </g>
 
             <!-- Small leaf marks break up the smooth canopy silhouettes. -->
-            <g fill="#9aa36a" opacity=".66">
+            <g class="qs-canopy-detail qs-canopy-detail-b" fill="#9aa36a" opacity=".66">
                 <ellipse cx="95" cy="286" rx="13" ry="5" transform="rotate(-32 95 286)"/>
                 <ellipse cx="137" cy="310" rx="16" ry="6" transform="rotate(18 137 310)"/>
                 <ellipse cx="187" cy="254" rx="15" ry="6" transform="rotate(-18 187 254)"/>
@@ -3818,6 +3869,15 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="590" cy="337" rx="13" ry="5" transform="rotate(20 590 337)"/>
                 <ellipse cx="650" cy="373" rx="14" ry="5" transform="rotate(-23 650 373)"/>
                 <ellipse cx="708" cy="403" rx="12" ry="5" transform="rotate(17 708 403)"/>
+            </g>
+
+            <g class="qs-tree-crown-rim" fill="none" stroke="#b7c58b" stroke-width="3" stroke-linecap="round" opacity=".36">
+                <path d="M16 280 C85 249 143 253 193 284 C250 246 329 248 393 286"/>
+                <path d="M394 286 C472 241 575 266 625 326 C684 296 747 304 789 352"/>
+            </g>
+            <g class="qs-tree-root-detail" fill="none" stroke="#2b261f" stroke-width="7" stroke-linecap="round" opacity=".42">
+                <path d="M315 836 C276 865 234 893 192 900"/>
+                <path d="M422 846 C455 867 480 887 524 900"/>
             </g>
         </g>
 

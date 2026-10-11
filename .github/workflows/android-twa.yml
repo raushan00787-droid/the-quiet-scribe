@@ -79,7 +79,7 @@ jobs:
             echo "BUILD_MODE=test" >> "$GITHUB_ENV"
             echo "::warning::Built with a temporary test signing key. This APK is for device testing only, not for a store release."
           fi
-          test -s android-keystore
+          test -s ./android-keystore
 
       - name: Run PWA quality validation (informational)
         continue-on-error: true
@@ -106,15 +106,16 @@ jobs:
             echo "::error::Could not read SHA-256 fingerprint from the configured signing key."
             exit 1
           fi
-          bubblewrap fingerprint add "$fingerprint" --manifest=./twa-manifest.json
-          bubblewrap fingerprint generateAssetLinks --manifest=./twa-manifest.json --output=./assetlinks.json
+          cp ./twa-manifest.json ./twa-manifest-release.json
+          bubblewrap fingerprint add "$fingerprint" --manifest=./twa-manifest-release.json
+          bubblewrap fingerprint generateAssetLinks --manifest=./twa-manifest-release.json --output=./assetlinks.json
           test -s ./assetlinks.json
           mkdir -p ../.well-known
           cp ./assetlinks.json ../.well-known/assetlinks.json
           cd ..
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .well-known/assetlinks.json android/twa-manifest.json
+          git add .well-known/assetlinks.json
           if ! git diff --cached --quiet; then
             git commit -m "Publish Android Digital Asset Links for Quiet Scribe"
             git push

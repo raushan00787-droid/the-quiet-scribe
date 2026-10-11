@@ -50,7 +50,18 @@ jobs:
           mkdir -p "$HOME/.bubblewrap"
           printf '{"jdkPath":"%s","androidSdkPath":"%s"}\n' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
           test -x "$JAVA_HOME/bin/java"
-          test -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" || test -x "$ANDROID_HOME/cmdline-tools/22.0/bin/sdkmanager"
+          if [[ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]]; then
+            sdk_bin="$ANDROID_HOME/cmdline-tools/latest/bin"
+          else
+            sdk_bin="$(find "$ANDROID_HOME/cmdline-tools" -mindepth 2 -maxdepth 2 -type f -name sdkmanager -printf '%h\n' | head -n 1)"
+          fi
+          if [[ -z "$sdk_bin" || ! -x "$sdk_bin/sdkmanager" ]]; then
+            echo "::error::Could not locate Android SDK sdkmanager."
+            exit 1
+          fi
+          if [[ ! -e "$ANDROID_HOME/bin" ]]; then
+            ln -s "$sdk_bin" "$ANDROID_HOME/bin"
+          fi
           cat "$HOME/.bubblewrap/config.json"
           bubblewrap doctor
 

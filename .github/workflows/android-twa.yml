@@ -1,0 +1,142 @@
+name: Quiet Scribe Android TWA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "android/twa-manifest.json"
+      - ".github/workflows/android-twa.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quiet-scribe-android-build
+  cancel-in-progress: false
+
+jobs:
+  build-android:
+    name: Build Android package
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
+
+      - name: Install Bubblewrap
+        run: npm install --global @bubblewrap/cli
+
+      - name: Prepare signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd android
+          if [[ -n "${ANDROID_KEYSTORE_BASE64:-}" ]]; then
+            if [[ -z "${ANDROID_KEYSTORE_PASSWORD:-}" || -z "${ANDROID_KEY_PASSWORD:-}" ]]; then
+              echo "::error::If ANDROID_KEYSTORE_BASE64 is set, ANDROID_KEYSTORE_PASSWORD and ANDROID_KEY_PASSWORD must also be set."
+              exit 1
+            fi
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android-keystore
+            echo "BUBBLEWRAP_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "BUBBLEWRAP_KEY_PASSWORD=$ANDROID_KEY_PASSWORD" >> "$GITHUB_ENV"
+            echo "BUILD_MODE=release" >> "$GITHUB_ENV"
+            echo "Using the configured persistent signing key."
+          else
+            test_password="$(openssl rand -hex 24)"
+            keytool -genkeypair -noprompt \
+              -keystore android-keystore \
+              -storepass "$test_password" \
+              -keypass "$test_password" \
+              -alias android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Quiet Scribe Test, OU=Testing, O=Quiet Scribe, L=Gaya, ST=Bihar, C=IN"
+            echo "BUBBLEWRAP_KEYSTORE_PASSWORD=$test_password" >> "$GITHUB_ENV"
+            echo "BUBBLEWRAP_KEY_PASSWORD=$test_password" >> "$GITHUB_ENV"
+            echo "BUILD_MODE=test" >> "$GITHUB_ENV"
+            echo "::warning::Built with a temporary test signing key. This APK is for device testing only, not for a store release."
+          fi
+          test -s android-keystore
+
+      - name: Run PWA quality validation (informational)
+        continue-on-error: true
+        run: bubblewrap validate --url=https://the-quiet-scribe.pages.dev/
+
+      - name: Generate Android project
+        working-directory: android
+        run: bubblewrap update --skipVersionUpgrade --manifest=./twa-manifest.json
+
+      - name: Build signed APK and App Bundle
+        working-directory: android
+        run: bubblewrap build --skipPwaValidation --manifest=./twa-manifest.json
+
+      - name: Generate Digital Asset Links for persistent release key
+        if: env.BUILD_MODE == 'release'
+        working-directory: android
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          fingerprint="$(keytool -list -v -keystore ./android-keystore -alias android -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" | awk '/SHA256:/{print $2; exit}')"
+          if [[ -z "$fingerprint" ]]; then
+            echo "::error::Could not read SHA-256 fingerprint from the configured signing key."
+            exit 1
+          fi
+          bubblewrap fingerprint add "$fingerprint" --manifest=./twa-manifest.json
+          bubblewrap fingerprint generateAssetLinks --manifest=./twa-manifest.json --output=./assetlinks.json
+          test -s ./assetlinks.json
+          mkdir -p ../.well-known
+          cp ./assetlinks.json ../.well-known/assetlinks.json
+          cd ..
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .well-known/assetlinks.json android/twa-manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish Android Digital Asset Links for Quiet Scribe"
+            git push
+          fi
+
+      - name: Upload test APK
+        if: env.BUILD_MODE == 'test'
+        uses: actions/upload-artifact@v4
+        with:
+          name: quiet-scribe-test-apk
+          path: android/app-release-signed.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload release APK, AAB, and Digital Asset Links
+        if: env.BUILD_MODE == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: quiet-scribe-release-package
+          path: |
+            android/app-release-signed.apk
+            android/app-release-bundle.aab
+            .well-known/assetlinks.json
+          if-no-files-found: error
+          retention-days: 30

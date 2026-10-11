@@ -3511,6 +3511,58 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
+  <style id="quiet-scribe-pwa-polish">
+    html { min-height: 100%; }
+    body { min-height: 100vh; min-height: 100dvh; }
+    button, input, textarea, select { touch-action: manipulation; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 2px solid #aaa6c8;
+      outline-offset: 3px;
+    }
+    #qs-pwa-update, #qs-network-status {
+      position: fixed;
+      z-index: 10000;
+      left: max(12px, env(safe-area-inset-left));
+      right: max(12px, env(safe-area-inset-right));
+      bottom: max(12px, env(safe-area-inset-bottom));
+      width: auto;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 14px 16px;
+      border: 1px solid #454552;
+      border-radius: 14px;
+      background: rgba(17,17,24,.97);
+      color: #e8e3d8;
+      box-shadow: 0 12px 36px rgba(0,0,0,.4);
+      font: 14px/1.5 system-ui, sans-serif;
+      backdrop-filter: blur(14px);
+    }
+    #qs-pwa-update { display: flex; align-items: center; gap: 12px; }
+    #qs-pwa-update .qs-update-copy { flex: 1; min-width: 0; }
+    #qs-pwa-update button {
+      width: auto; min-height: 44px; margin: 0; padding: 10px 13px;
+      font: inherit; white-space: nowrap;
+    }
+    #qs-network-status { bottom: max(12px, env(safe-area-inset-bottom)); }
+    @media (max-width: 600px) {
+      body { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+      .container { width: 100%; min-width: 0; }
+      #chat.active {
+        min-height: 100dvh;
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+      #chat.active .chat-main { min-height: 0; }
+      #chat.active .chat-box { overscroll-behavior: contain; }
+      .writer-box, #tonightAnswer { max-width: 100%; }
+      #qs-pwa-update { align-items: stretch; flex-wrap: wrap; }
+      #qs-pwa-update .qs-update-copy { flex-basis: 100%; }
+      #qs-pwa-update button { flex: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #qs-pwa-update, #qs-network-status { scroll-behavior: auto; }
+    }
+  </style>
 </head>
 
 
@@ -9137,9 +9189,84 @@ loadSavedWritings();
 
   <!-- quiet-scribe-pwa-sw -->
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
-    }
+    (function () {
+      function showNetworkStatus() {
+        let status = document.getElementById("qs-network-status");
+        if (!status && !navigator.onLine) {
+          status = document.createElement("div");
+          status.id = "qs-network-status";
+          status.setAttribute("role", "status");
+          status.setAttribute("aria-live", "polite");
+          status.textContent = "You're offline. Saved writing on this device remains available; AI and other network features need a connection.";
+          document.body.appendChild(status);
+        } else if (status && navigator.onLine) {
+          status.remove();
+        }
+      }
+      window.addEventListener("offline", showNetworkStatus);
+      window.addEventListener("online", showNetworkStatus);
+      showNetworkStatus();
+
+      if (!("serviceWorker" in navigator)) return;
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
+      function offerUpdate(registration) {
+        if (!registration.waiting || !navigator.serviceWorker.controller ||
+            document.getElementById("qs-pwa-update")) return;
+        const banner = document.createElement("aside");
+        banner.id = "qs-pwa-update";
+        banner.setAttribute("role", "status");
+        banner.setAttribute("aria-live", "polite");
+        const copy = document.createElement("div");
+        copy.className = "qs-update-copy";
+        const title = document.createElement("strong");
+        title.textContent = "A newer Quiet Scribe is ready.";
+        const detail = document.createElement("div");
+        detail.textContent = "Refresh when you're ready to use the update.";
+        copy.append(title, detail);
+        const later = document.createElement("button");
+        later.type = "button";
+        later.textContent = "Later";
+        later.addEventListener("click", function () { banner.remove(); });
+        const update = document.createElement("button");
+        update.type = "button";
+        update.textContent = "Refresh";
+        update.addEventListener("click", function () {
+          update.disabled = true;
+          update.textContent = "Updating…";
+          registration.waiting?.postMessage({ type: "SKIP_WAITING" });
+        });
+        banner.append(copy, later, update);
+        document.body.appendChild(banner);
+      }
+
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" })
+          .then(function (registration) {
+            offerUpdate(registration);
+            registration.addEventListener("updatefound", function () {
+              const worker = registration.installing;
+              if (!worker) return;
+              worker.addEventListener("statechange", function () {
+                if (worker.state === "installed" && navigator.serviceWorker.controller) {
+                  offerUpdate(registration);
+                }
+              });
+            });
+            document.addEventListener("visibilitychange", function () {
+              if (document.visibilityState === "visible" && navigator.onLine) {
+                registration.update().catch(function () {});
+              }
+            });
+          })
+          .catch(function () {});
+      });
+    })();
   </script>
 </body>
 </html>

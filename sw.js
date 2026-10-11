@@ -1,19 +1,30 @@
-const CACHE_NAME = "quiet-scribe-shell-v2";
-const SHELL = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
+const CACHE_NAME = "quiet-scribe-shell-v3";
+const CACHE_PREFIX = "quiet-scribe-shell-";
+const SHELL = [
+  "/",
+  "/offline.html",
+  "/manifest.webmanifest",
+  "/icon.svg",
+  "/icon-192.png",
+  "/icon-512.png"
+];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(SHELL))
-      .then(() => self.skipWaiting())
-  );
+  // Do not force an update over an active writing session.
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((key) => key.startsWith("quiet-scribe-shell-") && key !== CACHE_NAME)
+        keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       ))
       .then(() => self.clients.claim())
@@ -30,10 +41,14 @@ self.addEventListener("fetch", (event) => {
       const cache = await caches.open(CACHE_NAME);
       try {
         const response = await fetch(request);
-        if (response && response.ok) await cache.put("/", response.clone());
+        if (response && response.ok && url.pathname === "/") {
+          await cache.put("/", response.clone());
+        }
         return response;
       } catch {
-        return (await cache.match(request, { ignoreSearch: true })) || (await cache.match("/"));
+        const cachedPage = await cache.match(request, { ignoreSearch: true });
+        if (cachedPage) return cachedPage;
+        return (await cache.match("/offline.html")) || (await cache.match("/"));
       }
     })());
     return;
@@ -50,6 +65,7 @@ self.addEventListener("fetch", (event) => {
       if (response && response.ok) await cache.put(request, response.clone());
       return response;
     }).catch(() => cached);
+    // Return cached files quickly while refreshing them for the next visit.
     return cached || await network;
   })());
 });

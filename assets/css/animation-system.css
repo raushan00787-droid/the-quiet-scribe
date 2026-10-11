@@ -508,3 +508,154 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
     transition: none !important;
   }
 }
+
+
+/* =========================================================
+   FINAL FORM · LIVING TREE + CINEMATIC DAY/NIGHT LIGHT
+   Pure SVG/CSS layers: no images, no runtime dependency.
+   ========================================================= */
+#qs-opening-art {
+  transform-origin: 52% 46%;
+  animation: qs-opening-camera 27s cubic-bezier(.45,0,.55,1) infinite alternate;
+  will-change: transform;
+}
+
+.qs-day-atmosphere,
+.qs-night-nebula,
+.qs-night-constellation,
+.qs-day-rays,
+.qs-fireflies {
+  pointer-events: none;
+  transition: opacity 6.4s cubic-bezier(.22,.61,.36,1);
+}
+
+.qs-day-atmosphere { opacity: .86; }
+.qs-night-nebula { opacity: 0; }
+.qs-night-constellation { opacity: 0; }
+.qs-day-rays {
+  opacity: .18;
+  transform-box: view-box;
+  transform-origin: 1240px 165px;
+  animation: qs-sun-ray-drift 36s linear infinite;
+}
+.qs-fireflies { opacity: 0; fill: #d9f2a6; }
+
+#qs-opening-scene.qs-night .qs-day-atmosphere,
+#qs-opening-scene.qs-night .qs-day-rays { opacity: 0; }
+#qs-opening-scene.qs-night .qs-night-nebula { opacity: .95; }
+#qs-opening-scene.qs-night .qs-night-constellation { opacity: .62; }
+#qs-opening-scene.qs-night .qs-fireflies { opacity: .85; }
+
+@keyframes qs-sun-ray-drift {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(3deg); }
+}
+
+/* The trunk has warm vertical grain by day and cool moonlit edges by night. */
+.qs-tree-silhouette {
+  transform-box: fill-box;
+  transform-origin: 48% 100%;
+  filter: drop-shadow(11px 5px 12px rgba(17, 30, 24, .12));
+  transition: filter 6.4s ease;
+}
+.qs-tree-leaf-detail {
+  transform-box: fill-box;
+  transform-origin: 28% 82%;
+  animation: qs-canopy-breathe 8s ease-in-out infinite;
+}
+.qs-tree-leaf-detail ellipse:nth-child(3n) { fill: #78945b; }
+.qs-tree-leaf-detail ellipse:nth-child(3n + 1) { fill: #587b4c; }
+.qs-tree-leaf-glints,
+.qs-tree-rim,
+.qs-tree-bark-detail { transition: opacity 6.4s ease; }
+.qs-tree-leaf-glints { opacity: .66; }
+.qs-tree-rim { opacity: .44; }
+.qs-tree-bark-detail { opacity: .94; }
+
+#qs-opening-scene.qs-night .qs-tree-silhouette {
+  filter: brightness(.66) saturate(.78) drop-shadow(12px 7px 16px rgba(5, 12, 24, .30));
+}
+#qs-opening-scene.qs-night .qs-tree-leaf-detail {
+  filter: brightness(.63) saturate(.72);
+}
+#qs-opening-scene.qs-night .qs-tree-leaf-glints { opacity: .16; }
+#qs-opening-scene.qs-night .qs-tree-rim {
+  opacity: .34;
+  stroke: #819ac7;
+}
+#qs-opening-scene.qs-night .qs-tree-bark-detail { opacity: .32; }
+
+@keyframes qs-canopy-breathe {
+  0%, 100% { transform: rotate(-.28deg) translateY(0); }
+  50% { transform: rotate(.34deg) translateY(-1.2px); }
+}
+
+/* Fine starlight, a barely visible Milky Way, and one occasional meteor. */
+.qs-stars circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: qs-star-lumen 4.1s ease-in-out infinite;
+}
+.qs-stars circle:nth-child(4n + 1) { animation-delay: -1.35s; }
+.qs-stars circle:nth-child(4n + 2) { animation-delay: -2.7s; }
+.qs-stars circle:nth-child(5n) { animation-duration: 5.7s; }
+@keyframes qs-star-lumen {
+  0%, 100% { opacity: .38; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1.16); }
+}
+.qs-shooting-star {
+  opacity: 0;
+  transform: translate(1420px, 170px) rotate(-12deg);
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+#qs-opening-scene.qs-night .qs-shooting-star {
+  animation: qs-meteor-drift 13.5s linear 1.8s infinite;
+}
+@keyframes qs-meteor-drift {
+  0%, 63%, 100% { opacity: 0; transform: translate(1420px, 170px) rotate(-12deg); }
+  65% { opacity: .82; }
+  70% { opacity: 0; transform: translate(680px, 390px) rotate(-12deg); }
+}
+
+/* More tactile clouds, a gentle horizon bloom, and moonlit ground separation. */
+.qs-cloud-move { filter: drop-shadow(0 7px 8px rgba(30, 47, 56, .08)); }
+.qs-cloud-move-2 { filter: blur(.25px); }
+#qs-opening-scene.qs-night .qs-night-haze { opacity: .94; }
+#qs-opening-scene.qs-night .qs-moon {
+  filter: drop-shadow(0 0 18px rgba(210, 225, 255, .28))
+          drop-shadow(0 0 54px rgba(133, 166, 225, .20));
+}
+
+/* Keep the richer scene gentle and battery-conscious on small touch devices. */
+@media (max-width: 700px) {
+  #qs-opening-art {
+    animation-duration: 34s;
+    will-change: auto;
+  }
+  .qs-day-rays { opacity: .09; }
+  .qs-tree-leaf-detail { animation-duration: 10s; }
+  .qs-shooting-star { display: none; }
+  .qs-tree-silhouette { filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #qs-opening-art,
+  .qs-day-rays,
+  .qs-tree-leaf-detail,
+  .qs-stars circle,
+  .qs-shooting-star {
+    animation: none !important;
+    will-change: auto !important;
+  }
+  .qs-day-atmosphere,
+  .qs-night-nebula,
+  .qs-night-constellation,
+  .qs-fireflies,
+  .qs-tree-leaf-glints,
+  .qs-tree-rim,
+  .qs-tree-bark-detail,
+  .qs-tree-silhouette {
+    transition: none !important;
+  }
+}

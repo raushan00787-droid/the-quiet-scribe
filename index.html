@@ -3469,13 +3469,11 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
 }
 #qs-opening-scene.qs-night .qs-night-grade { opacity: .72; }
 .qs-sun-rays {
-    transform-box: fill-box;
-    transform-origin: center;
     animation: qs-sun-ray-breathe 9s ease-in-out infinite;
 }
 @keyframes qs-sun-ray-breathe {
-    0%, 100% { opacity: .24; transform: scale(.97); }
-    50% { opacity: .42; transform: scale(1.035); }
+    0%, 100% { opacity: .24; }
+    50% { opacity: .38; }
 }
 .qs-meadow-details { opacity: .9; }
 .qs-fireflies {
@@ -3483,15 +3481,16 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
     transition: opacity 5s ease;
 }
 #qs-opening-scene.qs-night .qs-fireflies { opacity: .9; }
+/* Fireflies glow softly in place, avoiding per-circle SVG transforms. */
 .qs-fireflies circle:nth-child(4n + 1) {
-    animation: qs-firefly-drift 7s ease-in-out infinite;
+    animation: qs-firefly-glow 7s ease-in-out infinite;
 }
 .qs-fireflies circle:nth-child(4n + 3) {
-    animation: qs-firefly-drift 8.5s ease-in-out -2.5s infinite;
+    animation: qs-firefly-glow 8.5s ease-in-out -2.5s infinite;
 }
-@keyframes qs-firefly-drift {
-    0%, 100% { opacity: .5; transform: translate3d(0, 0, 0); }
-    50% { opacity: 1; transform: translate3d(5px, -9px, 0); }
+@keyframes qs-firefly-glow {
+    0%, 100% { opacity: .48; }
+    50% { opacity: 1; }
 }
 #qs-opening-scene.qs-night .qs-meadow-details { opacity: .56; }
 @media (max-width: 700px) {

@@ -1,60 +1,52 @@
 # Android app packaging (Trusted Web Activity)
 
-This project wraps the existing Quiet Scribe PWA. It does **not** replace the website or rewrite its rooms and saved-writing logic.
+This wraps the existing Quiet Scribe PWA. It does **not** replace the website, rooms, or saved-writing logic.
 
 ## Fixed app identity
 
 - App name: `The Quiet Scribe`
 - Android package ID: `studio.quietscribe.app`
-- PWA manifest: https://the-quiet-scribe.pages.dev/manifest.webmanifest
-- Production origin: https://the-quiet-scribe.pages.dev/
+- PWA: https://the-quiet-scribe.pages.dev/
+- Web manifest: https://the-quiet-scribe.pages.dev/manifest.webmanifest
+- Bubblewrap configuration: `android/twa-manifest.json`
+- Build workflow: `.github/workflows/android-twa.yml`
 
 Keep the package ID unchanged after the first store release. Changing it later creates a different Android app.
 
-## Build a test APK
+## Automated test build
 
-Use a computer with Node.js 18+, a supported JDK, Android SDK/build tools, and internet access. Bubblewrap can install its Android dependencies on first run.
+The GitHub Actions workflow builds the Android project on a hosted runner. It runs when the Android TWA configuration or workflow changes, or can be started from the repository's **Actions → Quiet Scribe Android TWA → Run workflow** page.
 
-```bash
-npm install --global @bubblewrap/cli
-mkdir quiet-scribe-android
-cd quiet-scribe-android
-bubblewrap init --manifest https://the-quiet-scribe.pages.dev/manifest.webmanifest
-```
+When no persistent signing-key secrets are configured, the workflow creates a temporary signing key and uploads an installable **test APK** as the `quiet-scribe-test-apk` artifact. The artifact is retained for 14 days. Download it from the successful workflow run's **Artifacts** section.
 
-During initialization, confirm the app details and set the package ID to **`studio.quietscribe.app`**. Keep the generated `twa-manifest.json` and Android project together. Do not commit any signing keystore or passwords.
+This test APK is **not a Play Store release**. The signing key is temporary, so future builds will not be able to update that installation. Without a matching Digital Asset Links file, Chrome may show browser UI around the website.
 
-Then build:
+## Setting up a persistent release key
 
-```bash
-bubblewrap build
-```
+Never place a keystore or signing passwords in the repository or chat. For repeatable releases, create and safely back up a release keystore, then set these GitHub Actions repository secrets under **Settings → Secrets and variables → Actions**:
 
-Bubblewrap should produce `app-release-signed.apk` for device testing and `app-release-bundle.aab` for Google Play, provided signing is configured. Test the APK on a real Android device before publishing.
+- `ANDROID_KEYSTORE_BASE64`: the keystore file encoded as one Base64 string
+- `ANDROID_KEYSTORE_PASSWORD`: the keystore password
+- `ANDROID_KEY_PASSWORD`: the key password
 
-## Required domain verification
+The configured key must contain an alias named `android`, matching `android/twa-manifest.json`. The workflow uses this persistent key for signed APK/AAB builds and prepares a Digital Asset Links file. Only use this release path after confirming the signing certificate is the certificate Android will use to verify the installed app, especially when Google Play App Signing is enabled.
 
-A TWA needs Digital Asset Links so Android/Chrome can verify that this app is authorized to open the website without browser UI.
+## Domain verification
 
-1. Create or use the final release signing key and record its **SHA-256 certificate fingerprint**. Keep the private keystore and its passwords private and backed up.
-2. Generate the Digital Asset Links JSON with Bubblewrap's fingerprint command after the app config contains the final fingerprint:
-   ```bash
-   bubblewrap fingerprint add YOUR_RELEASE_SHA256_FINGERPRINT
-   bubblewrap fingerprint generateAssetLinks --output assetlinks.json
-   ```
-3. Publish that generated JSON at:
-   `https://the-quiet-scribe.pages.dev/.well-known/assetlinks.json`
-4. Verify that URL is publicly accessible and contains the exact package ID and release certificate fingerprint before testing the final signed build.
+A Trusted Web Activity needs Digital Asset Links to open in verified fullscreen mode:
 
-Do not deploy a placeholder `assetlinks.json`; the real fingerprint depends on the signing certificate. If Play App Signing is enabled, follow Google's guidance for the certificate fingerprint that Android devices will use.
+`https://the-quiet-scribe.pages.dev/.well-known/assetlinks.json`
 
-## Release sequence
+The JSON must contain the exact package ID and the SHA-256 fingerprint of the certificate Android uses for the installed app. Do not publish a placeholder or a test-key fingerprint for a store release.
 
-- [ ] Generate the TWA project using the fixed package ID.
-- [ ] Create and securely back up the release signing key.
-- [ ] Generate and deploy the real Digital Asset Links file.
-- [ ] Build the signed APK and AAB.
-- [ ] Install and test the APK on an Android device, including login/network/offline behavior and saved writing.
-- [ ] Complete the Play Console account and app listing requirements, then upload the AAB to internal testing before public release.
+## Release checklist
 
-**Important:** An APK has not been committed or generated by this documentation change. The signed build cannot be finalized until the Android build environment and release signing details are available.
+- [ ] Build and install the test APK on an Android device.
+- [ ] Verify the PWA loads, saved writing remains intact, and offline behavior works as expected.
+- [ ] Back up the persistent release keystore securely.
+- [ ] Confirm the actual app-signing certificate and generate the matching Digital Asset Links file.
+- [ ] Verify the deployed `/.well-known/assetlinks.json` URL.
+- [ ] Build the signed AAB and test it through an internal testing track before any public release.
+- [ ] Complete the app-store account and listing requirements.
+
+The web app remains the source of truth; the Android package is a wrapper around it.

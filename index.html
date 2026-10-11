@@ -3606,6 +3606,18 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <stop offset="48%" stop-color="#c0d5ff" stop-opacity=".12"/>
                 <stop offset="100%" stop-color="#c0d5ff" stop-opacity="0"/>
             </radialGradient>
+            <linearGradient id="qsCloudDay" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#fffdf5" stop-opacity=".82"/>
+                <stop offset="100%" stop-color="#e7e1d2" stop-opacity=".18"/>
+            </linearGradient>
+            <linearGradient id="qsCloudNight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#9aaed0" stop-opacity=".34"/>
+                <stop offset="100%" stop-color="#526783" stop-opacity=".08"/>
+            </linearGradient>
+            <linearGradient id="qsMoonbeam" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#cbdcff" stop-opacity=".15"/>
+                <stop offset="100%" stop-color="#cbdcff" stop-opacity="0"/>
+            </linearGradient>
         </defs>
 
         <rect class="qs-day-sky" x="0" y="0" width="1600" height="900" fill="url(#qsDaySky)"/>
@@ -3613,6 +3625,27 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
         <rect class="qs-night-grade" x="0" y="0" width="1600" height="900" fill="url(#qsTwilightGrade)"/>
         <rect class="qs-day-atmosphere" x="0" y="0" width="1600" height="700" fill="url(#qsDayAtmosphere)"/>
         <rect class="qs-night-nebula" x="0" y="0" width="1600" height="700" fill="url(#qsNightNebula)"/>
+
+        <g class="qs-day-clouds" fill="url(#qsCloudDay)">
+            <path d="M330 175 C352 143 394 143 416 171 C435 126 494 121 522 165 C560 153 594 174 603 205 L310 205 C313 192 320 182 330 175Z"/>
+            <path d="M720 258 C741 231 779 231 798 254 C819 218 867 218 890 253 C922 244 952 260 960 283 L704 283 C707 272 713 263 720 258Z"/>
+            <path d="M1045 300 C1063 278 1097 279 1114 299 C1135 269 1177 270 1196 299 C1224 292 1252 308 1258 329 L1032 329 C1034 317 1038 307 1045 300Z"/>
+        </g>
+        <g class="qs-night-clouds" fill="url(#qsCloudNight)">
+            <path d="M330 175 C352 143 394 143 416 171 C435 126 494 121 522 165 C560 153 594 174 603 205 L310 205 C313 192 320 182 330 175Z"/>
+            <path d="M720 258 C741 231 779 231 798 254 C819 218 867 218 890 253 C922 244 952 260 960 283 L704 283 C707 272 713 263 720 258Z"/>
+            <path d="M1045 300 C1063 278 1097 279 1114 299 C1135 269 1177 270 1196 299 C1224 292 1252 308 1258 329 L1032 329 C1034 317 1038 307 1045 300Z"/>
+        </g>
+        <g class="qs-day-birds" fill="none" stroke="#344b4c" stroke-width="2.4" stroke-linecap="round" opacity=".48">
+            <path d="M930 205 q10 -10 20 0 q10 -10 20 0"/>
+            <path d="M980 225 q7 -7 14 0 q7 -7 14 0"/>
+            <path d="M875 226 q6 -6 12 0 q6 -6 12 0"/>
+        </g>
+        <g class="qs-night-beams">
+            <path d="M1270 195 L900 625 L1085 625 L1290 205Z" fill="url(#qsMoonbeam)" opacity=".58"/>
+            <path d="M1280 198 L1160 625 L1260 625 L1292 205Z" fill="url(#qsMoonbeam)" opacity=".32"/>
+        </g>
+
 
         <g class="qs-day-glow">
             <circle cx="1240" cy="165" r="176" fill="#fff1bd" opacity=".045"/>
@@ -3878,6 +3911,25 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             <g class="qs-tree-root-detail" fill="none" stroke="#2b261f" stroke-width="7" stroke-linecap="round" opacity=".42">
                 <path d="M315 836 C276 865 234 893 192 900"/>
                 <path d="M422 846 C455 867 480 887 524 900"/>
+            </g>
+            <!-- Extra leaf veins and bark grain add illustrated, close-up texture. -->
+            <g class="qs-leaf-veins" fill="none" stroke-linecap="round">
+                <path d="M64 290 Q84 275 102 267 M145 238 Q164 223 184 219 M224 205 Q246 194 264 191 M315 216 Q335 204 353 205 M405 229 Q425 214 445 216 M500 266 Q520 251 539 253 M603 321 Q620 309 638 312 M680 372 Q696 361 710 365"
+                      stroke="#c4c58a" stroke-width="2.1" opacity=".48"/>
+                <path d="M286 876 C306 761 326 658 348 546 C367 446 391 352 422 286 M302 812 C326 785 340 760 350 729 M328 646 C350 624 364 599 369 572 M374 453 C398 433 411 409 418 385"
+                      stroke="#d3a06d" stroke-width="2.5" opacity=".28"/>
+                <path d="M271 878 C285 786 300 710 318 639 M355 515 C367 481 376 448 383 413"
+                      stroke="#171e1a" stroke-width="3" opacity=".45"/>
+            </g>
+            <g class="qs-leaf-glints" fill="#d1d49a" opacity=".7">
+                <ellipse cx="104" cy="218" rx="10" ry="3.6" transform="rotate(-24 104 218)"/>
+                <ellipse cx="184" cy="196" rx="11" ry="3.4" transform="rotate(18 184 196)"/>
+                <ellipse cx="276" cy="183" rx="9" ry="3.2" transform="rotate(-18 276 183)"/>
+                <ellipse cx="365" cy="190" rx="10" ry="3.5" transform="rotate(22 365 190)"/>
+                <ellipse cx="460" cy="216" rx="11" ry="3.6" transform="rotate(-18 460 216)"/>
+                <ellipse cx="550" cy="265" rx="9" ry="3.1" transform="rotate(24 550 265)"/>
+                <ellipse cx="643" cy="327" rx="8" ry="3" transform="rotate(-18 643 327)"/>
+                <ellipse cx="718" cy="382" rx="7" ry="2.7" transform="rotate(20 718 382)"/>
             </g>
         </g>
 

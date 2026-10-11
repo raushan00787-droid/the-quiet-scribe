@@ -51,12 +51,12 @@ jobs:
           html = html_path.read_text(encoding="utf-8")
 
           checked = 0
-          script_pattern = re.compile(r"<script\\b([^>]*)>([\\s\\S]*?)</script\\s*>", re.I)
+          script_pattern = re.compile(r"<script\b([^>]*)>([\s\S]*?)</script\s*>", re.I)
           for number, match in enumerate(script_pattern.finditer(html), start=1):
               attrs, source = match.groups()
-              if re.search(r"\\bsrc\\s*=", attrs, re.I):
+              if re.search(r"\bsrc\s*=", attrs, re.I):
                   continue
-              type_match = re.search(r"""\\btype\\s*=\\s*["']?([^"'\\s>]+)""", attrs, re.I)
+              type_match = re.search(r"""\btype\s*=\s*["']?([^"'\s>]+)""", attrs, re.I)
               script_type = type_match.group(1).lower() if type_match else ""
               if script_type and script_type not in {
                   "text/javascript", "application/javascript", "module",
@@ -72,22 +72,22 @@ jobs:
               result = subprocess.run(["node", "--check", str(temp_path)], text=True, capture_output=True)
               temp_path.unlink(missing_ok=True)
               if result.returncode:
-                  fail(f"inline script #{number} failed syntax validation:\\n{result.stderr}")
+                  fail(f"inline script #{number} failed syntax validation:\n{result.stderr}")
               checked += 1
           if checked == 0:
               fail("no inline JavaScript blocks were validated")
           print(f"PASS: parsed {checked} inline JavaScript block(s)")
 
           checked_assets = 0
-          tag_pattern = re.compile(r"<(script|link)\\b([^>]*)>", re.I)
+          tag_pattern = re.compile(r"<(script|link)\b([^>]*)>", re.I)
           for match in tag_pattern.finditer(html):
               tag, attrs = match.groups()
               attr_name = "src" if tag.lower() == "script" else "href"
               if tag.lower() == "link":
-                  rel = re.search(r"""\\brel\\s*=\\s*["']?([^"'\\s>]+)""", attrs, re.I)
+                  rel = re.search(r"""\brel\s*=\s*["']?([^"'\s>]+)""", attrs, re.I)
                   if not rel or "stylesheet" not in rel.group(1).lower():
                       continue
-              url_match = re.search(rf"""\\b{attr_name}\\s*=\\s*["']([^"']+)["']""", attrs, re.I)
+              url_match = re.search(rf"""\b{attr_name}\s*=\s*["']([^"']+)["']""", attrs, re.I)
               if not url_match:
                   continue
               raw_url = url_match.group(1).strip()

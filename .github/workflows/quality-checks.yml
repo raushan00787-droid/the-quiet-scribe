@@ -1,0 +1,107 @@
+name: Quiet Scribe quality checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    name: Static validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Parse external JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' files < <(find . -type f -name '*.js' -not -path './.git/*' -not -path './node_modules/*' -print0)
+          for file in "${files[@]}"; do
+            echo "Checking $file"
+            node --check "$file"
+          done
+          echo "Checked ${#files[@]} external JavaScript file(s)."
+      - name: Parse inline JavaScript and verify local assets
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse, unquote
+          import re
+          import subprocess
+          import tempfile
+          import sys
+
+          def fail(message):
+              print(f"FAIL: {message}", file=sys.stderr)
+              sys.exit(1)
+
+          html_path = Path("index.html")
+          if not html_path.is_file():
+              fail("index.html is missing")
+          html = html_path.read_text(encoding="utf-8")
+
+          checked = 0
+          script_pattern = re.compile(r"<script\b([^>]*)>([\s\S]*?)</script\s*>", re.I)
+          for number, match in enumerate(script_pattern.finditer(html), start=1):
+              attrs, source = match.groups()
+              if re.search(r"\bsrc\s*=", attrs, re.I):
+                  continue
+              type_match = re.search(r"""\btype\s*=\s*["']?([^"'\s>]+)""", attrs, re.I)
+              script_type = type_match.group(1).lower() if type_match else ""
+              if script_type and script_type not in {
+                  "text/javascript", "application/javascript", "module",
+                  "text/ecmascript", "application/ecmascript"
+              }:
+                  continue
+              if not source.strip():
+                  continue
+              suffix = ".mjs" if script_type == "module" else ".js"
+              with tempfile.NamedTemporaryFile("w", suffix=suffix, encoding="utf-8", delete=False) as temp:
+                  temp.write(source)
+                  temp_path = Path(temp.name)
+              result = subprocess.run(["node", "--check", str(temp_path)], text=True, capture_output=True)
+              temp_path.unlink(missing_ok=True)
+              if result.returncode:
+                  fail(f"inline script #{number} failed syntax validation:\n{result.stderr}")
+              checked += 1
+          if checked == 0:
+              fail("no inline JavaScript blocks were validated")
+          print(f"PASS: parsed {checked} inline JavaScript block(s)")
+
+          checked_assets = 0
+          tag_pattern = re.compile(r"<(script|link)\b([^>]*)>", re.I)
+          for match in tag_pattern.finditer(html):
+              tag, attrs = match.groups()
+              attr_name = "src" if tag.lower() == "script" else "href"
+              if tag.lower() == "link":
+                  rel = re.search(r"""\brel\s*=\s*["']?([^"'\s>]+)""", attrs, re.I)
+                  if not rel or "stylesheet" not in rel.group(1).lower():
+                      continue
+              url_match = re.search(rf"""\b{attr_name}\s*=\s*["']([^"']+)["']""", attrs, re.I)
+              if not url_match:
+                  continue
+              raw_url = url_match.group(1).strip()
+              if raw_url.startswith(("//", "#", "data:", "blob:", "javascript:")):
+                  continue
+              parsed = urlparse(raw_url)
+              if parsed.scheme or parsed.netloc:
+                  continue
+              local_path = unquote(parsed.path).lstrip("/")
+              if not local_path:
+                  continue
+              candidate = Path(local_path)
+              if not candidate.is_file():
+                  fail(f"local {tag.lower()} asset does not exist: {raw_url}")
+              checked_assets += 1
+          print(f"PASS: verified {checked_assets} local script/stylesheet reference(s)")
+          PY

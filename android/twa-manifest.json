@@ -13,8 +13,8 @@
   "backgroundColor": "#0a0a0f",
   "enableNotifications": false,
   "startUrl": "/",
-  "iconUrl": "https://the-quiet-scribe.pages.dev/icon-512.png",
-  "maskableIconUrl": "https://the-quiet-scribe.pages.dev/icon-512.png",
+  "iconUrl": "https://raw.githubusercontent.com/raushan00787-droid/the-quiet-scribe/main/icon-512.png",
+  "maskableIconUrl": "https://raw.githubusercontent.com/raushan00787-droid/the-quiet-scribe/main/icon-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "./android-keystore",

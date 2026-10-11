@@ -1,5 +1,5 @@
-const CACHE_NAME = "quiet-scribe-shell-v1";
-const SHELL = ["/", "/manifest.webmanifest", "/icon.svg"];
+const CACHE_NAME = "quiet-scribe-shell-v2";
+const SHELL = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,17 +26,30 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put("/", copy));
-          }
-          return response;
-        })
-        .catch(async () => (await caches.match(request)) || (await caches.match("/")))
-    );
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) await cache.put("/", response.clone());
+        return response;
+      } catch {
+        return (await cache.match(request, { ignoreSearch: true })) || (await cache.match("/"));
+      }
+    })());
+    return;
   }
-});
 
+  const isStaticAsset = url.pathname.startsWith("/assets/") ||
+    /\.(?:css|js|mjs|png|jpe?g|webp|gif|svg|woff2?|ttf|otf)$/i.test(url.pathname);
+  if (!isStaticAsset) return;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+    const network = fetch(request).then(async (response) => {
+      if (response && response.ok) await cache.put(request, response.clone());
+      return response;
+    }).catch(() => cached);
+    return cached || await network;
+  })());
+});

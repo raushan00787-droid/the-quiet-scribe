@@ -3808,46 +3808,107 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             </g>
         </g>
 
-        <!-- A soft cast shadow lies on the ground and fades into the meadow. -->
+        <!-- A low, directional shadow sits on the meadow at the tree's feet. -->
         <path class="qs-tree-cast-shadow"
-              d="M300 899 C410 879 540 863 675 865 C815 866 960 882 1090 899 C910 888 740 884 585 891 C460 897 365 909 300 899 Z"
+              d="M348 897
+                 C438 885 548 880 656 885
+                 C765 889 856 895 928 900
+                 C805 896 682 895 570 899
+                 C474 902 399 903 348 897 Z"
               fill="url(#qsTreeGroundShadow)"/>
 
-        <!-- Clean, natural tree: broad foliage shapes, no sketch-like texture. -->
+        <!-- One connected, organic crown: no stacked circles or leafy bubble clusters. -->
         <g class="qs-tree-world">
-            <path d="M0 900 L0 285
-                     C90 238 170 246 228 278
-                     C292 224 382 226 440 268
-                     C514 239 600 276 637 326
-                     C717 303 802 342 836 397
-                     C866 446 833 481 780 478
-                     C737 524 674 551 600 557
-                     C546 635 501 746 476 900 Z"
-                  fill="#294332"/>
-            <path d="M270 900 C291 773 316 646 343 525
-                     C366 423 392 337 423 268
-                     C436 244 458 245 471 269
-                     C449 365 443 453 454 545
-                     C469 674 487 790 503 900 Z"
+            <!-- Trunk and major limbs sit behind the canopy. -->
+            <path d="M267 900
+                     C289 789 309 678 332 568
+                     C350 481 377 387 411 301
+                     C421 275 436 259 451 267
+                     C464 275 463 294 454 321
+                     C426 411 411 495 414 581
+                     C419 692 449 807 477 900
+                     C429 900 316 900 267 900 Z"
                   fill="#594033"/>
-            <path d="M374 474 C296 426 220 363 154 304"
-                  fill="none" stroke="#3c2b23" stroke-width="27" stroke-linecap="round"/>
-            <path d="M424 432 C518 376 605 335 713 319"
-                  fill="none" stroke="#3c2b23" stroke-width="25" stroke-linecap="round"/>
+            <path d="M367 505
+                     C309 459 244 397 177 333
+                     C166 322 169 308 180 302
+                     C192 297 202 308 214 319
+                     C278 374 326 411 389 448 Z"
+                  fill="#493329"/>
+            <path d="M404 457
+                     C475 405 558 361 664 328
+                     C682 322 693 331 690 342
+                     C688 353 676 358 661 363
+                     C565 395 492 432 428 482 Z"
+                  fill="#493329"/>
+            <path d="M348 570
+                     C299 533 257 500 218 455"
+                  fill="none" stroke="#493329" stroke-width="17" stroke-linecap="round"/>
+            <path d="M425 540
+                     C477 497 526 466 576 447"
+                  fill="none" stroke="#493329" stroke-width="16" stroke-linecap="round"/>
 
-            <g fill="#3b5a3d">
-                <ellipse cx="128" cy="336" rx="132" ry="91"/>
-                <ellipse cx="282" cy="279" rx="143" ry="104"/>
-                <ellipse cx="447" cy="300" rx="151" ry="108"/>
-                <ellipse cx="603" cy="359" rx="143" ry="101"/>
-                <ellipse cx="730" cy="417" rx="111" ry="79"/>
-            </g>
-            <g fill="#587248" opacity=".82">
-                <ellipse cx="187" cy="252" rx="91" ry="60"/>
-                <ellipse cx="363" cy="237" rx="94" ry="62"/>
-                <ellipse cx="529" cy="281" rx="92" ry="61"/>
-                <ellipse cx="666" cy="365" rx="76" ry="54"/>
-            </g>
+            <!-- The crown is a single silhouette with restrained, irregular edges. -->
+            <path d="M8 438
+                     C-2 399 16 365 48 345
+                     C42 307 72 274 113 271
+                     C132 235 174 219 214 235
+                     C244 202 293 197 330 221
+                     C364 194 411 204 438 231
+                     C474 213 518 226 540 253
+                     C580 239 621 257 638 286
+                     C677 282 712 308 718 341
+                     C755 348 782 377 778 410
+                     C811 431 819 465 799 492
+                     C777 518 738 521 705 511
+                     C669 542 626 552 585 538
+                     C548 567 499 568 461 548
+                     C425 575 379 570 347 548
+                     C306 568 260 553 236 526
+                     C192 543 146 523 128 494
+                     C83 506 39 481 8 438 Z"
+                  fill="#294332"/>
+
+            <!-- Broad light planes follow the crown's growth instead of forming blobs. -->
+            <path d="M30 414
+                     C29 370 58 337 99 327
+                     C117 289 154 267 193 278
+                     C224 243 269 235 307 255
+                     C342 226 386 230 414 257
+                     C448 238 486 249 506 276
+                     C545 263 581 281 594 310
+                     C630 304 662 327 666 357
+                     C701 363 722 389 714 418
+                     C680 409 652 416 628 438
+                     C595 462 561 466 531 453
+                     C494 477 452 472 423 452
+                     C389 479 348 475 321 451
+                     C286 474 248 460 229 435
+                     C194 453 155 438 143 413
+                     C103 435 64 432 30 414 Z"
+                  fill="#36543a" opacity=".88"/>
+
+            <path d="M95 353
+                     C123 310 164 296 203 309
+                     C236 276 276 270 310 291
+                     C345 263 383 269 407 296
+                     C441 279 475 291 492 317
+                     C525 309 552 326 561 350
+                     C531 345 508 355 487 371
+                     C460 393 426 393 400 377
+                     C371 399 338 395 316 376
+                     C285 395 254 386 237 365
+                     C207 384 174 375 160 355
+                     C136 368 115 366 95 353 Z"
+                  fill="#496640" opacity=".72"/>
+
+            <!-- A few quiet branch shadows give the trunk depth without sketchy detail. -->
+            <path d="M350 700 C359 626 373 552 394 481"
+                  fill="none" stroke="#6b4b37" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+            <path d="M388 490 C336 449 281 401 230 354"
+                  fill="none" stroke="#6b4b37" stroke-width="7" stroke-linecap="round" opacity=".5"/>
+            <path d="M424 474 C493 427 557 395 622 374"
+                  fill="none" stroke="#6b4b37" stroke-width="7" stroke-linecap="round" opacity=".5"/>
         </g>
 
         <!-- Fireflies are nearly invisible in daylight, then emerge with the evening. -->

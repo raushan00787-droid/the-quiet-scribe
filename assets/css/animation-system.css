@@ -328,6 +328,16 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
 #qs-opening-scene.qs-night .qs-night-constellation { opacity: .62; }
 #qs-opening-scene.qs-night .qs-shooting-star { opacity: 0; }
 
+/* 3D depth: a restrained cast shadow shifts from warm daylight to moonlit depth. */
+.qs-tree-cast-shadow {
+  pointer-events: none;
+  opacity: .26;
+  transition: opacity 5.2s ease;
+}
+#qs-opening-scene.qs-night .qs-tree-cast-shadow {
+  opacity: .52;
+}
+
 /* The layered canopy remains still to avoid SVG transform jitter on mobile GPUs. */
 .qs-tree-world {
   transition: opacity 6.4s ease;

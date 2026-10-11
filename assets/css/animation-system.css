@@ -328,30 +328,30 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
 #qs-opening-scene.qs-night .qs-night-constellation { opacity: .62; }
 #qs-opening-scene.qs-night .qs-shooting-star { opacity: 0; }
 
-/* 3D depth: a restrained cast shadow shifts from warm daylight to moonlit depth. */
+/* Grounded cast shadow: visible in daylight, smoothly gone by night. */
 .qs-tree-cast-shadow {
   pointer-events: none;
-  opacity: .26;
+  opacity: .88;
   transition: opacity 5.2s ease;
 }
 #qs-opening-scene.qs-night .qs-tree-cast-shadow {
-  opacity: .52;
+  opacity: 0;
 }
 
-/* The layered canopy remains still to avoid SVG transform jitter on mobile GPUs. */
+/* Barely-there canopy sway, pivoting at the trunk base. */
 .qs-tree-world {
-  transition: opacity 6.4s ease;
+  transform-box: view-box;
+  transform-origin: 360px 900px;
+  animation: qs-tree-breeze 6.8s ease-in-out infinite alternate;
+  will-change: transform;
 }
-.qs-canopy-layer,
-.qs-canopy-detail {
-  transform: none;
-  animation: none;
+@keyframes qs-tree-breeze {
+  from { transform: rotate(-.28deg); }
+  to   { transform: rotate(.28deg); }
 }
-.qs-tree-crown-rim { transition: opacity 6.4s ease, stroke 6.4s ease; }
-.qs-tree-root-detail { transition: opacity 6.4s ease; }
-#qs-opening-scene.qs-night .qs-tree-world { opacity: .82; }
-#qs-opening-scene.qs-night .qs-tree-crown-rim { opacity: .25; stroke: #8ba3cb; }
-#qs-opening-scene.qs-night .qs-tree-root-detail { opacity: .24; }
+@media (prefers-reduced-motion: reduce) {
+  .qs-tree-world { animation: none !important; }
+}
 
 /* Small specular glints make the night sky shimmer without filling it with noise. */
 .qs-stars circle {

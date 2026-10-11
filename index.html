@@ -3617,6 +3617,11 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <stop offset="0%" stop-color="#cbdcff" stop-opacity=".15"/>
                 <stop offset="100%" stop-color="#cbdcff" stop-opacity="0"/>
             </linearGradient>
+            <linearGradient id="qsTreeGroundShadow" x1="0" y1="0" x2="1" y2=".15">
+                <stop offset="0%" stop-color="#101b16" stop-opacity=".52"/>
+                <stop offset="58%" stop-color="#101b16" stop-opacity=".28"/>
+                <stop offset="100%" stop-color="#101b16" stop-opacity="0"/>
+            </linearGradient>
         </defs>
 
         <rect class="qs-day-sky" x="0" y="0" width="1600" height="900" fill="url(#qsDaySky)"/>
@@ -3803,12 +3808,14 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             </g>
         </g>
 
-        <!-- Offset silhouette gives the foreground tree a soft, illustrated 3D cast shadow. -->
-        <path class="qs-tree-cast-shadow" transform="translate(16 12)" d="M0 900 L0 250 C86 235 142 250 196 282 C250 244 330 246 393 286 C472 238 575 264 625 325 C682 294 748 302 790 351 C845 364 886 413 870 466 C820 492 752 472 708 443 C676 521 625 564 557 576 C519 655 478 724 456 900 Z" fill="#08140f" opacity=".42"/>
-        <!-- Foreground tree, now with layered foliage and hand-drawn bark detail. -->
+        <!-- A soft cast shadow lies on the ground and fades into the meadow. -->
+        <path class="qs-tree-cast-shadow"
+              d="M255 899 C365 857 514 817 676 785 C805 759 915 773 1035 805 C881 798 718 834 562 873 C426 907 324 919 255 899 Z"
+              fill="url(#qsTreeGroundShadow)"/>
+
+        <!-- Simple, natural tree silhouette. Keep the shape clean, not hand-sketched. -->
         <g class="qs-tree-world">
-            <path d="M0 900
-                     L0 250
+            <path d="M0 900 L0 250
                      C86 235 142 250 196 282
                      C250 244 330 246 393 286
                      C472 238 575 264 625 325
@@ -3817,26 +3824,20 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                      C820 492 752 472 708 443
                      C676 521 625 564 557 576
                      C519 655 478 724 456 900 Z"
-                  fill="#1f3528"/>
-
-            <path d="M244 900
-                     C260 788 286 655 315 530
+                  fill="#294332"/>
+            <path d="M244 900 C260 788 286 655 315 530
                      C343 420 368 336 405 260
                      C426 236 457 240 470 264
                      C445 356 438 444 450 526
                      C466 653 485 774 500 900 Z"
-                  fill="#4b3328"/>
-
+                  fill="#594033"/>
             <path d="M385 474 C272 416 190 350 112 278"
-                  fill="none" stroke="#36251f" stroke-width="30" stroke-linecap="round"/>
-
+                  fill="none" stroke="#3c2b23" stroke-width="30" stroke-linecap="round"/>
             <path d="M414 430 C534 363 636 326 753 308"
-                  fill="none" stroke="#382720" stroke-width="28" stroke-linecap="round"/>
-
+                  fill="none" stroke="#3c2b23" stroke-width="28" stroke-linecap="round"/>
             <path d="M330 556 C232 515 150 487 56 471"
-                  fill="none" stroke="#3b2921" stroke-width="22" stroke-linecap="round"/>
-
-            <g fill="#294636">
+                  fill="none" stroke="#3c2b23" stroke-width="22" stroke-linecap="round"/>
+            <g fill="#36563b">
                 <ellipse cx="120" cy="330" rx="130" ry="92"/>
                 <ellipse cx="265" cy="270" rx="138" ry="104"/>
                 <ellipse cx="430" cy="304" rx="153" ry="110"/>
@@ -3844,8 +3845,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="716" cy="415" rx="126" ry="92"/>
                 <ellipse cx="142" cy="445" rx="140" ry="100"/>
             </g>
-
-            <g class="qs-canopy-layer qs-canopy-layer-a" fill="url(#qsCanopyLight)" opacity=".92">
+            <g fill="#526d43" opacity=".92">
                 <ellipse cx="70" cy="293" rx="106" ry="78"/>
                 <ellipse cx="205" cy="232" rx="122" ry="84"/>
                 <ellipse cx="345" cy="250" rx="113" ry="83"/>
@@ -3853,8 +3853,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="630" cy="354" rx="105" ry="78"/>
                 <ellipse cx="731" cy="405" rx="82" ry="60"/>
             </g>
-
-            <g class="qs-canopy-layer qs-canopy-layer-b" fill="url(#qsLeafSunlit)" opacity=".9">
+            <g fill="#6c8050" opacity=".78">
                 <ellipse cx="40" cy="265" rx="60" ry="48"/>
                 <ellipse cx="122" cy="230" rx="70" ry="50"/>
                 <ellipse cx="210" cy="197" rx="78" ry="55"/>
@@ -3863,74 +3862,6 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="503" cy="253" rx="69" ry="48"/>
                 <ellipse cx="585" cy="306" rx="64" ry="47"/>
                 <ellipse cx="690" cy="365" rx="57" ry="43"/>
-            </g>
-
-            <!-- Leaf clusters catch a little of the late-afternoon light. -->
-            <g class="qs-canopy-detail qs-canopy-detail-a" fill="#82905a" opacity=".55">
-                <ellipse cx="75" cy="207" rx="22" ry="12" transform="rotate(-28 75 207)"/>
-                <ellipse cx="154" cy="181" rx="26" ry="13" transform="rotate(19 154 181)"/>
-                <ellipse cx="250" cy="168" rx="25" ry="12" transform="rotate(-16 250 168)"/>
-                <ellipse cx="336" cy="178" rx="23" ry="11" transform="rotate(25 336 178)"/>
-                <ellipse cx="443" cy="190" rx="27" ry="13" transform="rotate(-22 443 190)"/>
-                <ellipse cx="542" cy="230" rx="24" ry="12" transform="rotate(18 542 230)"/>
-                <ellipse cx="637" cy="288" rx="21" ry="11" transform="rotate(-18 637 288)"/>
-                <ellipse cx="718" cy="345" rx="18" ry="10" transform="rotate(24 718 345)"/>
-            </g>
-
-            <!-- Fine branches and bark ridges give the trunk more material texture. -->
-            <g fill="none" stroke-linecap="round">
-                <path d="M280 900 C300 760 326 625 346 518 C365 418 388 326 421 268"
-                      stroke="url(#qsBark)" stroke-width="46" opacity=".72"/>
-                <path d="M275 900 C294 768 319 633 338 526 C357 418 381 331 413 273"
-                      stroke="url(#qsBarkLight)" stroke-width="7" opacity=".75"/>
-                <path d="M360 532 C312 488 263 445 214 390 M414 434 C478 396 535 364 606 342 M335 555 C275 530 213 505 150 493"
-                      stroke="#1e2822" stroke-width="7" opacity=".45"/>
-                <path d="M297 824 C309 755 318 701 336 642 M324 607 C340 558 346 531 353 492 M375 418 C383 376 398 329 414 301"
-                      stroke="#bc895d" stroke-width="4" opacity=".34"/>
-            </g>
-
-            <!-- Small leaf marks break up the smooth canopy silhouettes. -->
-            <g class="qs-canopy-detail qs-canopy-detail-b" fill="#9aa36a" opacity=".66">
-                <ellipse cx="95" cy="286" rx="13" ry="5" transform="rotate(-32 95 286)"/>
-                <ellipse cx="137" cy="310" rx="16" ry="6" transform="rotate(18 137 310)"/>
-                <ellipse cx="187" cy="254" rx="15" ry="6" transform="rotate(-18 187 254)"/>
-                <ellipse cx="242" cy="226" rx="17" ry="6" transform="rotate(28 242 226)"/>
-                <ellipse cx="286" cy="264" rx="14" ry="5" transform="rotate(-24 286 264)"/>
-                <ellipse cx="347" cy="231" rx="15" ry="6" transform="rotate(16 347 231)"/>
-                <ellipse cx="422" cy="256" rx="16" ry="6" transform="rotate(-21 422 256)"/>
-                <ellipse cx="473" cy="284" rx="14" ry="5" transform="rotate(24 473 284)"/>
-                <ellipse cx="537" cy="302" rx="15" ry="6" transform="rotate(-15 537 302)"/>
-                <ellipse cx="590" cy="337" rx="13" ry="5" transform="rotate(20 590 337)"/>
-                <ellipse cx="650" cy="373" rx="14" ry="5" transform="rotate(-23 650 373)"/>
-                <ellipse cx="708" cy="403" rx="12" ry="5" transform="rotate(17 708 403)"/>
-            </g>
-
-            <g class="qs-tree-crown-rim" fill="none" stroke="#b7c58b" stroke-width="3" stroke-linecap="round" opacity=".36">
-                <path d="M16 280 C85 249 143 253 193 284 C250 246 329 248 393 286"/>
-                <path d="M394 286 C472 241 575 266 625 326 C684 296 747 304 789 352"/>
-            </g>
-            <g class="qs-tree-root-detail" fill="none" stroke="#2b261f" stroke-width="7" stroke-linecap="round" opacity=".42">
-                <path d="M315 836 C276 865 234 893 192 900"/>
-                <path d="M422 846 C455 867 480 887 524 900"/>
-            </g>
-            <!-- Extra leaf veins and bark grain add illustrated, close-up texture. -->
-            <g class="qs-leaf-veins" fill="none" stroke-linecap="round">
-                <path d="M64 290 Q84 275 102 267 M145 238 Q164 223 184 219 M224 205 Q246 194 264 191 M315 216 Q335 204 353 205 M405 229 Q425 214 445 216 M500 266 Q520 251 539 253 M603 321 Q620 309 638 312 M680 372 Q696 361 710 365"
-                      stroke="#c4c58a" stroke-width="2.1" opacity=".48"/>
-                <path d="M286 876 C306 761 326 658 348 546 C367 446 391 352 422 286 M302 812 C326 785 340 760 350 729 M328 646 C350 624 364 599 369 572 M374 453 C398 433 411 409 418 385"
-                      stroke="#d3a06d" stroke-width="2.5" opacity=".28"/>
-                <path d="M271 878 C285 786 300 710 318 639 M355 515 C367 481 376 448 383 413"
-                      stroke="#171e1a" stroke-width="3" opacity=".45"/>
-            </g>
-            <g class="qs-leaf-glints" fill="#d1d49a" opacity=".7">
-                <ellipse cx="104" cy="218" rx="10" ry="3.6" transform="rotate(-24 104 218)"/>
-                <ellipse cx="184" cy="196" rx="11" ry="3.4" transform="rotate(18 184 196)"/>
-                <ellipse cx="276" cy="183" rx="9" ry="3.2" transform="rotate(-18 276 183)"/>
-                <ellipse cx="365" cy="190" rx="10" ry="3.5" transform="rotate(22 365 190)"/>
-                <ellipse cx="460" cy="216" rx="11" ry="3.6" transform="rotate(-18 460 216)"/>
-                <ellipse cx="550" cy="265" rx="9" ry="3.1" transform="rotate(24 550 265)"/>
-                <ellipse cx="643" cy="327" rx="8" ry="3" transform="rotate(-18 643 327)"/>
-                <ellipse cx="718" cy="382" rx="7" ry="2.7" transform="rotate(20 718 382)"/>
             </g>
         </g>
 

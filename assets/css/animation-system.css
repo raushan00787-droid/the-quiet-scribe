@@ -508,3 +508,96 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
     transition: none !important;
   }
 }
+
+
+/* FINAL FORM II · deeper skies, moonlit foliage, and quiet canopy motion */
+.qs-day-atmosphere,
+.qs-night-nebula,
+.qs-night-constellation,
+.qs-shooting-star {
+  pointer-events: none;
+  transition: opacity 6.4s cubic-bezier(.22,.61,.36,1);
+}
+.qs-day-atmosphere { opacity: .88; }
+.qs-night-nebula { opacity: 0; }
+.qs-night-constellation { opacity: 0; }
+.qs-shooting-star {
+  opacity: 0;
+  transform-box: view-box;
+  transform: translate(1420px, 170px) rotate(-12deg);
+}
+#qs-opening-scene.qs-night .qs-day-atmosphere { opacity: 0; }
+#qs-opening-scene.qs-night .qs-night-nebula { opacity: .96; }
+#qs-opening-scene.qs-night .qs-night-constellation { opacity: .62; }
+#qs-opening-scene.qs-night .qs-shooting-star {
+  animation: qs-meteor-drift 13.5s linear 1.8s infinite;
+}
+@keyframes qs-meteor-drift {
+  0%, 63%, 100% { opacity: 0; transform: translate(1420px, 170px) rotate(-12deg); }
+  65% { opacity: .82; }
+  70% { opacity: 0; transform: translate(680px, 390px) rotate(-12deg); }
+}
+
+/* Tree canopy moves independently by a fraction of a degree; the trunk stays grounded. */
+.qs-tree-world {
+  transition: filter 6.4s ease;
+  filter: drop-shadow(9px 6px 12px rgba(16, 28, 22, .14));
+}
+.qs-canopy-layer,
+.qs-canopy-detail {
+  transform-box: fill-box;
+  transform-origin: 25% 85%;
+  animation: qs-canopy-breeze 8.2s ease-in-out infinite;
+}
+.qs-canopy-layer-b { animation-delay: -3.1s; animation-duration: 9.6s; transform-origin: 72% 78%; }
+.qs-canopy-detail-a { animation-delay: -1.4s; animation-duration: 7.4s; }
+.qs-canopy-detail-b { animation-delay: -4.2s; animation-duration: 10.2s; transform-origin: 56% 82%; }
+.qs-tree-crown-rim { transition: opacity 6.4s ease, stroke 6.4s ease; }
+.qs-tree-root-detail { transition: opacity 6.4s ease; }
+@keyframes qs-canopy-breeze {
+  0%, 100% { transform: rotate(-.22deg) translateY(0); }
+  50% { transform: rotate(.26deg) translateY(-.8px); }
+}
+#qs-opening-scene.qs-night .qs-tree-world {
+  filter: brightness(.66) saturate(.76) drop-shadow(12px 7px 16px rgba(5, 12, 24, .32));
+}
+#qs-opening-scene.qs-night .qs-tree-crown-rim { opacity: .25; stroke: #8ba3cb; }
+#qs-opening-scene.qs-night .qs-tree-root-detail { opacity: .24; }
+
+/* Small specular glints make the night sky shimmer without filling it with noise. */
+.qs-stars circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: qs-star-lumen 4.1s ease-in-out infinite;
+}
+.qs-stars circle:nth-child(4n + 1) { animation-delay: -1.35s; }
+.qs-stars circle:nth-child(4n + 2) { animation-delay: -2.7s; }
+.qs-stars circle:nth-child(5n) { animation-duration: 5.7s; }
+@keyframes qs-star-lumen {
+  0%, 100% { opacity: .38; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1.16); }
+}
+#qs-opening-scene.qs-night .qs-moon {
+  filter: drop-shadow(0 0 18px rgba(210, 225, 255, .27))
+          drop-shadow(0 0 48px rgba(133, 166, 225, .20));
+}
+
+@media (max-width: 700px) {
+  #qs-opening-art { animation-duration: 34s; will-change: auto; }
+  .qs-canopy-layer,
+  .qs-canopy-detail { animation-duration: 11s; }
+  .qs-shooting-star { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qs-canopy-layer,
+  .qs-canopy-detail,
+  .qs-stars circle,
+  .qs-shooting-star { animation: none !important; }
+  .qs-day-atmosphere,
+  .qs-night-nebula,
+  .qs-night-constellation,
+  .qs-tree-world,
+  .qs-tree-crown-rim,
+  .qs-tree-root-detail,
+  .qs-moon { transition: none !important; }
+}

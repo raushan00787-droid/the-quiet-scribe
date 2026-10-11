@@ -1,11 +1,14 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "studio.quietscribe.app",
       "sha256_cert_fingerprints": [
-        "69:78:8B:0D:92:29:2A:EC:5A:39:E7:7F:66:61:0C:86:AF:AD:68:9F:3A:23:E9:84:CF:9F:42:06:92:96:64:0D"
+        "69:78:8B:0D:92:29:2A:EC:5A:39:E7:7F:66:61:0C:86:AF:AD:68:9F:3A:23:E9:84:CF:9F:42:06:92:96:64:0D",
+        "80:1E:2B:D0:4A:BB:DD:B3:AC:C2:B9:FF:28:CE:68:38:E6:32:91:B2:C3:70:D9:33:72:C2:0F:54:4F:C2:26:08"
       ]
     }
   }

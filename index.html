@@ -3506,6 +3506,11 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
 </style>
 <link rel="stylesheet" href="assets/css/animation-system.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
 </head>
 
 
@@ -9130,5 +9135,11 @@ loadSavedWritings();
 
 <script src="assets/js/animation-controller.js"></script>
 
+  <!-- quiet-scribe-pwa-sw -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+    }
+  </script>
 </body>
 </html>

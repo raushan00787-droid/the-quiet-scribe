@@ -3506,19 +3506,83 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             </linearGradient>
 
             <radialGradient id="qsSun" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#fff9df"/>
-                <stop offset="65%" stop-color="#f7e8af"/>
-                <stop offset="100%" stop-color="#e4c985"/>
+                <stop offset="0%" stop-color="#fffdf1"/>
+                <stop offset="35%" stop-color="#fff5cc"/>
+                <stop offset="68%" stop-color="#f7d994"/>
+                <stop offset="100%" stop-color="#dcae69"/>
             </radialGradient>
+
+            <radialGradient id="qsDayAtmosphere" cx="76%" cy="20%" r="74%">
+                <stop offset="0%" stop-color="#fff6d2" stop-opacity=".48"/>
+                <stop offset="42%" stop-color="#e9d9b8" stop-opacity=".15"/>
+                <stop offset="100%" stop-color="#c4d6d4" stop-opacity="0"/>
+            </radialGradient>
+
+            <radialGradient id="qsNightNebula" cx="70%" cy="24%" r="76%">
+                <stop offset="0%" stop-color="#8a9fc9" stop-opacity=".28"/>
+                <stop offset="38%" stop-color="#637ba8" stop-opacity=".12"/>
+                <stop offset="72%" stop-color="#4a587e" stop-opacity=".055"/>
+                <stop offset="100%" stop-color="#101a2d" stop-opacity="0"/>
+            </radialGradient>
+
+            <radialGradient id="qsMoonHalo" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#e7efff" stop-opacity=".28"/>
+                <stop offset="48%" stop-color="#c0d5ff" stop-opacity=".10"/>
+                <stop offset="100%" stop-color="#c0d5ff" stop-opacity="0"/>
+            </radialGradient>
+
+            <linearGradient id="qsBarkGradient" x1="0" y1="0" x2="1" y2=".12">
+                <stop offset="0%" stop-color="#2d211d"/>
+                <stop offset="32%" stop-color="#674637"/>
+                <stop offset="56%" stop-color="#795340"/>
+                <stop offset="77%" stop-color="#4b3328"/>
+                <stop offset="100%" stop-color="#30251f"/>
+            </linearGradient>
+
+            <linearGradient id="qsBranchGradient" x1="0" y1="0" x2=".7" y2="1">
+                <stop offset="0%" stop-color="#634532"/>
+                <stop offset="50%" stop-color="#4d3427"/>
+                <stop offset="100%" stop-color="#2c271f"/>
+            </linearGradient>
+
+            <linearGradient id="qsCanopyBase" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1a3025"/>
+                <stop offset="48%" stop-color="#294b35"/>
+                <stop offset="100%" stop-color="#14291f"/>
+            </linearGradient>
+
+            <linearGradient id="qsCanopyLight" x1="0" y1="0" x2=".85" y2="1">
+                <stop offset="0%" stop-color="#56764a"/>
+                <stop offset="55%" stop-color="#3e6540"/>
+                <stop offset="100%" stop-color="#294532"/>
+            </linearGradient>
+
+            <linearGradient id="qsCanopyRim" x1="0" y1="0" x2=".8" y2="1">
+                <stop offset="0%" stop-color="#a2ac72" stop-opacity=".66"/>
+                <stop offset="55%" stop-color="#778e58" stop-opacity=".34"/>
+                <stop offset="100%" stop-color="#5a764b" stop-opacity="0"/>
+            </linearGradient>
         </defs>
 
         <rect class="qs-day-sky" x="0" y="0" width="1600" height="900" fill="url(#qsDaySky)"/>
         <rect class="qs-night-sky" x="0" y="0" width="1600" height="900" fill="url(#qsNightSky)"/>
 
+        <rect class="qs-day-atmosphere" x="0" y="0" width="1600" height="625" fill="url(#qsDayAtmosphere)"/>
+        <rect class="qs-night-nebula" x="0" y="0" width="1600" height="700" fill="url(#qsNightNebula)"/>
+
+        <g class="qs-day-rays" opacity=".17" fill="none" stroke="#fff3c7" stroke-width="3" stroke-linecap="round">
+            <path d="M1240 165 L850 520"/>
+            <path d="M1240 165 L1010 565"/>
+            <path d="M1240 165 L1360 545"/>
+            <path d="M1240 165 L1515 465"/>
+            <path d="M1240 165 L650 385"/>
+        </g>
+
         <g class="qs-day-glow">
             <circle cx="1240" cy="165" r="78" fill="url(#qsSun)" opacity="0.98"/>
             <circle cx="1240" cy="165" r="120" fill="#fff1bd" opacity="0.16"/>
             <circle cx="1240" cy="165" r="158" fill="#fff1bd" opacity="0.055"/>
+            <circle cx="1240" cy="165" r="202" fill="#fff0c5" opacity=".028"/>
         </g>
 
         <g class="qs-night-haze">
@@ -3543,9 +3607,38 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
             <circle cx="1495" cy="205" r="1.4"/>
             <circle cx="1184" cy="250" r="1.4"/>
             <circle cx="742" cy="250" r="1.4"/>
+            <circle cx="83" cy="246" r="1.2"/>
+            <circle cx="338" cy="218" r="1.3"/>
+            <circle cx="615" cy="58" r="1.1"/>
+            <circle cx="755" cy="72" r="1.4"/>
+            <circle cx="885" cy="56" r="1.1"/>
+            <circle cx="1014" cy="224" r="1.2"/>
+            <circle cx="1160" cy="78" r="1.5"/>
+            <circle cx="1290" cy="286" r="1.1"/>
+            <circle cx="1435" cy="310" r="1.25"/>
+            <circle cx="1535" cy="115" r="1.15"/>
+            <circle cx="930" cy="292" r="1.0"/>
+            <circle cx="490" cy="285" r="1.0"/>
+            <circle cx="350" cy="94" r="1.05"/>
+            <circle cx="105" cy="66" r="1.3"/>
+            <circle cx="1320" cy="48" r="1.0"/>
+            <circle cx="1540" cy="382" r="1.05"/>
+            <circle cx="890" cy="370" r="1.1"/>
+        </g>
+
+        <g class="qs-night-constellation" fill="none" stroke="#c8d8f5" stroke-width="1.2" stroke-linecap="round" opacity=".28">
+            <path d="M210 115 L270 151 L326 119 L382 163"/>
+            <path d="M870 115 L914 153 L964 102 L1007 139"/>
+            <path d="M1370 102 L1435 145 L1495 205"/>
+        </g>
+
+        <g class="qs-shooting-star">
+            <path d="M0 0 L-105 28" fill="none" stroke="#f2f5ff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M-4 1 L-72 20" fill="none" stroke="#a9c5f5" stroke-width="8" stroke-linecap="round" opacity=".12"/>
         </g>
 
         <g class="qs-moon">
+            <circle cx="1270" cy="155" r="102" fill="url(#qsMoonHalo)"/>
             <circle cx="1270" cy="155" r="51" fill="#e9edf7"/>
             <circle cx="1250" cy="140" r="51" fill="#152139"/>
             <circle cx="1270" cy="155" r="68" fill="#dce6ff" opacity=".075"/>
@@ -3622,7 +3715,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
         </g>
 
         <!-- foreground tree, intentionally a framing element -->
-        <g>
+        <g class="qs-tree-silhouette">
             <path d="M0 900
                      L0 250
                      C86 235 142 250 196 282
@@ -3633,7 +3726,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                      C820 492 752 472 708 443
                      C676 521 625 564 557 576
                      C519 655 478 724 456 900 Z"
-                  fill="#1f3528"/>
+                  fill="url(#qsCanopyBase)"/>
 
             <path d="M244 900
                      C260 788 286 655 315 530
@@ -3641,18 +3734,18 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                      C426 236 457 240 470 264
                      C445 356 438 444 450 526
                      C466 653 485 774 500 900 Z"
-                  fill="#4b3328"/>
+                  fill="url(#qsBarkGradient)"/>
 
             <path d="M385 474 C272 416 190 350 112 278"
-                  fill="none" stroke="#36251f" stroke-width="30" stroke-linecap="round"/>
+                  fill="none" stroke="url(#qsBranchGradient)" stroke-width="30" stroke-linecap="round"/>
 
             <path d="M414 430 C534 363 636 326 753 308"
-                  fill="none" stroke="#382720" stroke-width="28" stroke-linecap="round"/>
+                  fill="none" stroke="url(#qsBranchGradient)" stroke-width="28" stroke-linecap="round"/>
 
             <path d="M330 556 C232 515 150 487 56 471"
-                  fill="none" stroke="#3b2921" stroke-width="22" stroke-linecap="round"/>
+                  fill="none" stroke="url(#qsBranchGradient)" stroke-width="22" stroke-linecap="round"/>
 
-            <g fill="#294636">
+            <g fill="url(#qsCanopyBase)">
                 <ellipse cx="120" cy="330" rx="130" ry="92"/>
                 <ellipse cx="265" cy="270" rx="138" ry="104"/>
                 <ellipse cx="430" cy="304" rx="153" ry="110"/>
@@ -3661,12 +3754,70 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
                 <ellipse cx="142" cy="445" rx="140" ry="100"/>
             </g>
 
-            <g fill="#38563b" opacity="0.72">
+            <g fill="url(#qsCanopyLight)" opacity="0.82">
                 <ellipse cx="188" cy="245" rx="82" ry="58"/>
                 <ellipse cx="382" cy="214" rx="92" ry="62"/>
                 <ellipse cx="557" cy="280" rx="89" ry="68"/>
                 <ellipse cx="683" cy="347" rx="74" ry="56"/>
             </g>
+
+            <!-- Small overlapping leaf clusters break up the flat canopy silhouette. -->
+            <g class="qs-tree-leaf-detail" fill="#668653" opacity=".78">
+                <ellipse cx="48" cy="315" rx="39" ry="18" transform="rotate(-24 48 315)"/>
+                <ellipse cx="94" cy="288" rx="33" ry="17" transform="rotate(18 94 288)"/>
+                <ellipse cx="163" cy="302" rx="41" ry="20" transform="rotate(-14 163 302)"/>
+                <ellipse cx="218" cy="244" rx="36" ry="18" transform="rotate(12 218 244)"/>
+                <ellipse cx="285" cy="233" rx="40" ry="19" transform="rotate(-19 285 233)"/>
+                <ellipse cx="350" cy="267" rx="42" ry="20" transform="rotate(17 350 267)"/>
+                <ellipse cx="420" cy="241" rx="43" ry="20" transform="rotate(-10 420 241)"/>
+                <ellipse cx="482" cy="280" rx="36" ry="18" transform="rotate(21 482 280)"/>
+                <ellipse cx="541" cy="293" rx="41" ry="19" transform="rotate(-16 541 293)"/>
+                <ellipse cx="601" cy="329" rx="40" ry="20" transform="rotate(14 601 329)"/>
+                <ellipse cx="663" cy="371" rx="36" ry="18" transform="rotate(-18 663 371)"/>
+                <ellipse cx="732" cy="399" rx="33" ry="16" transform="rotate(12 732 399)"/>
+                <ellipse cx="142" cy="406" rx="42" ry="19" transform="rotate(16 142 406)"/>
+                <ellipse cx="212" cy="442" rx="37" ry="18" transform="rotate(-22 212 442)"/>
+                <ellipse cx="322" cy="388" rx="44" ry="19" transform="rotate(11 322 388)"/>
+                <ellipse cx="425" cy="358" rx="38" ry="17" transform="rotate(-20 425 358)"/>
+                <ellipse cx="518" cy="369" rx="42" ry="18" transform="rotate(15 518 369)"/>
+                <ellipse cx="610" cy="405" rx="35" ry="17" transform="rotate(-13 610 405)"/>
+                <ellipse cx="705" cy="438" rx="38" ry="18" transform="rotate(20 705 438)"/>
+            </g>
+
+            <g class="qs-tree-leaf-glints" fill="url(#qsCanopyRim)" opacity=".7">
+                <path d="M0 306 C120 229 235 225 328 244 C418 205 544 243 625 306 C686 340 747 369 786 410"
+                      fill="none" stroke="url(#qsCanopyRim)" stroke-width="18" stroke-linecap="round"/>
+                <path d="M45 365 C144 333 197 352 260 372 M332 321 C392 293 449 305 496 329 M533 347 C591 330 640 362 675 389"
+                      fill="none" stroke="url(#qsCanopyRim)" stroke-width="7" stroke-linecap="round" opacity=".8"/>
+            </g>
+
+            <!-- Bark grooves and a warm edge-light on the trunk. -->
+            <g class="qs-tree-bark-detail" fill="none" stroke-linecap="round">
+                <path d="M300 886 C316 754 336 642 361 534 C381 435 403 341 432 270"
+                      stroke="#271e1b" stroke-width="5" opacity=".52"/>
+                <path d="M340 889 C360 750 378 632 398 526 C416 430 427 353 445 282"
+                      stroke="#b17a50" stroke-width="4" opacity=".58"/>
+                <path d="M455 895 C444 769 432 646 431 535 C429 433 441 352 459 280"
+                      stroke="#2e211b" stroke-width="4" opacity=".5"/>
+                <path d="M370 798 C396 785 420 789 461 802"
+                      stroke="#9b6a47" stroke-width="5" opacity=".32"/>
+                <path d="M405 668 C424 657 443 661 462 671"
+                      stroke="#aa7950" stroke-width="3" opacity=".35"/>
+            </g>
+
+            <g class="qs-tree-rim" fill="none" stroke="#adbd7a" stroke-width="3" stroke-linecap="round" opacity=".42">
+                <path d="M16 280 C85 249 143 253 193 284 C250 246 329 248 393 286"/>
+                <path d="M394 286 C472 241 575 266 625 326 C684 296 747 304 789 352"/>
+            </g>
+        </g>
+
+        <!-- Night fireflies add a tiny living detail, not a bright particle effect. -->
+        <g class="qs-fireflies">
+            <circle cx="545" cy="714" r="2.2"/>
+            <circle cx="625" cy="760" r="1.8"/>
+            <circle cx="1136" cy="748" r="2.1"/>
+            <circle cx="1390" cy="690" r="1.7"/>
+            <circle cx="987" cy="808" r="1.6"/>
         </g>
 
         <!-- notebook and pen -->

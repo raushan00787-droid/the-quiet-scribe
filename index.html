@@ -3461,6 +3461,7 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
     .profile-card{padding:20px 16px}
 }
 </style>
+<link rel="stylesheet" href="assets/css/animation-system.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
@@ -8868,97 +8869,7 @@ loadSavedWritings();
   }
 </script>
 
-<script>
-(function () {
-    var scene = document.getElementById("qs-opening-scene");
-    var dayAction = document.getElementById("qs-day-action");
-    var nightGo = document.getElementById("qs-night-go");
-    var skipButton = document.getElementById("qs-opening-skip");
+<script src="assets/js/animation-controller.js"></script>
 
-    if (!scene || !dayAction || !nightGo) return;
-
-    var transitioning = false;
-
-    function enterQuiet(skipAnimation) {
-        if (transitioning) return;
-
-        transitioning = true;
-
-        if (!skipAnimation) {
-            scene.classList.add("qs-exiting");
-
-            window.setTimeout(function () {
-                finishOpening();
-            }, 1400);
-        } else {
-            scene.classList.add("qs-exiting");
-            scene.style.transition = "opacity .45s ease";
-            window.setTimeout(function () {
-                finishOpening();
-            }, 450);
-        }
-    }
-
-    function finishOpening() {
-        if (scene) scene.remove();
-
-        document.body.classList.remove("qs-opening");
-        document.body.classList.add("qs-ready","qs-entering");
-        window.setTimeout(function(){
-            document.body.classList.remove("qs-entering");
-        },520);
-
-        document.querySelectorAll(".screen").forEach(function (screen) {
-            screen.classList.remove("active");
-        });
-
-        var nextScreen = "welcome";
-
-        if (typeof restoreQuietSession === "function") {
-            const restored = restoreQuietSession();
-            if (restored) {
-                nextScreen = isQuietSetupComplete()
-                    ? "purpose"
-                    : "quiet-setup";
-            }
-        }
-
-        var target = document.getElementById(nextScreen);
-
-        if (target) {
-            target.classList.add("active");
-        }
-
-        window.scrollTo(0, 0);
-    }
-
-    dayAction.addEventListener("click", function () {
-        if (transitioning || scene.classList.contains("qs-night")) return;
-
-        scene.classList.add("qs-night");
-
-        window.requestAnimationFrame(function () {
-            if (nightGo) nightGo.focus();
-        });
-    });
-
-    nightGo.addEventListener("click", function () {
-        if (transitioning || !scene.classList.contains("qs-night")) return;
-        enterQuiet(false);
-    });
-
-    if (skipButton) {
-        skipButton.addEventListener("click", function () {
-            enterQuiet(true);
-        });
-    }
-
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && scene && document.body.classList.contains("qs-opening")) {
-            enterQuiet(true);
-        }
-    });
-})();
-</script>
 </body>
 </html>

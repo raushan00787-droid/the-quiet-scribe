@@ -194,267 +194,83 @@ body.qs-motion-paused *::after {
   animation-play-state: paused !important;
 }
 
-/* FINAL BOSS MOTION PASS
-   Cinematic depth, tactile room cards, and soft scroll arrivals.
-   These are progressive enhancements: content remains visible without the controller. */
+/* STABLE MOTION PASS
+   Lightweight, predictable motion. Avoid SVG transforms and blur filters on touch devices. */
 
-:root {
-  --qs-motion-spring: cubic-bezier(.16, 1, .3, 1);
-  --qs-motion-glide: cubic-bezier(.22, .72, .2, 1);
-  --qs-motion-depth: 0 22px 58px rgba(0, 0, 0, .24);
-}
-
-/* Let each screen arrive with a little depth, not just a flat fade. */
+/* Keep screen changes smooth without blur filters or competing transforms. */
 .screen.active {
-  animation: qs-motion-screen-arrive 620ms var(--qs-motion-spring) both;
-  transform-origin: center top;
+  animation: qs-motion-screen-in var(--qs-motion-screen) var(--qs-motion-ease) both;
 }
 
-@keyframes qs-motion-screen-arrive {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 16px, 0) scale(.992);
-    filter: blur(4px);
-  }
-  72% {
-    opacity: 1;
-    transform: translate3d(0, -1px, 0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
-
-.screen.active > .qs-eyebrow {
-  animation: qs-motion-content-arrive 600ms var(--qs-motion-spring) both;
-}
-.screen.active > h1 {
-  animation: qs-motion-heading-arrive 760ms var(--qs-motion-spring) 35ms both;
-}
-.screen.active > .subtitle,
-.screen.active > .quote {
-  animation: qs-motion-content-arrive 680ms var(--qs-motion-spring) 90ms both;
-}
-.screen.active > .qs-room-grid,
-.screen.active > .reading-section,
-.screen.active > .writer-box,
-.screen.active > .settings-card {
-  animation: qs-motion-content-arrive 700ms var(--qs-motion-spring) 125ms both;
-}
-
-@keyframes qs-motion-content-arrive {
-  from { opacity: 0; transform: translate3d(0, 11px, 0); }
-  to   { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-
-@keyframes qs-motion-heading-arrive {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 13px, 0);
-    letter-spacing: .045em;
-    filter: blur(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-    filter: blur(0);
-  }
-}
-
-/* Room cards get a restrained three-dimensional tilt and a moving light pool. */
+/* A restrained 2D hover gives room cards a tactile response on mouse devices only. */
 button.qs-room-card {
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
   transition:
-    transform 380ms var(--qs-motion-spring),
-    border-color 300ms ease,
-    background 300ms ease,
-    box-shadow 380ms ease;
-}
-
-button.qs-room-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    radial-gradient(
-      260px circle at var(--qs-glow-x, 50%) var(--qs-glow-y, 50%),
-      rgba(196, 195, 255, .15),
-      transparent 65%
-    );
-  transition: opacity 280ms ease;
-}
-
-button.qs-room-card > * {
-  position: relative;
-  z-index: 1;
-  transition: transform 360ms var(--qs-motion-spring), color 280ms ease;
-}
-
-button.qs-room-card .qs-room-icon {
-  transform: translateZ(12px);
-  box-shadow: 0 0 0 rgba(171, 174, 255, 0);
-}
-
-button.qs-room-card .qs-room-arrow {
-  transition: transform 320ms var(--qs-motion-spring), color 280ms ease;
+    transform var(--qs-motion-base) var(--qs-motion-ease),
+    border-color var(--qs-motion-base) ease,
+    background-color var(--qs-motion-base) ease,
+    box-shadow var(--qs-motion-base) ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  button.qs-room-card:hover,
-  button.qs-room-card.qs-tilt-active {
-    transform:
-      perspective(1100px)
-      rotateX(var(--qs-tilt-x, 0deg))
-      rotateY(var(--qs-tilt-y, 0deg))
-      translate3d(0, -4px, 0);
-    border-color: var(--qs-line-bright, rgba(193, 194, 226, .42));
-    box-shadow:
-      var(--qs-motion-depth),
-      inset 0 1px rgba(255, 255, 255, .075);
+  button.qs-room-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--qs-line-bright, rgba(193, 194, 226, .38));
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
   }
 
-  button.qs-room-card:hover::before,
-  button.qs-room-card.qs-tilt-active::before {
-    opacity: 1;
-  }
-
-  button.qs-room-card:hover .qs-room-icon,
-  button.qs-room-card.qs-tilt-active .qs-room-icon {
-    transform: translateZ(20px) rotate(-3deg);
-    box-shadow: 0 7px 24px rgba(171, 174, 255, .09);
-  }
-
-  button.qs-room-card:hover .qs-room-arrow,
-  button.qs-room-card.qs-tilt-active .qs-room-arrow {
-    transform: translate3d(3px, -3px, 0);
+  .reading-card:hover,
+  .entry:hover,
+  .person-card:hover,
+  .settings-card:hover,
+  .thought-box:hover,
+  .creator-links a:hover,
+  .qs-mark-card:hover {
+    transform: translateY(-2px);
   }
 }
 
-/* Focus gets the same polish as hover without requiring a mouse. */
-button.qs-room-card:focus-visible {
-  outline-offset: 4px;
-  box-shadow: 0 0 0 4px rgba(190, 190, 244, .09), var(--qs-motion-depth);
-}
-
-/* Scroll arrivals only activate when the script has successfully registered them. */
+/* Scroll arrivals use opacity and a small vertical offset only. */
 body.qs-reveal-enhanced .qs-scroll-reveal {
   opacity: 0;
-  transform: translate3d(0, 15px, 0) scale(.992);
-  filter: blur(3px);
+  transform: translateY(10px);
   transition:
-    opacity 680ms var(--qs-motion-spring),
-    transform 680ms var(--qs-motion-spring),
-    filter 680ms ease;
+    opacity 420ms var(--qs-motion-ease),
+    transform 420ms var(--qs-motion-ease);
   transition-delay: var(--qs-reveal-delay, 0ms);
 }
 
-body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:not(:hover) {
-  opacity: 1;
-  transform: none;
-  filter: none;
-}
-
+body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible,
 body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
   opacity: 1;
-  filter: none;
+  transform: none;
 }
 
-/* A subtle camera drift on the opening art makes the scene feel less static. */
+/* Keep the opening art still: the day/night crossfade supplies the cinematic motion. */
 #qs-opening-art {
-  transform: translate3d(var(--qs-parallax-x, 0px), var(--qs-parallax-y, 0px), 0) scale(1.025);
-  transform-origin: center;
-  transition: transform 950ms var(--qs-motion-glide);
-}
-
-#qs-opening-scene.qs-night .qs-moon {
-  filter:
-    drop-shadow(0 0 12px rgba(226, 235, 255, .22))
-    drop-shadow(0 0 36px rgba(147, 177, 222, .20));
-}
-
-#qs-opening-scene.qs-night .qs-stars {
-  filter: drop-shadow(0 0 5px rgba(225, 233, 255, .12));
+  transform: none;
+  transition: none;
 }
 
 #qs-opening-caption {
-  text-shadow: 0 2px 22px rgba(8, 13, 24, .32);
+  text-shadow: 0 2px 18px rgba(8, 13, 24, .28);
 }
 
 #qs-opening-actions button {
-  box-shadow:
-    0 9px 34px rgba(0, 0, 0, .16),
-    inset 0 1px rgba(255, 255, 255, .10);
   transition:
-    opacity 700ms ease,
-    transform 320ms var(--qs-motion-spring),
-    background 280ms ease,
-    border-color 280ms ease,
-    box-shadow 320ms ease,
-    letter-spacing 320ms ease;
+    opacity var(--qs-motion-base) ease,
+    transform var(--qs-motion-base) var(--qs-motion-ease),
+    background-color var(--qs-motion-base) ease,
+    border-color var(--qs-motion-base) ease;
 }
 
-#qs-opening-actions button:hover {
-  transform: translate3d(0, -3px, 0) scale(1.008);
-  letter-spacing: .065em;
-  box-shadow:
-    0 14px 40px rgba(0, 0, 0, .22),
-    inset 0 1px rgba(255, 255, 255, .14);
-}
-
-#qs-opening-skip:hover {
-  transform: translateY(-1px);
-}
-
-/* New chat replies feel present without a harsh pop-in. */
-#chat .message.qs-motion-new {
-  animation: qs-motion-message-in 360ms var(--qs-motion-spring) both;
-}
-
-@keyframes qs-motion-message-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 9px, 0) scale(.99);
-    filter: blur(2px);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-    filter: blur(0);
+@media (hover: hover) and (pointer: fine) {
+  #qs-opening-actions button:hover {
+    transform: translateY(-2px);
   }
 }
 
-@media (max-width: 700px) {
-  /* Touch screens stay calm: no 3D tilt, and the camera drift is smaller. */
-  #qs-opening-art {
-    transform: scale(1.015);
-  }
-
-  button.qs-room-card {
-    transform: none;
-  }
-
-  button.qs-room-card .qs-room-icon {
-    transform: none;
-  }
-}
-
-
-/* Respect the OS setting and keep every action immediate and usable. */
+/* Reduced-motion users see the complete scene immediately. */
 @media (prefers-reduced-motion: reduce) {
-  :root {
-    --qs-motion-fast: 1ms;
-    --qs-motion-base: 1ms;
-    --qs-motion-screen: 1ms;
-    --qs-motion-scene: 1ms;
-  }
-
   html { scroll-behavior: auto !important; }
 
   *,
@@ -468,20 +284,7 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
   }
 
   .screen.active,
-  #purpose.active .qs-room-card {
-    animation: none !important;
-  }
-
-  #qs-opening-art,
-  .qs-day-glow,
-  .qs-stars circle,
-  .qs-cloud-move,
-  .qs-cloud-move-2,
-  .qs-grass-sway,
-  .qs-grass-sway-2 {
-    animation: none !important;
-  }
-
+  #purpose.active .qs-room-card,
   .qs-room-card,
   .reading-card,
   .entry,
@@ -491,19 +294,14 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
   .creator-links a,
   .qs-mark-card,
   button:not(:disabled):active {
+    animation: none !important;
     transform: none !important;
   }
 
   body.qs-reveal-enhanced .qs-scroll-reveal,
-  body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:not(:hover),
+  body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible,
   body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
     opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
-    transition: none !important;
-  }
-
-  #qs-opening-art {
     transform: none !important;
     transition: none !important;
   }
@@ -516,76 +314,49 @@ body.qs-reveal-enhanced .qs-scroll-reveal.qs-scroll-reveal-visible:hover {
 .qs-night-constellation,
 .qs-shooting-star {
   pointer-events: none;
-  transition: opacity 6.4s cubic-bezier(.22,.61,.36,1);
+  transition: opacity 5.2s cubic-bezier(.22,.61,.36,1);
 }
 .qs-day-atmosphere { opacity: .88; }
 .qs-night-nebula { opacity: 0; }
 .qs-night-constellation { opacity: 0; }
 .qs-shooting-star {
   opacity: 0;
-  transform-box: view-box;
-  transform: translate(1420px, 170px) rotate(-12deg);
+  pointer-events: none;
 }
 #qs-opening-scene.qs-night .qs-day-atmosphere { opacity: 0; }
 #qs-opening-scene.qs-night .qs-night-nebula { opacity: .96; }
 #qs-opening-scene.qs-night .qs-night-constellation { opacity: .62; }
-#qs-opening-scene.qs-night .qs-shooting-star {
-  animation: qs-meteor-drift 13.5s linear 1.8s infinite;
-}
-@keyframes qs-meteor-drift {
-  0%, 63%, 100% { opacity: 0; transform: translate(1420px, 170px) rotate(-12deg); }
-  65% { opacity: .82; }
-  70% { opacity: 0; transform: translate(680px, 390px) rotate(-12deg); }
-}
+#qs-opening-scene.qs-night .qs-shooting-star { opacity: 0; }
 
-/* Tree canopy moves independently by a fraction of a degree; the trunk stays grounded. */
+/* The layered canopy remains still to avoid SVG transform jitter on mobile GPUs. */
 .qs-tree-world {
-  transition: filter 6.4s ease;
-  filter: drop-shadow(9px 6px 12px rgba(16, 28, 22, .14));
+  transition: opacity 6.4s ease;
 }
 .qs-canopy-layer,
 .qs-canopy-detail {
-  transform-box: fill-box;
-  transform-origin: 25% 85%;
-  animation: qs-canopy-breeze 8.2s ease-in-out infinite;
+  transform: none;
+  animation: none;
 }
-.qs-canopy-layer-b { animation-delay: -3.1s; animation-duration: 9.6s; transform-origin: 72% 78%; }
-.qs-canopy-detail-a { animation-delay: -1.4s; animation-duration: 7.4s; }
-.qs-canopy-detail-b { animation-delay: -4.2s; animation-duration: 10.2s; transform-origin: 56% 82%; }
 .qs-tree-crown-rim { transition: opacity 6.4s ease, stroke 6.4s ease; }
 .qs-tree-root-detail { transition: opacity 6.4s ease; }
-@keyframes qs-canopy-breeze {
-  0%, 100% { transform: rotate(-.22deg) translateY(0); }
-  50% { transform: rotate(.26deg) translateY(-.8px); }
-}
-#qs-opening-scene.qs-night .qs-tree-world {
-  filter: brightness(.66) saturate(.76) drop-shadow(12px 7px 16px rgba(5, 12, 24, .32));
-}
+#qs-opening-scene.qs-night .qs-tree-world { opacity: .82; }
 #qs-opening-scene.qs-night .qs-tree-crown-rim { opacity: .25; stroke: #8ba3cb; }
 #qs-opening-scene.qs-night .qs-tree-root-detail { opacity: .24; }
 
 /* Small specular glints make the night sky shimmer without filling it with noise. */
 .qs-stars circle {
-  transform-box: fill-box;
-  transform-origin: center;
   animation: qs-star-lumen 4.1s ease-in-out infinite;
 }
 .qs-stars circle:nth-child(4n + 1) { animation-delay: -1.35s; }
 .qs-stars circle:nth-child(4n + 2) { animation-delay: -2.7s; }
 .qs-stars circle:nth-child(5n) { animation-duration: 5.7s; }
 @keyframes qs-star-lumen {
-  0%, 100% { opacity: .38; transform: scale(.82); }
-  50% { opacity: 1; transform: scale(1.16); }
+  0%, 100% { opacity: .48; }
+  50% { opacity: 1; }
 }
-#qs-opening-scene.qs-night .qs-moon {
-  filter: drop-shadow(0 0 18px rgba(210, 225, 255, .27))
-          drop-shadow(0 0 48px rgba(133, 166, 225, .20));
-}
+#qs-opening-scene.qs-night .qs-moon { filter: none; }
 
 @media (max-width: 700px) {
-  #qs-opening-art { animation-duration: 34s; will-change: auto; }
-  .qs-canopy-layer,
-  .qs-canopy-detail { animation-duration: 11s; }
   .qs-shooting-star { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -7313,7 +7313,7 @@ async function speakQuietChatterbox(text,onPlaybackStarted){
      * Preserve the full answer. Split it into safe requests instead of cutting
      * the text off at the model's input limit.
      */
-    const chunks=splitQuietChatterboxChunks(prompt,180);
+    const chunks=splitQuietChatterboxChunks(prompt,285);
     if(!chunks.length)return;
 
     let chunkIndex=0;

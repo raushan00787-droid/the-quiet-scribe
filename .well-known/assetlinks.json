@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "studio.quietscribe.app",
+      "sha256_cert_fingerprints": [
+        "69:78:8B:0D:92:29:2A:EC:5A:39:E7:7F:66:61:0C:86:AF:AD:68:9F:3A:23:E9:84:CF:9F:42:06:92:96:64:0D"
+      ]
+    }
+  }
+]

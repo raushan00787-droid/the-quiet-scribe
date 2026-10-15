@@ -3506,11 +3506,11 @@ button:disabled { cursor:not-allowed; opacity:.5; transform:none; }
 </style>
 <link rel="stylesheet" href="assets/css/animation-system.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="manifest" href="./manifest.webmanifest">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
   <style id="quiet-scribe-pwa-polish">
     html { min-height: 100%; }
     body { min-height: 100vh; min-height: 100dvh; }
@@ -9246,7 +9246,7 @@ loadSavedWritings();
       }
 
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" })
+        navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
           .then(function (registration) {
             offerUpdate(registration);
             registration.addEventListener("updatefound", function () {

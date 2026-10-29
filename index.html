@@ -8221,6 +8221,38 @@ function updateScribeCreatorMode(value) {
     return localStorage.getItem("quietScribeCreatorModeActive") === "true";
 }
 
+function restoreScribeCreatorModeFromSavedChats() {
+    if (localStorage.getItem("quietScribeCreatorModeActive") === "true") return true;
+
+    try {
+        const currentConversation = JSON.parse(localStorage.getItem("scribeConversation") || "[]");
+        const savedChats = JSON.parse(localStorage.getItem("scribeChats") || "[]");
+        const sources = [
+            ...(Array.isArray(currentConversation) ? currentConversation : []),
+            ...(Array.isArray(savedChats) ? savedChats.flatMap(chat =>
+                Array.isArray(chat && chat.messages) ? chat.messages : []
+            ) : [])
+        ];
+
+        const previouslyUsedSignal = sources.some(message =>
+            message &&
+            message.role === "user" &&
+            normalizeScribeCreatorSignal(message.content).includes(QUIET_SCRIBE_CREATOR_PHRASE)
+        );
+
+        if (previouslyUsedSignal) {
+            localStorage.setItem("quietScribeCreatorModeActive", "true");
+        }
+    } catch (error) {
+        console.warn("Creator mode could not be restored from saved conversations.", error);
+    }
+
+    return localStorage.getItem("quietScribeCreatorModeActive") === "true";
+}
+
+// Restore the unlock when the phrase was already sent before this update.
+restoreScribeCreatorModeFromSavedChats();
+
 function sendMessage(options) {
     options = options || {};
     const isRetry = options.retry === true;

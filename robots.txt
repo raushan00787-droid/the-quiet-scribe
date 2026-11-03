@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://the-quiet-scribe.pages.dev/sitemap.xml
